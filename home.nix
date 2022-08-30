@@ -149,6 +149,9 @@
       rebase = {
         autoStash = true;
       };
+      core = {
+        editor = "vim +startinsert!";
+      };
     };
     aliases = {
       a = "add";
