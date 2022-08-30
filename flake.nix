@@ -7,17 +7,22 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs: {
-    defaultPackage.x86_64-linux = home-manager.defaultPackage.x86_64-linux;
-    defaultPackage.x86_64-darwin = home-manager.defaultPackage.x86_64-darwin;
- 
-    homeConfigurations = {
-      "sciyoshi" = inputs.home-manager.lib.homeManagerConfiguration {
-        system = "x86_64-linux";
-        homeDirectory = "/home/sciyoshi";
-        username = "sciyoshi";
-        configuration.imports = [ ./home.nix ];
+  outputs = { nixpkgs, home-manager, ... }:
+    let
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
+    in
+    {
+      defaultPackage.x86_64-linux = home-manager.defaultPackage.x86_64-linux;
+      defaultPackage.x86_64-darwin = home-manager.defaultPackage.x86_64-darwin;
+      devShells.x86_64-linux.default = import ./shell.nix { inherit pkgs; };
+
+      homeConfigurations = {
+        "sciyoshi" = home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+
+          modules = [ ./home.nix ];
+        };
       };
     };
-  };
 }
