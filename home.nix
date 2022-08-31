@@ -287,6 +287,8 @@
     awscli2
     kubectx
     caddy
+    tig
+    rustup
   ];
 
   home.file.".aws/config".text = ''
