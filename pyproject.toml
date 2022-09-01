@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "homelab"
+version = "0.1.0"
+description = ""
+authors = ["Samuel Cormier-Iijima <samuel@cormier-iijima.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fabric = "^2.6.0"
+patchwork = "^1.0.1"
+
+[tool.poetry.dev-dependencies]
+black = "^21.12b0"
+mypy = "^0.931"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
