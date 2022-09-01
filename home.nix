@@ -22,9 +22,9 @@
   programs.home-manager.enable = true;
 
   home.shellAliases = {
-    l = "${pkgs.exa}/bin/exa -l";
-    ls = "${pkgs.exa}/bin/exa -l";
-    la = "${pkgs.exa}/bin/exa -la";
+    l = "${pkgs.exa}/bin/exa -l --group-directories-first";
+    ls = "${pkgs.exa}/bin/exa -l --group-directories-first";
+    la = "${pkgs.exa}/bin/exa -la --group-directories-first";
     dc = "docker compose";
     k = "kubectl";
   };
@@ -83,6 +83,7 @@
       }
 
       pathadd "$HOME/.local/bin"
+      pathadd "$HOME/.cargo/bin"
 
       for al in `git --list-cmds=alias`; do
         alias g$al="git $al"
@@ -105,6 +106,7 @@
       }
 
       pathadd "$HOME/.local/bin"
+      pathadd "$HOME/.cargo/bin"
     '';
     initExtra = ''
       function_exists() {
@@ -130,8 +132,6 @@
 
   programs.keychain = {
     enable = true;
-    enableBashIntegration = false;
-    enableZshIntegration = false;
     keys = [ "id_ed25519" ];
   };
 
@@ -226,6 +226,24 @@
 
   programs.zellij = {
     enable = true;
+    package = pkgs.zellij.overrideAttrs (drv: rec {
+      pname = "zellij";
+      version = "0.31.1";
+      name = "zellij-0.31.1";
+
+      src = pkgs.fetchFromGitHub {
+        owner = "zellij-org";
+        repo = "zellij";
+        rev = "533a19c26bc150a53902e0b8b12b47175bd940e1";
+        sha256 = "sha256-kwOpXfwJB9d7GQLgVflq3e2W88vtFYm3LWurw0K10o0=";
+      };
+
+      cargoDeps = drv.cargoDeps.overrideAttrs (lib.const {
+        name = "${name}-vendor.tar.gz";
+        inherit src;
+        outputHash = "sha256-LzqTEDbVHxlYNGQ7nMFtNo1S3Uiw4bpKsQX/rtuFDQE=";
+      });
+    });
     settings = {
       default_shell = "zsh";
       keybinds = {
@@ -289,6 +307,7 @@
     caddy
     tig
     rustup
+    fastmod
   ];
 
   home.file.".aws/config".text = ''
