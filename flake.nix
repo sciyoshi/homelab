@@ -1,15 +1,29 @@
 {
-  description = "My Home Manager flake";
+  description = "Homelab";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    home-manager.url = "github:nix-community/home-manager";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    deploy-rs.url = "github:serokell/deploy-rs";
-    deploy-rs.inputs.nixpkgs.follows = "nixpkgs";
-    sops-nix.url = github:Mic92/sops-nix;
-    darwin.url = "github:lnl7/nix-darwin";
-    darwin.inputs.nixpkgs.follows = "nixpkgs";
+    nixpkgs = {
+      url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    };
+
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    deploy-rs = {
+      url = "github:serokell/deploy-rs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    sops-nix = {
+      url = github:Mic92/sops-nix;
+    };
+
+    darwin = {
+      url = "github:lnl7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, deploy-rs, sops-nix, darwin, ... }@inputs:
@@ -18,8 +32,8 @@
       pkgs = nixpkgs.legacyPackages.${system};
     in
     {
-      defaultPackage.x86_64-linux = home-manager.defaultPackage.x86_64-linux;
-      defaultPackage.x86_64-darwin = home-manager.defaultPackage.x86_64-darwin;
+      packages.x86_64-linux.default = home-manager.defaultPackage.x86_64-linux;
+      packages.x86_64-darwin.default = home-manager.defaultPackage.x86_64-darwin;
       devShells.x86_64-linux.default = import ./shell.nix { inherit pkgs; };
       devShells.aarch64-darwin.default = import ./shell.nix { inherit pkgs; };
 
@@ -35,7 +49,16 @@
         "alpha" = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
-            ./nixos/configuration.nix
+            ./hosts/alpha.nix
+            home-manager.nixosModules.home-manager
+            sops-nix.nixosModules.sops
+          ];
+        };
+        "beta" = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./hosts/beta.nix
+            home-manager.nixosModules.home-manager
             sops-nix.nixosModules.sops
           ];
         };

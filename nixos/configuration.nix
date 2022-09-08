@@ -7,9 +7,6 @@
 
   system.stateVersion = "22.11";
 
-  boot.loader.grub.device = "/dev/sda";
-  fileSystems."/" = { device = "/dev/sda1"; fsType = "ext4"; };
-
   boot.kernel.sysctl = {
     "net.ipv4.ip_forward" = true;
     "net.ipv4.conf.all.forwarding" = true;
@@ -34,8 +31,8 @@
 
   security.sudo.wheelNeedsPassword = false;
 
-  networking.hostName = "alpha";
   networking.firewall.allowPing = true;
+  networking.firewall.checkReversePath = "loose";
 
   virtualisation.docker.enable = true;
 
