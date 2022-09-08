@@ -6,7 +6,8 @@
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
+      # Include the results of the hardware scan.
       ./hardware-configuration.nix
       "${builtins.fetchTarball "https://github.com/Mic92/sops-nix/archive/master.tar.gz"}/modules/sops"
     ];
@@ -55,7 +56,7 @@
 
   sops.defaultSopsFile = ./secrets.yaml;
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-  sops.secrets.tailscale_key = {};
+  sops.secrets.tailscale_key = { };
 
   # Configure keymap in X11
   # services.xserver.layout = "us";
@@ -170,4 +171,3 @@
     user = "sciyoshi";
   };
 }
-

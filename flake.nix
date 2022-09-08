@@ -8,17 +8,28 @@
     deploy-rs.url = "github:serokell/deploy-rs";
     deploy-rs.inputs.nixpkgs.follows = "nixpkgs";
     sops-nix.url = github:Mic92/sops-nix;
+    darwin.url = "github:lnl7/nix-darwin";
+    darwin.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, home-manager, deploy-rs, sops-nix, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, deploy-rs, sops-nix, darwin, ... }@inputs:
     let
-      system = "x86_64-linux";
+      system = "aarch64-darwin";
       pkgs = nixpkgs.legacyPackages.${system};
     in
     {
       defaultPackage.x86_64-linux = home-manager.defaultPackage.x86_64-linux;
       defaultPackage.x86_64-darwin = home-manager.defaultPackage.x86_64-darwin;
       devShells.x86_64-linux.default = import ./shell.nix { inherit pkgs; };
+      devShells.aarch64-darwin.default = import ./shell.nix { inherit pkgs; };
+
+      darwinConfigurations."fellow-sam-2" = darwin.lib.darwinSystem {
+        system = "aarch64-darwin";
+        modules = [
+          ./darwin-configuration.nix
+          home-manager.darwinModules.home-manager
+        ];
+      };
 
       nixosConfigurations = {
         "alpha" = nixpkgs.lib.nixosSystem {
