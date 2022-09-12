@@ -62,6 +62,11 @@
     "rectangle"
     "alacritty"
     "kitty"
+    "figma"
+    "discord"
+    "vlc"
+    "signal"
+    "linear-linear"
   ];
 
   homebrew.masApps = {
