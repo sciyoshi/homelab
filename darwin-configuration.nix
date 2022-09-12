@@ -10,6 +10,8 @@
       fira-code
       fira-code-symbols
       noto-fonts
+      victor-mono
+      (nerdfonts.override { fonts = [ "VictorMono" "FiraCode" ]; })
     ];
   };
 
