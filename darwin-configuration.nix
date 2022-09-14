@@ -73,6 +73,7 @@
     "vlc"
     "signal"
     "linear-linear"
+    "docker"
   ];
 
   homebrew.masApps = {
