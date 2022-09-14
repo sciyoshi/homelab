@@ -2,6 +2,8 @@
   environment.systemPackages = [
     pkgs.nixpkgs-fmt
     pkgs.python39
+    pkgs.mysql80
+    pkgs.minio
   ];
 
   fonts = {
@@ -27,6 +29,10 @@
       autohide = true;
       autohide-delay = 0.0;
       dashboard-in-overlay = true;
+      wvous-br-corner = 1;
+      wvous-bl-corner = 1;
+      wvous-tr-corner = 1;
+      wvous-tl-corner = 1;
     };
     finder = {
       AppleShowAllExtensions = true;
@@ -78,4 +84,24 @@
     name = "sciyoshi";
     home = "/Users/sciyoshi";
   };
+
+  services.redis.enable = true;
+
+  launchd.user.agents.mysql =
+    {
+      path = [ pkgs.mysql80 ];
+      command = "${pkgs.mysql80}/bin/mysqld";
+
+      serviceConfig.KeepAlive = true;
+      serviceConfig.RunAtLoad = true;
+    };
+
+  launchd.user.agents.minio =
+    {
+      path = [ pkgs.minio ];
+      command = "${pkgs.minio}/bin/minio server /var/lib/minio";
+
+      serviceConfig.KeepAlive = true;
+      serviceConfig.RunAtLoad = true;
+    };
 }

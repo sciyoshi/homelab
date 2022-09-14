@@ -308,6 +308,8 @@
     rustup
     fastmod
     poetry
+    mkcert
+    nssTools
   ];
 
   home.file.".aws/config".text = ''
