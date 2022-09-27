@@ -299,6 +299,7 @@
     mkcert
     nssTools
     sops
+    gnupg
   ];
 
   home.file.".aws/config".text = ''

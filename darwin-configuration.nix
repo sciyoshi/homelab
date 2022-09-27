@@ -1,7 +1,7 @@
 { pkgs, ... }: {
   environment.systemPackages = [
     pkgs.nixpkgs-fmt
-    pkgs.python39
+    pkgs.python310
     pkgs.mysql80
     pkgs.minio
   ];
