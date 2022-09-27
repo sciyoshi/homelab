@@ -298,6 +298,7 @@
     poetry
     mkcert
     nssTools
+    sops
   ];
 
   home.file.".aws/config".text = ''
