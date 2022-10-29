@@ -2,9 +2,11 @@
   description = "Homelab";
 
   inputs = {
-    nixpkgs = {
-      url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    };
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+
+    sops-nix.url = github:Mic92/sops-nix;
+
+    flake-utils.url = "github:numtide/flake-utils";
 
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -16,27 +18,18 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    sops-nix = {
-      url = github:Mic92/sops-nix;
-    };
-
     darwin = {
       url = "github:lnl7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, deploy-rs, sops-nix, darwin, ... }@inputs:
+  outputs = { self, nixpkgs, sops-nix, flake-utils, home-manager, deploy-rs, darwin, ... }@inputs:
     let
-      system = "aarch64-darwin";
+      system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
     in
     {
-      packages.x86_64-linux.default = home-manager.defaultPackage.x86_64-linux;
-      packages.x86_64-darwin.default = home-manager.defaultPackage.x86_64-darwin;
-      devShells.x86_64-linux.default = import ./shell.nix { inherit pkgs; };
-      devShells.aarch64-darwin.default = import ./shell.nix { inherit pkgs; };
-
       darwinConfigurations."fellow-sam-2" = darwin.lib.darwinSystem {
         system = "aarch64-darwin";
         modules = [
@@ -62,6 +55,14 @@
             sops-nix.nixosModules.sops
           ];
         };
+        "scilo" = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./scilo/configuration.nix
+            home-manager.nixosModules.home-manager
+            sops-nix.nixosModules.sops
+          ];
+        };
       };
 
       homeConfigurations = {
@@ -75,5 +76,12 @@
       deploy = import ./deploy.nix inputs;
 
       checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
-    };
+    } // flake-utils.lib.eachSystem [ "aarch64-darwin" "aarch64-linux" "x86_64-darwin" "x86_64-linux" ] (system:
+      let pkgs = nixpkgs.legacyPackages.${system}; in rec {
+        packages.default = home-manager.defaultPackage.${system};
+
+        devShells.default = import ./shell.nix { inherit pkgs; };
+
+        packages.x86_64-linux.default = home-manager.defaultPackage.x86_64-linux;
+      });
 }

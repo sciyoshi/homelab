@@ -1,8 +1,11 @@
-{ config, pkgs, ... }: let
+{ config, pkgs, ... }:
+let
   impermanence = builtins.fetchTarball {
     url = "https://github.com/nix-community/impermanence/archive/master.tar.gz";
+    sha256 = "sha256:1xj0s2qj7xcq1zai6diymfza7mxwhizw1akxz392nv39az71yn24";
   };
-in {
+in
+{
   imports = [
     ./hardware-configuration.nix
     "${impermanence}/nixos.nix"
@@ -35,6 +38,7 @@ in {
       "/var/lib/tailscale"
       "/var/lib/transmission"
       "/var/lib/samba"
+      "/var/lib/bitwarden_rs"
     ];
     files = [
       "/etc/machine-id"
@@ -99,7 +103,8 @@ in {
 
   sops.defaultSopsFile = ./secrets.yaml;
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-  sops.secrets.tailscale_key = {};
+  sops.secrets.tailscale_key = { };
+  sops.secrets.acme_credentials = { };
 
   # Configure keymap in X11
   # services.xserver.layout = "us";
@@ -166,25 +171,33 @@ in {
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    wget
-    firefox
-    fzf
-    exa
-    rustup
-    ripgrep
-    starship
-    wireguard
-    tailscale
-    k3s
-    btrfs-progs
-    bcache-tools
-    nvme-cli
-    parted
-    unzip
     adoptopenjdk-bin
+    bcache-tools
+    borgbackup
+    btrfs-progs
+    dmraid
+    exa
+    fio
+    firefox
+    flashbench
+    fzf
+    git
     go-ethereum
-    (callPackage ./openethereum.nix {})
-    (callPackage ./filebot.nix {})
+    k3s
+    netcat-gnu
+    nvme-cli
+    openrgb
+    parted
+    ripgrep
+    rustup
+    smartmontools
+    starship
+    tailscale
+    unzip
+    wget
+    wireguard-tools
+
+    (callPackage ./filebot.nix { })
   ];
 
   environment.shellAliases = {
@@ -220,7 +233,7 @@ in {
   services.openssh.enable = true;
 
   # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [ 30303 8000 ];
+  networking.firewall.allowedTCPPorts = [ 30303 8000 80 443 ];
   networking.firewall.allowedUDPPorts = [ 30303 8000 ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
@@ -233,6 +246,13 @@ in {
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "21.11"; # Did you read the comment?
 
+  security.acme.acceptTerms = true;
+  security.acme.defaults = {
+    email = "samuel@cormier-iijima.com";
+    dnsProvider = "cloudflare";
+    credentialsFile = "${config.sops.secrets.acme_credentials.path}";
+  };
+
   services.transmission = {
     enable = true;
     user = "sciyoshi";
@@ -242,6 +262,7 @@ in {
     settings.incomplete-dir-enabled = false;
     settings.rpc-bind-address = "0.0.0.0";
     settings.rpc-whitelist-enabled = false;
+    settings.rpc-host-whitelist-enabled = false;
   };
 
   services.samba = {
@@ -273,7 +294,46 @@ in {
 
   services.vaultwarden = {
     enable = true;
-    config.dataFolder = "/media/local/vaultwarden";
+    config.rocketPort = 19317;
+    backupDir = "/media/local/backup/vaultwarden";
+  };
+
+  services.borgbackup.jobs.vaultwarden = {
+    paths = "/media/local/backup/vaultwarden";
+    encryption.mode = "repokey";
+    # encryption.passphrase = "";
+    environment.BORG_RSH = "ssh -o 'StrictHostKeyChecking=no' -i /home/sciyoshi/id_ed25519";
+    repo = "sciyoshi@alpha.sciyoshi.com:borg";
+    compression = "auto,zstd";
+    startAt = "daily";
+  };
+
+  services.nginx = {
+    enable = true;
+    virtualHosts = {
+      "vaultwarden.sciyoshi.com" = {
+        forceSSL = true;
+        enableACME = true;
+        acmeRoot = null;
+        locations."/" = {
+          proxyPass = "http://localhost:19317";
+        };
+      };
+    };
+  };
+
+  services.sonarr = {
+    enable = true;
+    user = "sciyoshi";
+    group = "media";
+    openFirewall = true;
+  };
+
+  services.jackett = {
+    enable = true;
+    user = "sciyoshi";
+    group = "media";
+    openFirewall = true;
   };
 
   # services.k3s = {

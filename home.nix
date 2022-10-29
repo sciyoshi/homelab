@@ -4,6 +4,9 @@
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
   home.username = "sciyoshi";
+  home.homeDirectory = "/home/sciyoshi";
+
+  targets.genericLinux.enable = true;
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage
