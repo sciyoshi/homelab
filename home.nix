@@ -4,9 +4,7 @@
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
   home.username = "sciyoshi";
-  home.homeDirectory = "/home/sciyoshi";
-
-  targets.genericLinux.enable = true;
+  home.homeDirectory = "/Users/sciyoshi";
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage
@@ -91,7 +89,7 @@
       done
     '';
     profileExtra = ''
-      # ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start zsh)"
+      ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start zsh)"
     '';
   };
 
@@ -124,7 +122,7 @@
       done
     '';
     profileExtra = ''
-      # ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start bash)"
+      ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start bash)"
     '';
   };
 
@@ -222,17 +220,18 @@
   programs.fzf.enable = true;
   programs.direnv.enable = true;
 
+  xdg.configFile."zellij/config.kdl".text = ''
+    default_shell "zsh"
+    default_layout "compact"
+    ui {
+      pane_frames {
+        rounded_corners true
+      }
+    }
+  '';
+
   programs.zellij = {
     enable = true;
-    # settings = {
-    #   default_shell = "zsh";
-    #   default_layout = "compact";
-    #   ui = {
-    #     pane_frames = {
-    #       rounded_corners = true;
-    #     };
-    #   };
-    # };
   };
 
   programs.gitui.enable = true;
@@ -252,6 +251,7 @@
     nssTools
     sops
     gnupg
+    maturin
   ];
 
   home.file.".aws/config".text = ''
