@@ -9,7 +9,7 @@ in
   imports = [
     ./hardware-configuration.nix
     "${impermanence}/nixos.nix"
-    "${builtins.fetchTarball "https://github.com/Mic92/sops-nix/archive/master.tar.gz"}/modules/sops"
+    # "${builtins.fetchTarball "https://github.com/Mic92/sops-nix/archive/master.tar.gz"}/modules/sops"
   ];
 
   nixpkgs.config.allowUnfree = true;

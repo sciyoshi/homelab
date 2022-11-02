@@ -91,9 +91,7 @@
       done
     '';
     profileExtra = ''
-      source "$HOME/.nix-profile/etc/profile.d/nix.sh"
-
-      ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start zsh)"
+      # ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start zsh)"
     '';
   };
 
@@ -126,9 +124,7 @@
       done
     '';
     profileExtra = ''
-      source "$HOME/.nix-profile/etc/profile.d/nix.sh"
-
-      ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start bash)"
+      # ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start bash)"
     '';
   };
 
@@ -228,62 +224,15 @@
 
   programs.zellij = {
     enable = true;
-    settings = {
-      default_shell = "zsh";
-      default_layout = "compact";
-      ui = {
-        pane_frames = {
-          rounded_corners = true;
-        };
-      };
-      keybinds = {
-        normal = [{
-          key = [{ F = 6; }];
-          action = [{
-            NewTab = {
-              direction = "Horizontal";
-              parts = [
-                {
-                  direction = "Vertical";
-                  pane_name = "Django";
-                  run = {
-                    command = {
-                      cmd = "zsh";
-                      args = [ "-c" "cd ~/workspace/fellow/fellow/; direnv exec . ./manage.py runserver 0.0.0.0:8080; zsh -i" ];
-                    };
-                  };
-                }
-                {
-                  direction = "Vertical";
-                  parts = [
-                    {
-                      direction = "Horizontal";
-                      pane_name = "Webpack";
-                      run = {
-                        command = {
-                          cmd = "zsh";
-                          args = [ "-c" "cd ~/workspace/fellow/fellow/web/; direnv exec .. npm run dev; zsh -i" ];
-                        };
-                      };
-                    }
-                    {
-                      direction = "Horizontal";
-                      pane_name = "Celery";
-                      run = {
-                        command = {
-                          cmd = "zsh";
-                          args = [ "-c" "cd ~/workspace/fellow/fellow/; direnv exec . celery -A server.fellow worker -Ofair --beat --loglevel=debug -Q background,search_notes,search_calendar,search,billing,integrations_google_calendar,integrations_google_sync,integrations_office365_calendar,integrations_office365_sync,integrations_asana,integrations_zapier,relationships,celery,realtime; zsh -i" ];
-                        };
-                      };
-                    }
-                  ];
-                }
-              ];
-            };
-          }];
-        }];
-      };
-    };
+    # settings = {
+    #   default_shell = "zsh";
+    #   default_layout = "compact";
+    #   ui = {
+    #     pane_frames = {
+    #       rounded_corners = true;
+    #     };
+    #   };
+    # };
   };
 
   programs.gitui.enable = true;

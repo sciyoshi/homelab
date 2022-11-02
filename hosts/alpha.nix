@@ -17,4 +17,6 @@
   networking = {
     hostName = "alpha";
   };
+
+  users.mutableUsers = false;
 }
