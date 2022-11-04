@@ -1,5 +1,10 @@
-{ home-manager, ... }: {
+{ nixpkgs, home-manager, ... }: {
   "sciyoshi" = home-manager.lib.homeManagerConfiguration {
-    modules = [ ../home.nix ];
+    pkgs = nixpkgs.legacyPackages."x86_64-linux";
+
+    modules = [
+      ../home
+      ../home/linux.nix
+    ];
   };
 }

@@ -15,7 +15,7 @@
 
   zramSwap.enable = true;
 
-  sops.defaultSopsFile = ./secrets.yaml;
+  sops.defaultSopsFile = ../secrets.yaml;
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
   sops.secrets.tailscale_key = { };
 
@@ -48,6 +48,9 @@
 
   services.resolved.enable = true;
   services.openssh.enable = true;
+  services.openssh.extraConfig = ''
+    AcceptEnv ZELLIJ
+  '';
   services.tailscale.enable = true;
 
   # services.k3s.enable = true;
@@ -80,13 +83,15 @@
       fi
 
       # otherwise authenticate with tailscale
-      ${tailscale}/bin/tailscale up --auth-key=$(cat "${config.sops.secrets.tailscale_key.path} --advertise-exit-node")
+      ${tailscale}/bin/tailscale up --auth-key=$(cat "${config.sops.secrets.tailscale_key.path}") --advertise-exit-node
     '';
   };
 
+  users.mutableUsers = false;
   users.users.root.openssh.authorizedKeys.keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHza4EH8WS4lwVWhoLBPqAXv8u3rqGibpPRX5KCxoOwE samuel@cormier-iijima.com"
   ];
+  users.users.root.initialHashedPassword = "$6$8n5a7Wv2pSxRbnlC$wUaKV9g05iT9USwuBssSG3/CBxNIjgNUw/HqWGcXntKBsVafADCUf8Wv4n0nAvhwUOx0ruPZ/YJKy1rpveERk.";
 
   users.users.sciyoshi = {
     isNormalUser = true;
@@ -124,6 +129,4 @@
   '';
 
   time.timeZone = "America/Montreal";
-
-  home-manager.users.sciyoshi = import ../home.nix inputs;
 }
