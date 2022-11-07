@@ -1,18 +1,15 @@
-{ config, pkgs, ... }:
-let
-  impermanence = builtins.fetchTarball {
-    url = "https://github.com/nix-community/impermanence/archive/master.tar.gz";
-    sha256 = "sha256:1xj0s2qj7xcq1zai6diymfza7mxwhizw1akxz392nv39az71yn24";
-  };
-in
-{
+{ config, pkgs, lib, ... }: {
   imports = [
     ./hardware-configuration.nix
-    "${impermanence}/nixos.nix"
-    # "${builtins.fetchTarball "https://github.com/Mic92/sops-nix/archive/master.tar.gz"}/modules/sops"
+    ../nixos/common.nix
+    ../nixos/openssh.nix
+    ../nixos/tailscale.nix
   ];
 
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.overlays = [
+    (import ../overlays/filebot)
+  ];
 
   console = {
     packages = with pkgs; [ terminus_font ];
@@ -61,9 +58,6 @@ in
   networking.hostId = "a7619247";
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
-  # Set your time zone.
-  time.timeZone = "America/Montreal";
-
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
@@ -84,7 +78,14 @@ in
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
 
-  services.tailscale.enable = true;
+  services.tailscale = {
+    enable = true;
+    autoconnect = {
+      enable = true;
+      authKeyCommand = ''cat "${config.sops.secrets.tailscale_key.path}"'';
+    };
+  };
+
   virtualisation.docker.enable = true;
 
   security.sudo.wheelNeedsPassword = false;
@@ -101,51 +102,12 @@ in
     options = [ "defaults" ];
   };
 
-  sops.defaultSopsFile = ./secrets.yaml;
+  sops.defaultSopsFile = ../secrets.yaml;
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
   sops.secrets.tailscale_key = { };
   sops.secrets.acme_credentials = { };
-
-  # Configure keymap in X11
-  # services.xserver.layout = "us";
-  # services.xserver.xkbOptions = "eurosign:e";
-
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
-
-  # Enable sound.
-  # sound.enable = true;
-  # hardware.pulseaudio.enable = true;
-
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
-
-  systemd.services.tailscale-autoconnect = {
-    description = "Automatic connection to Tailscale";
-
-    # make sure tailscale is running before trying to connect to tailscale
-    after = [ "network-pre.target" "tailscale.service" ];
-    wants = [ "network-pre.target" "tailscale.service" ];
-    wantedBy = [ "multi-user.target" ];
-
-    # set this service as a oneshot job
-    serviceConfig.Type = "oneshot";
-
-    # have the job run this shell script
-    script = with pkgs; ''
-      # wait for tailscaled to settle
-      sleep 2
-
-      # check if we are already authenticated to tailscale
-      status="$(${tailscale}/bin/tailscale status -json | ${jq}/bin/jq -r .BackendState)"
-      if [ $status = "Running" ]; then # if so, then do nothing
-        exit 0
-      fi
-
-      # otherwise authenticate with tailscale
-      ${tailscale}/bin/tailscale up -authkey $(cat "${config.sops.secrets.tailscale_key.path}")
-    '';
-  };
+  sops.secrets.borg_passphrase = { };
+  sops.secrets.borg_private_key = { };
 
   users.users.root.openssh.authorizedKeys.keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHza4EH8WS4lwVWhoLBPqAXv8u3rqGibpPRX5KCxoOwE samuel@cormier-iijima.com"
@@ -173,51 +135,18 @@ in
   environment.systemPackages = with pkgs; [
     adoptopenjdk-bin
     bcache-tools
-    borgbackup
     btrfs-progs
     dmraid
-    exa
+    filebot
     fio
     firefox
     flashbench
-    fzf
-    git
-    go-ethereum
-    k3s
     netcat-gnu
     nvme-cli
     openrgb
     parted
-    ripgrep
-    rustup
     smartmontools
-    starship
-    tailscale
-    unzip
-    wget
-    wireguard-tools
-
-    (callPackage ./filebot.nix { })
   ];
-
-  environment.shellAliases = {
-    l = "exa -l";
-    ll = "exa -l";
-    la = "exa -la";
-  };
-
-  programs.zsh.enable = true;
-  programs.zsh.promptInit = "eval \"$(starship init zsh)\"";
-  programs.zsh.shellInit = ''
-    zsh-newuser-install() { :; }
-    bindkey "^[[1;5C" forward-word
-    bindkey "^[[1;5D" backward-word
-    setopt no_auto_remove_slash
-    if [ -n "$\{commands[fzf-share]}" ]; then
-      source "$(fzf-share)/key-bindings.zsh"
-      source "$(fzf-share)/completion.zsh"
-    fi
-  '';
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -229,12 +158,10 @@ in
 
   # List services that you want to enable:
 
-  # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
-
   # Open ports in the firewall.
   networking.firewall.allowedTCPPorts = [ 30303 8000 80 443 ];
   networking.firewall.allowedUDPPorts = [ 30303 8000 ];
+  networking.firewall.checkReversePath = "loose";
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
@@ -301,11 +228,16 @@ in
   services.borgbackup.jobs.vaultwarden = {
     paths = "/media/local/backup/vaultwarden";
     encryption.mode = "repokey";
-    # encryption.passphrase = "";
-    environment.BORG_RSH = "ssh -o 'StrictHostKeyChecking=no' -i /home/sciyoshi/id_ed25519";
-    repo = "sciyoshi@alpha.sciyoshi.com:borg";
+    encryption.passCommand = "cat ${config.sops.secrets.borg_passphrase.path}";
+    environment.BORG_RSH = "ssh -o 'StrictHostKeyChecking=no' -i ${config.sops.secrets.borg_private_key.path}";
+    repo = "borg@alpha.sciyoshi.com:.";
     compression = "auto,zstd";
     startAt = "daily";
+    prune.keep = {
+      daily = 7;
+      weekly = 4;
+      monthly = -1;
+    };
   };
 
   services.nginx = {

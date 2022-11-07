@@ -16,6 +16,8 @@
   environment.persistence."/persist" = {
     directories = [
       "/var/log"
+      "/var/lib/tailscale"
+      "/var/lib/borg"
     ];
     files = [
       "/etc/machine-id"
@@ -49,12 +51,9 @@
     };
   };
 
-
-
   networking = {
     hostName = "beta";
   };
 
-  networking.useDHCP = true;
   nixpkgs.hostPlatform = "x86_64-linux";
 }

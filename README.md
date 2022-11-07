@@ -42,7 +42,7 @@ To install an ephemeral NixOS on OVH, use the following steps:
     `/dev/sdb1` is the OS partition, and `/dev/sdb15` is the EFI partition):
 
         apt install btrfs-progs
-        mkfs.btrfs /dev/sdb1
+        mkfs.btrfs -f /dev/sdb1
 
 3.  Mount the new partitions into `/mnt` so that a NixOS install can be
     performed:
@@ -50,6 +50,9 @@ To install an ephemeral NixOS on OVH, use the following steps:
         mount /dev/sdb1 /mnt
         btrfs subvolume create /mnt/nix
         btrfs subvolume create /mnt/persist
+        umount /mnt
+        mount -t tmpfs -o mode=755 tmpfs /mnt
+        mkdir /nix /mnt/{boot,nix,persist}
         mount /dev/sdb1 -o subvol=nix /mnt/nix
         mount /dev/sdb1 -o subvol=persist /mnt/persist
         mount /dev/sdb15 /mnt/boot
@@ -57,6 +60,20 @@ To install an ephemeral NixOS on OVH, use the following steps:
 
 4.  Install Nix and the installation tools into the recovery OS.
 
-        curl -L https://nixos.org/nix/install | sh .
-        $HOME/.nix-profile/etc/profile.d/nix.sh
+        groupadd -g 30000 nixbld
+        useradd -u 30000 -g nixbld -G nixbld nixbld
+        curl -L https://nixos.org/nix/install | sh
+        . $HOME/.nix-profile/etc/profile.d/nix.sh
         nix-env -f '<nixpkgs>' -iA nixos-install-tools
+        nixos-generate-config --root /mnt
+
+5.  Edit `/etc/nixos/configuration.nix` to ensure that the OpenSSH server is
+    enabled (`services.openssh.enable = true`) and set credentials to allow
+    remote access once the system reboots (for example, by setting
+    `users.users.root.initialHashedPassword`). Ensure that the root tmpfs
+    filesystem has `mode=0755` set as an option (otherwise SSH will complain
+    about permissions).
+
+6.  Install Nix onto the target drive:
+
+        nixos-install --root /mnt

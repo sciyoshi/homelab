@@ -1,17 +1,20 @@
 { pkgs, config, ... }@inputs: {
   imports = [
-    (./hardware/ovh.nix)
+    ./hardware/ovh.nix
+    ./common.nix
+    ./tailscale.nix
+    ./openssh.nix
+    ./users.nix
+    ./borgbackup.nix
   ];
 
   boot.cleanTmpDir = true;
-
-  system.stateVersion = "22.11";
-
   boot.kernel.sysctl = {
     "net.ipv4.ip_forward" = true;
     "net.ipv4.conf.all.forwarding" = true;
     "net.ipv6.conf.all.forwarding" = true;
   };
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   zramSwap.enable = true;
 
@@ -26,6 +29,7 @@
     options = "--delete-older-than 30d";
   };
 
+  system.stateVersion = "22.11";
   system.autoUpgrade.enable = true;
   system.autoUpgrade.allowReboot = true;
 
@@ -33,6 +37,15 @@
 
   networking.firewall.allowPing = true;
   networking.firewall.checkReversePath = "loose";
+
+  services.tailscale = {
+    enable = true;
+    autoconnect = {
+      enable = true;
+      params = [ "--advertise-exit-node" ];
+      authKeyCommand = ''cat "${config.sops.secrets.tailscale_key.path}"'';
+    };
+  };
 
   virtualisation.docker.enable = true;
 
@@ -47,86 +60,4 @@
   };
 
   services.resolved.enable = true;
-  services.openssh.enable = true;
-  services.openssh.extraConfig = ''
-    AcceptEnv ZELLIJ
-  '';
-  services.tailscale.enable = true;
-
-  # services.k3s.enable = true;
-  # services.k3s.role = "server";
-  # services.k3s.extraFlags = toString [
-  #   "--write-kubeconfig-mode=644"
-  #   "--flannel-iface=tailscale0"
-  # ];
-
-  systemd.services.tailscale-autoconnect = {
-    description = "Automatic connection to Tailscale";
-
-    # make sure tailscale is running before trying to connect to tailscale
-    after = [ "network-pre.target" "tailscale.service" ];
-    wants = [ "network-pre.target" "tailscale.service" ];
-    wantedBy = [ "multi-user.target" ];
-
-    # set this service as a oneshot job
-    serviceConfig.Type = "oneshot";
-
-    # have the job run this shell script
-    script = with pkgs; ''
-      # wait for tailscaled to settle
-      sleep 2
-
-      # check if we are already authenticated to tailscale
-      status="$(${tailscale}/bin/tailscale status -json | ${jq}/bin/jq -r .BackendState)"
-      if [ $status = "Running" ]; then # if so, then do nothing
-        exit 0
-      fi
-
-      # otherwise authenticate with tailscale
-      ${tailscale}/bin/tailscale up --auth-key=$(cat "${config.sops.secrets.tailscale_key.path}") --advertise-exit-node
-    '';
-  };
-
-  users.mutableUsers = false;
-  users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHza4EH8WS4lwVWhoLBPqAXv8u3rqGibpPRX5KCxoOwE samuel@cormier-iijima.com"
-  ];
-  users.users.root.initialHashedPassword = "$6$8n5a7Wv2pSxRbnlC$wUaKV9g05iT9USwuBssSG3/CBxNIjgNUw/HqWGcXntKBsVafADCUf8Wv4n0nAvhwUOx0ruPZ/YJKy1rpveERk.";
-
-  users.users.sciyoshi = {
-    isNormalUser = true;
-    extraGroups = [ "sudo" "wheel" ];
-    shell = pkgs.zsh;
-    initialHashedPassword = "$6$8n5a7Wv2pSxRbnlC$wUaKV9g05iT9USwuBssSG3/CBxNIjgNUw/HqWGcXntKBsVafADCUf8Wv4n0nAvhwUOx0ruPZ/YJKy1rpveERk.";
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHza4EH8WS4lwVWhoLBPqAXv8u3rqGibpPRX5KCxoOwE samuel@cormier-iijima.com"
-    ];
-  };
-
-  environment.systemPackages = [
-    pkgs.docker
-    pkgs.exa
-    pkgs.fzf
-    pkgs.rustup
-    pkgs.ripgrep
-    pkgs.starship
-    pkgs.tailscale
-    pkgs.k3s
-  ];
-
-  environment.shellAliases = {
-    l = "exa -l";
-    ll = "exa -l";
-    la = "exa -la";
-  };
-
-  programs.bash.promptInit = "eval \"$(starship init bash)\"";
-  programs.zsh.promptInit = "eval \"$(starship init zsh)\"";
-  programs.zsh.enable = true;
-  programs.zsh.shellInit = ''
-    bindkey "^[[1;5C" forward-word
-    bindkey "^[[1;5D" backward-word
-  '';
-
-  time.timeZone = "America/Montreal";
 }

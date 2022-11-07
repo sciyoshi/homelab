@@ -1,20 +1,21 @@
 { pkgs, ... }: {
   home.packages = with pkgs; [
-    ripgrep
-    nodejs
-    kubectl
     awscli2
-    kubectx
+    borgbackup
     caddy
-    tig
-    rustup
     fastmod
-    poetry
-    mkcert
-    nssTools
-    sops
     gnupg
+    kubectl
+    kubectx
+    mkcert
+    nodejs
+    nssTools
     pinentry.curses
+    poetry
+    ripgrep
+    rustup
+    sops
+    tig
   ];
 
   programs.ssh = {
