@@ -25,12 +25,12 @@ in
   "beta" = makeSystem [ ../hosts/beta.nix ];
   "scilo" = makeSystem [ ../hosts/scilo.nix ];
   "sci" = makeSystem [ ../sci/configuration.nix ];
-  "scipi3" = nixpkgs.lib.nixosSystem {
-    system = "aarch64-linux";
-    pkgs = nixpkgs.legacyPackages."aarch64-linux";
-    modules = [
-      (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix")
-      ../hosts/scipi3.nix
-    ];
-  };
+  # "scipi3" = nixpkgs.lib.nixosSystem {
+  #   system = "aarch64-linux";
+  #   pkgs = nixpkgs.legacyPackages."aarch64-linux";
+  #   modules = [
+  #     (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix")
+  #     ../hosts/scipi3.nix
+  #   ];
+  # };
 }

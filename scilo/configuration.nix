@@ -36,6 +36,7 @@
       "/var/lib/transmission"
       "/var/lib/samba"
       "/var/lib/bitwarden_rs"
+      "/var/lib/NetworkManager"
     ];
     files = [
       "/etc/machine-id"
@@ -63,6 +64,8 @@
   # replicates the default behaviour.
   networking.useDHCP = false;
   networking.interfaces.enp5s0.useDHCP = true;
+
+  networking.networkmanager.enable = true;
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -109,6 +112,7 @@
   sops.secrets.borg_passphrase = { };
   sops.secrets.borg_private_key = { };
 
+  users.users.root.initialHashedPassword = "$6$8n5a7Wv2pSxRbnlC$wUaKV9g05iT9USwuBssSG3/CBxNIjgNUw/HqWGcXntKBsVafADCUf8Wv4n0nAvhwUOx0ruPZ/YJKy1rpveERk.";
   users.users.root.openssh.authorizedKeys.keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHza4EH8WS4lwVWhoLBPqAXv8u3rqGibpPRX5KCxoOwE samuel@cormier-iijima.com"
   ];
