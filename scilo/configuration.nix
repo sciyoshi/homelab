@@ -16,6 +16,8 @@
     font = "ter-v32n";
   };
 
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
   boot.initrd.postDeviceCommands = pkgs.lib.mkBefore ''
     mkdir -p /mnt
     mount -o subvol=/ UUID=e5fb150b-0925-44d3-a2c1-aa9cf33f850d /mnt

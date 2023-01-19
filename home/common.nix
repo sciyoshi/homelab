@@ -16,6 +16,7 @@
     rustup
     sops
     tig
+    stern
   ];
 
   programs.ssh = {
