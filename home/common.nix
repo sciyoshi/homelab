@@ -8,15 +8,19 @@
     kubectl
     kubectx
     mkcert
+    nixpkgs-fmt
     nodejs
+    nodejs-16_x
     nssTools
     pinentry.curses
     poetry
+    pre-commit
     ripgrep
     rustup
     sops
-    tig
     stern
+    tig
+    vim
   ];
 
   programs.ssh = {
@@ -36,11 +40,6 @@
     enable = true;
     pinentryFlavor = "curses";
   };
-
-  home.file.".aws/config".text = ''
-    [default]
-    region = ca-central-1
-  '';
 
   programs.gitui.enable = true;
 }
