@@ -36,10 +36,10 @@
     keys = [ "id_ed25519" ];
   };
 
-  services.gpg-agent = {
-    enable = true;
-    pinentryFlavor = "curses";
-  };
+  #services.gpg-agent = {
+  #  enable = true;
+  #  pinentryFlavor = "curses";
+  #};
 
   programs.gitui.enable = true;
 }

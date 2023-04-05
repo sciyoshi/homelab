@@ -21,7 +21,7 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nix.package = pkgs.nixUnstable;
   # home-manager.useUserPackages = true;
-  home-manager.users.sciyoshi = import ./home.nix;
+  home-manager.users.sciyoshi = import ./home;
   programs.zsh.enable = true;
 
   system.defaults = {
@@ -74,6 +74,7 @@
     "signal"
     "linear-linear"
     "docker"
+    "transmission-remote-gui"
   ];
 
   homebrew.masApps = {
