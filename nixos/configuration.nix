@@ -6,6 +6,7 @@
     ./openssh.nix
     ./users.nix
     ./borgbackup.nix
+    ./xray.nix
   ];
 
   boot.cleanTmpDir = true;
@@ -55,7 +56,7 @@
   networking.nat.externalInterface = "ens3";
   networking.nat.internalInterfaces = [ "wg0" ];
   networking.firewall = {
-    allowedTCPPorts = [ 6443 ];
+    allowedTCPPorts = [ 80 443 6443 ];
     allowedUDPPorts = [ 51820 ];
   };
 

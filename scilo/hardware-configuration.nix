@@ -5,7 +5,8 @@
 
 {
   imports =
-    [ (modulesPath + "/installer/scan/not-detected.nix")
+    [
+      (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
   boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "sd_mod" "bcache" ];
@@ -14,31 +15,36 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/e5fb150b-0925-44d3-a2c1-aa9cf33f850d";
+    {
+      device = "/dev/disk/by-uuid/e5fb150b-0925-44d3-a2c1-aa9cf33f850d";
       fsType = "btrfs";
       options = [ "subvol=root" ];
     };
 
   fileSystems."/persist" =
-    { device = "/dev/disk/by-uuid/e5fb150b-0925-44d3-a2c1-aa9cf33f850d";
+    {
+      device = "/dev/disk/by-uuid/e5fb150b-0925-44d3-a2c1-aa9cf33f850d";
       fsType = "btrfs";
       options = [ "subvol=persist" ];
       neededForBoot = true;
     };
 
   fileSystems."/nix" =
-    { device = "/dev/disk/by-uuid/e5fb150b-0925-44d3-a2c1-aa9cf33f850d";
+    {
+      device = "/dev/disk/by-uuid/e5fb150b-0925-44d3-a2c1-aa9cf33f850d";
       fsType = "btrfs";
       options = [ "subvol=nix" ];
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/C6D3-69D9";
+    {
+      device = "/dev/disk/by-uuid/C6D3-69D9";
       fsType = "vfat";
     };
 
   fileSystems."/home" =
-    { device = "/dev/disk/by-uuid/e5fb150b-0925-44d3-a2c1-aa9cf33f850d";
+    {
+      device = "/dev/disk/by-uuid/e5fb150b-0925-44d3-a2c1-aa9cf33f850d";
       fsType = "btrfs";
       options = [ "subvol=home" ];
     };
@@ -47,6 +53,4 @@
 
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-  # high-resolution display
-  hardware.video.hidpi.enable = lib.mkDefault true;
 }
