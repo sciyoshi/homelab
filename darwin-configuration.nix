@@ -1,4 +1,8 @@
 { pkgs, ... }: {
+  nixpkgs.config.permittedInsecurePackages = [
+                "nodejs-16.20.0"
+              ];
+
   environment.systemPackages = [
     pkgs.nixpkgs-fmt
     pkgs.python310

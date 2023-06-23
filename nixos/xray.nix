@@ -20,7 +20,7 @@
         }];
         decryption = "none";
         fallbacks = [{
-          dest = 80;
+          dest = "34.223.124.45:80";
         }];
       };
     }];
