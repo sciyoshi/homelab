@@ -1,13 +1,14 @@
 { pkgs, ... }: {
   nixpkgs.config.permittedInsecurePackages = [
-                "nodejs-16.20.0"
-              ];
+    "nodejs-16.20.0"
+  ];
 
   environment.systemPackages = [
     pkgs.nixpkgs-fmt
     pkgs.python310
     pkgs.mysql80
     pkgs.minio
+    pkgs.apacheKafka
   ];
 
   fonts = {
@@ -79,6 +80,7 @@
     "linear-linear"
     "docker"
     "transmission-remote-gui"
+    "adobe-acrobat-reader"
   ];
 
   homebrew.masApps = {
@@ -106,6 +108,15 @@
     {
       path = [ pkgs.minio ];
       command = "${pkgs.minio}/bin/minio server /var/lib/minio";
+
+      serviceConfig.KeepAlive = true;
+      serviceConfig.RunAtLoad = true;
+    };
+
+  launchd.user.agents.kafka =
+    {
+      path = [ pkgs.apacheKafka ];
+      command = "${pkgs.apacheKafka}/bin/kafka-server-start.sh ${pkgs.apacheKafka}/config/kraft/server.properties";
 
       serviceConfig.KeepAlive = true;
       serviceConfig.RunAtLoad = true;
