@@ -21,6 +21,7 @@
     stern
     tig
     vim
+    xh
   ];
 
   programs.ssh = {

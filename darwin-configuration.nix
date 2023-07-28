@@ -5,10 +5,11 @@
 
   environment.systemPackages = [
     pkgs.nixpkgs-fmt
-    pkgs.python310
+    pkgs.python311
     pkgs.mysql80
     pkgs.minio
     pkgs.apacheKafka
+    pkgs.python311Packages.supervisor
   ];
 
   fonts = {
