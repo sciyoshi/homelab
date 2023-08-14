@@ -5,7 +5,6 @@
 
   boot = {
     loader.grub.enable = true;
-    loader.grub.version = 2;
     loader.grub.efiSupport = true;
     loader.grub.efiInstallAsRemovable = true;
     loader.grub.device = "/dev/sda";

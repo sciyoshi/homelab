@@ -39,6 +39,7 @@
       "/var/lib/samba"
       "/var/lib/bitwarden_rs"
       "/var/lib/NetworkManager"
+      "/var/lib/jellyfin"
     ];
     files = [
       "/etc/machine-id"
@@ -53,6 +54,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.grub.useOSProber = true;
+  boot.loader.systemd-boot.configurationLimit = 3;
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.supportedFilesystems = [ "btrfs" ];
@@ -272,6 +274,13 @@
     user = "sciyoshi";
     group = "media";
     openFirewall = true;
+  };
+
+  services.jellyfin = {
+    enable = true;
+    openFirewall = true;
+    user = "sciyoshi";
+    group = "media";
   };
 
   # services.k3s = {
