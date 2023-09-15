@@ -1,13 +1,13 @@
 { pkgs, ... }: {
-  programs.exa.enable = true;
+  programs.eza.enable = true;
   programs.fzf.enable = true;
   programs.direnv.enable = true;
 
   # Shell aliases.
   home.shellAliases = {
-    l = "${pkgs.exa}/bin/exa -l --group-directories-first";
-    ls = "${pkgs.exa}/bin/exa -l --group-directories-first";
-    la = "${pkgs.exa}/bin/exa -la --group-directories-first";
+    l = "${pkgs.eza}/bin/eza -l --group-directories-first";
+    ls = "${pkgs.eza}/bin/eza -l --group-directories-first";
+    la = "${pkgs.eza}/bin/eza -la --group-directories-first";
     dc = "docker compose";
     k = "kubectl";
   };

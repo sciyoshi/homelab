@@ -9,8 +9,8 @@
     kubectx
     mkcert
     nixpkgs-fmt
-    nodejs
-    nodejs-16_x
+    nodejs_20
+    # nodejs-16_x
     nssTools
     pinentry.curses
     poetry

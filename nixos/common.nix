@@ -2,7 +2,7 @@
   environment.systemPackages = with pkgs; [
     borgbackup
     docker
-    exa
+    eza
     fzf
     git
     k3s
@@ -16,9 +16,9 @@
   ];
 
   environment.shellAliases = {
-    l = "exa -l";
-    ll = "exa -l";
-    la = "exa -la";
+    l = "eza -l";
+    ll = "eza -l";
+    la = "eza -la";
   };
 
   programs.bash.promptInit = "eval \"$(starship init bash)\"";

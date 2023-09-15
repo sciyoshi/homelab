@@ -96,6 +96,11 @@
 
   services.redis.enable = true;
 
+  services.dnsmasq.enable = true;
+  services.dnsmasq.addresses = {
+    "localhost" = "127.0.0.1";
+  };
+
   launchd.user.agents.mysql =
     {
       path = [ pkgs.mysql80 ];
@@ -118,6 +123,38 @@
     {
       path = [ pkgs.apacheKafka ];
       command = "${pkgs.apacheKafka}/bin/kafka-server-start.sh ${pkgs.apacheKafka}/config/kraft/server.properties";
+
+      serviceConfig.KeepAlive = true;
+      serviceConfig.RunAtLoad = true;
+    };
+
+  launchd.user.agents.connect =
+    let
+      connectConfigBase = builtins.readFile "${pkgs.apacheKafka}/config/connect-standalone.properties";
+      connectConfig = builtins.toFile "connect-standalone.properties" "
+        ${connectConfigBase}
+        plugin.path=/opt/debezium/
+      ";
+    in
+    {
+      path = [ pkgs.apacheKafka ];
+      command = "${pkgs.apacheKafka}/bin/connect-standalone.sh ${connectConfig}";
+
+      serviceConfig.KeepAlive = true;
+      serviceConfig.RunAtLoad = true;
+    };
+
+  launchd.user.agents.elasticsearch =
+    {
+      command = "/opt/elasticsearch/bin/elasticsearch";
+
+      serviceConfig.KeepAlive = true;
+      serviceConfig.RunAtLoad = true;
+    };
+
+  launchd.user.agents.kibana =
+    {
+      command = "/opt/kibana/bin/kibana";
 
       serviceConfig.KeepAlive = true;
       serviceConfig.RunAtLoad = true;
