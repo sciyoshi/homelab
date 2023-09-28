@@ -64,6 +64,8 @@ To install an ephemeral NixOS on OVH, use the following steps:
         useradd -u 30000 -g nixbld -G nixbld nixbld
         curl -L https://nixos.org/nix/install | sh
         . $HOME/.nix-profile/etc/profile.d/nix.sh
+        nix-channel --add https://nixos.org/channels/nixos-23.05 nixpkgs
+        nix-channel --update
         nix-env -f '<nixpkgs>' -iA nixos-install-tools
         nixos-generate-config --root /mnt
 
@@ -72,7 +74,10 @@ To install an ephemeral NixOS on OVH, use the following steps:
     remote access once the system reboots (for example, by setting
     `users.users.root.initialHashedPassword`). Ensure that the root tmpfs
     filesystem has `mode=0755` set as an option (otherwise SSH will complain
-    about permissions).
+    about permissions). If there is an error building the logrotate config,
+    add `services.logrotate.checkConfig = false` [(see here)][1]
+
+    [1]: https://discourse.nixos.org/t/logrotate-config-fails-due-to-missing-group-30000/28501/2
 
 6.  Install Nix onto the target drive:
 

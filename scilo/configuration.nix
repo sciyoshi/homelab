@@ -40,6 +40,10 @@
       "/var/lib/bitwarden_rs"
       "/var/lib/NetworkManager"
       "/var/lib/jellyfin"
+      "/var/lib/rancher"
+      "/var/lib/docker"
+      "/var/lib/cni"
+      "/var/lib/kubelet"
     ];
     files = [
       "/etc/machine-id"
@@ -117,6 +121,8 @@
   sops.secrets.acme_credentials = { };
   sops.secrets.borg_passphrase = { };
   sops.secrets.borg_private_key = { };
+  sops.secrets.k3s_token = { };
+  sops.secrets.k3s_vpn_auth = { };
 
   users.users.root.initialHashedPassword = "$6$8n5a7Wv2pSxRbnlC$wUaKV9g05iT9USwuBssSG3/CBxNIjgNUw/HqWGcXntKBsVafADCUf8Wv4n0nAvhwUOx0ruPZ/YJKy1rpveERk.";
   users.users.root.openssh.authorizedKeys.keys = [
@@ -169,8 +175,8 @@
   # List services that you want to enable:
 
   # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [ 30303 8000 80 443 ];
-  networking.firewall.allowedUDPPorts = [ 30303 8000 ];
+  networking.firewall.allowedTCPPorts = [ 30303 8000 80 443 6443 9443 9080 ];
+  networking.firewall.allowedUDPPorts = [ 30303 8000 6443 ];
   networking.firewall.checkReversePath = "loose";
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
@@ -285,9 +291,11 @@
     group = "media";
   };
 
-  # services.k3s = {
-  #   enable = true;
-  #   role = "agent";
-  #   serverAddr = "";
-  # };  
+  services.k3s = {
+    enable = true;
+    role = "server";
+    tokenFile = config.sops.secrets.k3s_token.path;
+    environmentFile = pkgs.writeText "k3s.env" "PATH=${pkgs.tailscale}/bin:/bin";
+    extraFlags = "--vpn-auth-file=${config.sops.secrets.k3s_vpn_auth.path}";
+  };
 }

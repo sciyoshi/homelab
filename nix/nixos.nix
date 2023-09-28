@@ -23,6 +23,7 @@ in
 {
   "alpha" = makeSystem [ ../hosts/alpha.nix ];
   "beta" = makeSystem [ ../hosts/beta.nix ];
+  "gamma" = makeSystem [ ../hosts/gamma.nix ];
   "scilo" = makeSystem [ ../hosts/scilo.nix ];
   "sci" = makeSystem [ ../sci/configuration.nix ];
   # "scipi3" = nixpkgs.lib.nixosSystem {

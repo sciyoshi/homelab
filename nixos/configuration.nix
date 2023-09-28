@@ -22,6 +22,8 @@
   sops.defaultSopsFile = ../secrets.yaml;
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
   sops.secrets.tailscale_key = { };
+  sops.secrets.k3s_token = { };
+  sops.secrets.k3s_vpn_auth = { };
 
   nix.settings.auto-optimise-store = true;
   nix.gc = {
@@ -56,9 +58,18 @@
   networking.nat.externalInterface = "ens3";
   networking.nat.internalInterfaces = [ "wg0" ];
   networking.firewall = {
-    allowedTCPPorts = [ 80 443 6443 ];
+    allowedTCPPorts = [ 80 443 6443 9443 9080 ];
     allowedUDPPorts = [ 51820 ];
   };
 
   services.resolved.enable = true;
+
+  services.k3s = {
+    enable = true;
+    role = "agent";
+    tokenFile = config.sops.secrets.k3s_token.path;
+    environmentFile = pkgs.writeText "k3s.env" "PATH=${pkgs.tailscale}/bin:/bin";
+    extraFlags = "--vpn-auth-file=${config.sops.secrets.k3s_vpn_auth.path}";
+    serverAddr = "https://100.114.10.116:6443";
+  };
 }

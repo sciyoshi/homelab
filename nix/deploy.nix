@@ -19,6 +19,14 @@
         path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.beta;
       };
     };
+    gamma = {
+      hostname = "gamma.sciyoshi.com";
+      sshUser = "root";
+      profiles.system = {
+        user = "root";
+        path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.gamma;
+      };
+    };
     scilo = {
       hostname = "scilo";
       sshUser = "root";

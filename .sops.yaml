@@ -1,15 +1,17 @@
 keys:
   - &alpha age1hgl7m0e8mr58f5hy5f4hpj7j7zcqjr3552zj8w393fvc93sehq2qqj3aat
   - &beta age1syqwqh7gqg50k9gfxhtu7jwhsclrye39dzg9cw9pwucqdmqqrcdqwtlce4
+  - &gamma age10s50ercppejvf6wwupp4x9avjt8r2dve75ypnn5d2en94ahtzyesnmx2rd
   - &scilo age16mauw943f4l0n4d9glmqew9nf9w5lrf76hadt43r5kssuckzhamqq3hnnp
 creation_rules:
   - path_regex: secrets\.yaml$
     key_groups:
       - pgp:
-          - 04CE9D6399B107A6A5F51173DA8330CE8BD3CD51
+          - E34202D0851C6677CF7F2994BFD0A7E9575AE0C5
         age:
           - age1l8g9nqu7tdqnduvuhsmsj755yy6txqekarpccwt9hsdmer0kmscqc4tdv0
           - age1zprzjpcc5eaj72947wrpmsc7xxvtgnqqgkwlh9gurgt7m8h7cpss0ft4dw
           - *alpha
           - *beta
+          - *gamma
           - *scilo
