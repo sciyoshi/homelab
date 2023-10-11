@@ -2,6 +2,7 @@
 , home-manager
 , sops-nix
 , impermanence
+, nixos-hardware
 , ...
 }@inputs:
 let
@@ -26,12 +27,22 @@ in
   "gamma" = makeSystem [ ../hosts/gamma.nix ];
   "scilo" = makeSystem [ ../hosts/scilo.nix ];
   "sci" = makeSystem [ ../sci/configuration.nix ];
-  # "scipi3" = nixpkgs.lib.nixosSystem {
-  #   system = "aarch64-linux";
-  #   pkgs = nixpkgs.legacyPackages."aarch64-linux";
-  #   modules = [
-  #     (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix")
-  #     ../hosts/scipi3.nix
-  #   ];
-  # };
+  "scipi4" = nixpkgs.lib.nixosSystem {
+    # system = "aarch64-linux";
+    # pkgs = nixpkgs.legacyPackages."aarch64-linux";
+    modules = [
+      # (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix")
+      nixos-hardware.nixosModules.raspberry-pi-4
+      home-manager.nixosModules.home-manager
+      sops-nix.nixosModules.sops
+      impermanence.nixosModules.impermanence
+      {
+        home-manager.useGlobalPkgs = true;
+        home-manager.useUserPackages = true;
+        home-manager.extraSpecialArgs = { inherit inputs; };
+        home-manager.users.sciyoshi = import ../home;
+      }
+      ../hosts/scipi4.nix
+    ];
+  };
 }

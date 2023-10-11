@@ -24,6 +24,7 @@
   sops.secrets.tailscale_key = { };
   sops.secrets.k3s_token = { };
   sops.secrets.k3s_vpn_auth = { };
+  sops.secrets.wireless_env = { };
 
   nix.settings.auto-optimise-store = true;
   nix.gc = {
@@ -32,7 +33,7 @@
     options = "--delete-older-than 30d";
   };
 
-  system.stateVersion = "22.11";
+  system.stateVersion = "23.11";
   system.autoUpgrade.enable = true;
   system.autoUpgrade.allowReboot = true;
 

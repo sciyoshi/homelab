@@ -1,18 +1,13 @@
 { pkgs, ... }: {
   home.packages = with pkgs; [
-    awscli2
     borgbackup
     caddy
     fastmod
     gnupg
-    kubectl
-    kubectx
     mkcert
     nixpkgs-fmt
     nodejs_20
-    # nodejs-16_x
     nssTools
-    pinentry.curses
     poetry
     pre-commit
     ripgrep
@@ -22,7 +17,12 @@
     tig
     vim
     xh
-  ];
+  ] ++ (if !pkgs.stdenv.isAarch64 then [
+    awscli2
+    kubectl
+    kubectx
+    pinentry.curses
+  ] else [ ]);
 
   programs.ssh = {
     enable = true;

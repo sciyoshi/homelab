@@ -8,6 +8,7 @@
     sops-nix.url = github:Mic92/sops-nix;
     impermanence.url = "github:nix-community/impermanence";
     flake-utils.url = "github:numtide/flake-utils";
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -31,8 +32,9 @@
     , home-manager
     , deploy-rs
     , darwin
+    , nixos-hardware
     , ...
-    }@inputs: {
+    }@inputs: rec {
       darwinConfigurations = import ./nix/darwin.nix inputs;
 
       nixosConfigurations = import ./nix/nixos.nix inputs;

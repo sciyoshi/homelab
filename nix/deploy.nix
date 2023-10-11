@@ -1,6 +1,7 @@
 { self, deploy-rs, nixpkgs, ... }: {
   autoRollback = false;
   magicRollback = true;
+  # remoteBuild = true;
   user = "root";
   nodes = {
     alpha = {
@@ -43,5 +44,14 @@
     #     path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.scipi3;
     #   };
     # };
+    scipi4 = {
+      hostname = "192.168.50.104";
+      sshUser = "root";
+      # remoteBuild = true;
+      profiles.system = {
+        user = "root";
+        path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.scipi4;
+      };
+    };
   };
 }
