@@ -82,3 +82,7 @@ To install an ephemeral NixOS on OVH, use the following steps:
 6.  Install Nix onto the target drive:
 
         nixos-install --root /mnt
+
+## Extra
+
+https://coral.googlesource.com/build/+/80cc155744e97177438a89895554205ab198cc72/fix_aarch64_binfmts.sh
