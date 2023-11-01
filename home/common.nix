@@ -8,7 +8,7 @@
     nixpkgs-fmt
     nodejs_20
     nssTools
-    poetry
+    # poetry
     pre-commit
     ripgrep
     rustup
@@ -17,6 +17,7 @@
     tig
     vim
     xh
+    zstd
   ] ++ (if !pkgs.stdenv.isAarch64 then [
     awscli2
     kubectl

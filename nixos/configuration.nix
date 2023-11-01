@@ -6,7 +6,7 @@
     ./openssh.nix
     ./users.nix
     ./borgbackup.nix
-    ./xray.nix
+    ./secrets.nix
   ];
 
   boot.tmp.cleanOnBoot = true;
@@ -18,13 +18,6 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   zramSwap.enable = true;
-
-  sops.defaultSopsFile = ../secrets.yaml;
-  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-  sops.secrets.tailscale_key = { };
-  sops.secrets.k3s_token = { };
-  sops.secrets.k3s_vpn_auth = { };
-  sops.secrets.wireless_env = { };
 
   nix.settings.auto-optimise-store = true;
   nix.gc = {
@@ -46,7 +39,7 @@
     enable = true;
     autoconnect = {
       enable = true;
-      params = [ "--advertise-exit-node" ];
+      params = [ "--advertise-exit-node" "--accept-routes" ];
       authKeyCommand = ''cat "${config.sops.secrets.tailscale_key.path}"'';
     };
   };

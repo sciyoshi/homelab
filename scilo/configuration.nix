@@ -4,6 +4,9 @@
     ../nixos/common.nix
     ../nixos/openssh.nix
     ../nixos/tailscale.nix
+    ../nixos/databases.nix
+    ../nixos/immich.nix
+    ../nixos/secrets.nix
   ];
 
   nixpkgs.config.allowUnfree = true;
@@ -44,6 +47,7 @@
       "/var/lib/docker"
       "/var/lib/cni"
       "/var/lib/kubelet"
+      "/var/lib/postgresql"
     ];
     files = [
       "/etc/machine-id"
@@ -60,8 +64,8 @@
   boot.loader.grub.useOSProber = true;
   boot.loader.systemd-boot.configurationLimit = 3;
 
-  boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.supportedFilesystems = [ "btrfs" ];
+  # boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.supportedFilesystems = [ "btrfs" "bcachefs" ];
 
   networking.hostName = "scilo"; # Define your hostname.
   networking.hostId = "a7619247";
@@ -115,15 +119,6 @@
     options = [ "defaults" ];
   };
 
-  sops.defaultSopsFile = ../secrets.yaml;
-  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-  sops.secrets.tailscale_key = { };
-  sops.secrets.acme_credentials = { };
-  sops.secrets.borg_passphrase = { };
-  sops.secrets.borg_private_key = { };
-  sops.secrets.k3s_token = { };
-  sops.secrets.k3s_vpn_auth = { };
-
   users.users.root.initialHashedPassword = "$6$8n5a7Wv2pSxRbnlC$wUaKV9g05iT9USwuBssSG3/CBxNIjgNUw/HqWGcXntKBsVafADCUf8Wv4n0nAvhwUOx0ruPZ/YJKy1rpveERk.";
   users.users.root.openssh.authorizedKeys.keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHza4EH8WS4lwVWhoLBPqAXv8u3rqGibpPRX5KCxoOwE samuel@cormier-iijima.com"
@@ -162,6 +157,7 @@
     openrgb
     parted
     smartmontools
+    openiscsi
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -291,11 +287,11 @@
     group = "media";
   };
 
-  services.k3s = {
-    enable = true;
-    role = "server";
-    tokenFile = config.sops.secrets.k3s_token.path;
-    environmentFile = pkgs.writeText "k3s.env" "PATH=${pkgs.tailscale}/bin:/bin";
-    extraFlags = "--vpn-auth-file=${config.sops.secrets.k3s_vpn_auth.path}";
-  };
+  # services.k3s = {
+  #   enable = true;
+  #   role = "server";
+  #   tokenFile = config.sops.secrets.k3s_token.path;
+  #   environmentFile = pkgs.writeText "k3s.env" "PATH=${pkgs.tailscale}/bin:/bin";
+  #   extraFlags = "--vpn-auth-file=${config.sops.secrets.k3s_vpn_auth.path}";
+  # };
 }

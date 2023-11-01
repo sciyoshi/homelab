@@ -6,6 +6,7 @@
     fzf
     git
     k3s
+    openiscsi
     ripgrep
     rustup
     starship

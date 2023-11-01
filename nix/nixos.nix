@@ -31,7 +31,7 @@ in
     # system = "aarch64-linux";
     # pkgs = nixpkgs.legacyPackages."aarch64-linux";
     modules = [
-      # (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix")
+      (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix")
       nixos-hardware.nixosModules.raspberry-pi-4
       home-manager.nixosModules.home-manager
       sops-nix.nixosModules.sops
@@ -43,6 +43,20 @@ in
         home-manager.users.sciyoshi = import ../home;
       }
       ../hosts/scipi4.nix
+    ];
+  };
+
+  "scipi5" = nixpkgs.lib.nixosSystem {
+    specialArgs = {
+      inherit nixpkgs;
+    };
+    modules = [
+      # (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image.nix")
+      ./sd-aarch64.nix
+      nixos-hardware.nixosModules.raspberry-pi-4
+      sops-nix.nixosModules.sops
+      impermanence.nixosModules.impermanence
+      ../hosts/scipi5.nix
     ];
   };
 }
