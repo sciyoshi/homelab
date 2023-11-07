@@ -1,6 +1,6 @@
 { pkgs, config, ... }:
 let
-  photosLocation = "/mnt/immich";
+  photosLocation = "/media/data/immich";
   environment = {
     DB_HOSTNAME = "host.docker.internal";
     DB_USERNAME = "immich";
@@ -18,7 +18,7 @@ in
   virtualisation.oci-containers.containers = {
     immich_server = {
       image = "ghcr.io/immich-app/immich-server:release";
-      extraOptions = [ "--network=immich-bridge" "--add-host=host.docker.internal:host-gateway" ];
+      extraOptions = [ "--network=immich-bridge" "--add-host=host.docker.internal:host-gateway" "--pull=always" ];
       cmd = [ "start.sh" "immich" ];
 
       volumes = [
@@ -37,7 +37,7 @@ in
 
     immich_microservices = {
       image = "ghcr.io/immich-app/immich-server:release";
-      extraOptions = [ "--network=immich-bridge" "--add-host=host.docker.internal:host-gateway" ];
+      extraOptions = [ "--network=immich-bridge" "--add-host=host.docker.internal:host-gateway" "--pull=always" ];
       cmd = [ "start.sh" "microservices" ];
 
       volumes = [
@@ -57,7 +57,7 @@ in
 
     immich_machine_learning = {
       image = "ghcr.io/immich-app/immich-machine-learning:release";
-      extraOptions = [ "--network=immich-bridge" "--add-host=host.docker.internal:host-gateway" ];
+      extraOptions = [ "--network=immich-bridge" "--add-host=host.docker.internal:host-gateway" "--pull=always" ];
 
       environmentFiles = [ "${config.sops.templates.immich_env.path}" ];
       environment = environment;
@@ -72,7 +72,7 @@ in
 
     immich_web = {
       image = "ghcr.io/immich-app/immich-web:release";
-      extraOptions = [ "--network=immich-bridge" "--add-host=host.docker.internal:host-gateway" ];
+      extraOptions = [ "--network=immich-bridge" "--add-host=host.docker.internal:host-gateway" "--pull=always" ];
 
       environmentFiles = [ "${config.sops.templates.immich_env.path}" ];
       environment = environment;
@@ -82,7 +82,7 @@ in
 
     immich_typesense = {
       image = "typesense/typesense:0.25.1";
-      extraOptions = [ "--network=immich-bridge" ];
+      extraOptions = [ "--network=immich-bridge" "--pull=always" ];
 
       environment = {
         TYPESENSE_API_KEY = "test";
@@ -100,7 +100,7 @@ in
 
     immich_proxy = {
       image = "ghcr.io/immich-app/immich-proxy:release";
-      extraOptions = [ "--network=immich-bridge" ];
+      extraOptions = [ "--network=immich-bridge" "--pull=always" ];
 
       environment = environment;
 

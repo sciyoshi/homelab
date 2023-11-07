@@ -16,7 +16,7 @@
 with lib;
 
 let
-  rootfsImage = pkgs.callPackage (import "${nixpkgs}/nixos/lib/make-btrfs-fs.nix") ({
+  rootfsImage = pkgs.callPackage (import ./make-btrfs-fs.nix) ({
     inherit (config.sdImage) storePaths;
     compressImage = config.sdImage.compressImage;
     populateImageCommands = config.sdImage.populateRootCommands;
@@ -291,7 +291,7 @@ in
         # Resize the root partition and the filesystem to fit the disk
         echo ",+," | sfdisk -N$partNum --no-reread $bootDevice
         ${pkgs.parted}/bin/partprobe
-        # ${pkgs.e2fsprogs}/bin/resize2fs $rootPart
+        # ${pkgs.btrfs-progs}/bin/btrfs filesystem resize max $rootPart
 
         # Register the contents of the initial Nix store
         ${config.nix.package.out}/bin/nix-store --load-db < /nix-path-registration

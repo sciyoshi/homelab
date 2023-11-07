@@ -43,5 +43,13 @@
         path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.scipi4;
       };
     };
+    scipi5 = {
+      hostname = "100.119.209.24";
+      sshUser = "root";
+      profiles.system = {
+        user = "root";
+        path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.scipi5;
+      };
+    };
   };
 }

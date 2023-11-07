@@ -1,17 +1,18 @@
 { pkgs, lib, config, modulesPath, ... }: {
+  imports = [
+    ../nixos/configuration.nix
+  ];
+
   boot.initrd.supportedFilesystems = lib.mkForce [ "vfat" "btrfs" ];
   boot.supportedFilesystems = lib.mkForce [ "vfat" "btrfs" ];
 
   boot.loader.generic-extlinux-compatible.enable = true;
   boot.loader.grub.enable = false;
 
+  nixpkgs.hostPlatform = "aarch64-linux";
+  nixpkgs.buildPlatform = "x86_64-linux";
+
   boot.tmp.cleanOnBoot = true;
-  boot.kernel.sysctl = {
-    "net.ipv4.ip_forward" = true;
-    "net.ipv4.conf.all.forwarding" = true;
-    "net.ipv6.conf.all.forwarding" = true;
-  };
-  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   zramSwap.enable = true;
 
@@ -21,9 +22,6 @@
     dates = "weekly";
     options = "--delete-older-than 30d";
   };
-
-  nixpkgs.hostPlatform = "aarch64-linux";
-  nixpkgs.buildPlatform = "x86_64-linux";
 
   fileSystems = {
     "/" = {
@@ -35,7 +33,8 @@
   system.stateVersion = "23.11";
   services.sshd.enable = true;
   networking.wireless.enable = true;
-  networking.wireless.networks.sci24.psk = "";
+  networking.wireless.environmentFile = config.sops.secrets.wireless_env.path;
+  networking.wireless.networks.sci24.psk = "@PSK_HOME@";
   networking.interfaces.wlan0.useDHCP = true;
   networking.interfaces.end0.useDHCP = true;
   users.users.root.initialHashedPassword = "$6$8n5a7Wv2pSxRbnlC$wUaKV9g05iT9USwuBssSG3/CBxNIjgNUw/HqWGcXntKBsVafADCUf8Wv4n0nAvhwUOx0ruPZ/YJKy1rpveERk.";
@@ -43,7 +42,24 @@
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHza4EH8WS4lwVWhoLBPqAXv8u3rqGibpPRX5KCxoOwE samuel@cormier-iijima.com"
   ];
 
+  security.sudo.enable = false;
+  security.sudo-rs.enable = true;
+
+  disabledModules = [ "profiles/base.nix" ];
+
+  services.borgbackup.repos.data = {
+    path = "/mnt/data/backup";
+    authorizedKeys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHL7BldB6Jcn62oT3jXwfbWLJQuFn4IJN5JapbfrPYax sciyoshi@scilo"
+    ];
+  };
+
   networking = {
     hostName = "scipi5";
+  };
+
+  console = {
+    packages = with pkgs; [ terminus_font ];
+    font = "ter-v32n";
   };
 }

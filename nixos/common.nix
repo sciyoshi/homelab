@@ -8,7 +8,7 @@
     k3s
     openiscsi
     ripgrep
-    rustup
+    # rustup
     starship
     tailscale
     unzip

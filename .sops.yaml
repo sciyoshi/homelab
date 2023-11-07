@@ -4,6 +4,7 @@ keys:
   - &gamma age10s50ercppejvf6wwupp4x9avjt8r2dve75ypnn5d2en94ahtzyesnmx2rd
   - &scilo age16mauw943f4l0n4d9glmqew9nf9w5lrf76hadt43r5kssuckzhamqq3hnnp
   - &scipi4 age1kas2zkj5pll49scm4ru56wmsvzrrfknj97gy837hz8zqt2jurajskcesqd
+  - &scipi5 age1r24vzzrz0ka93666g9s4qxmgrhyrdk84u09w7rtf5f8tx5pruutsts7p3d
 creation_rules:
   - path_regex: secrets\.yaml$
     key_groups:
@@ -17,3 +18,4 @@ creation_rules:
           - *gamma
           - *scilo
           - *scipi4
+          - *scipi5

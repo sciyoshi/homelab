@@ -11,7 +11,6 @@
     # poetry
     pre-commit
     ripgrep
-    rustup
     sops
     stern
     tig
@@ -20,6 +19,7 @@
     zstd
   ] ++ (if !pkgs.stdenv.isAarch64 then [
     awscli2
+    rustup
     kubectl
     kubectx
     pinentry.curses
@@ -38,10 +38,10 @@
     keys = [ "id_ed25519" ];
   };
 
-  #services.gpg-agent = {
-  #  enable = true;
-  #  pinentryFlavor = "curses";
-  #};
+  # services.gpg-agent = {
+  #   enable = true;
+  #   pinentryFlavor = "curses";
+  # };
 
   programs.gitui.enable = true;
 }
