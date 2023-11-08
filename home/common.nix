@@ -16,7 +16,7 @@
     vim
     xh
     zstd
-  ] ++ (if !pkgs.stdenv.isAarch64 then [
+  ] ++ (if !pkgs.stdenv.isAarch64 || pkgs.stdenv.isDarwin then [
     awscli2
     poetry
     rustup
