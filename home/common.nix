@@ -8,7 +8,6 @@
     nixpkgs-fmt
     nodejs_20
     nssTools
-    # poetry
     pre-commit
     ripgrep
     sops
@@ -19,6 +18,7 @@
     zstd
   ] ++ (if !pkgs.stdenv.isAarch64 then [
     awscli2
+    poetry
     rustup
     kubectl
     kubectx

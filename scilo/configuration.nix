@@ -69,31 +69,13 @@
 
   networking.hostName = "scilo"; # Define your hostname.
   networking.hostId = "a7619247";
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
-  # The global useDHCP flag is deprecated, therefore explicitly set to false here.
-  # Per-interface useDHCP will be mandatory in the future, so this generated config
-  # replicates the default behaviour.
   networking.useDHCP = false;
   networking.interfaces.enp5s0.useDHCP = true;
 
   networking.networkmanager.enable = true;
 
   systemd.services.NetworkManager-wait-online.enable = lib.mkForce false;
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Select internationalisation properties.
-  # i18n.defaultLocale = "en_US.UTF-8";
-  # console = {
-  #   font = "Lat2-Terminus16";
-  #   keyMap = "us";
-  # };
-
-  # Enable the X11 windowing system.
-  # services.xserver.enable = true;
 
   services.tailscale = {
     enable = true;
@@ -223,14 +205,6 @@
     };
   };
 
-  services.plex = {
-    enable = true;
-    openFirewall = true;
-    user = "sciyoshi";
-    group = "media";
-    dataDir = "/media/data/Plex";
-  };
-
   services.vaultwarden = {
     enable = true;
     config.rocketPort = 19317;
@@ -245,6 +219,22 @@
     repo = "borg@alpha.sciyoshi.com:.";
     compression = "auto,zstd";
     startAt = "daily";
+    prune.keep = {
+      daily = 7;
+      weekly = 4;
+      monthly = -1;
+    };
+  };
+
+  services.borgbackup.jobs.immich = {
+    paths = "/media/data/immich";
+    encryption.mode = "repokey";
+    encryption.passCommand = "cat ${config.sops.secrets.borg_passphrase.path}";
+    environment.BORG_RSH = "ssh -o 'StrictHostKeyChecking=no' -i ${config.sops.secrets.borg_private_key.path}";
+    repo = "borg@100.119.209.24:.";
+    compression = "auto,zstd";
+    startAt = "daily";
+    exclude = [ "encoded-video" "thumbs" ];
     prune.keep = {
       daily = 7;
       weekly = 4;

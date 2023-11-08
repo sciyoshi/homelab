@@ -19,5 +19,26 @@
     '';
   };
 
+  services.postgresqlBackup = {
+    enable = true;
+    location = "/media/local/backup/postgresql";
+    compression = "none";
+  };
+
+  services.borgbackup.jobs.postgresql = {
+    paths = "/media/local/backup/postgresql";
+    encryption.mode = "repokey";
+    encryption.passCommand = "cat ${config.sops.secrets.borg_passphrase.path}";
+    environment.BORG_RSH = "ssh -o 'StrictHostKeyChecking=no' -i ${config.sops.secrets.borg_private_key.path}";
+    repo = "borg@100.119.209.24:.";
+    compression = "auto,zstd";
+    startAt = "daily";
+    prune.keep = {
+      daily = 7;
+      weekly = 4;
+      monthly = -1;
+    };
+  };
+
   networking.firewall.allowedTCPPorts = [ 5432 6379 ];
 }

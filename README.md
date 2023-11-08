@@ -1,5 +1,7 @@
 # homelab
 
+## Infrastructure
+
 ## Deploying
 
 ## Cross-Platform Deploy

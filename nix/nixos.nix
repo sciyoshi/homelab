@@ -51,8 +51,7 @@ in
       inherit nixpkgs;
     };
     modules = [
-      # (import "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix")
-      ./sd-aarch64.nix
+      ./sd-utils/sd-aarch64.nix
       nixos-hardware.nixosModules.raspberry-pi-4
       home-manager.nixosModules.home-manager
       sops-nix.nixosModules.sops

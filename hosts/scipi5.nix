@@ -28,6 +28,12 @@
       device = "/dev/disk/by-label/NIXOS_SD";
       fsType = "btrfs";
     };
+
+    "/srv" = {
+      device = "/dev/disk/by-uuid/e15691af-8375-4c60-aba5-6d8016ac9abf";
+      fsType = "btrfs";
+      options = [ "compress=zstd" ];
+    };
   };
 
   system.stateVersion = "23.11";
@@ -47,12 +53,7 @@
 
   disabledModules = [ "profiles/base.nix" ];
 
-  services.borgbackup.repos.data = {
-    path = "/mnt/data/backup";
-    authorizedKeys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHL7BldB6Jcn62oT3jXwfbWLJQuFn4IJN5JapbfrPYax sciyoshi@scilo"
-    ];
-  };
+  services.borgbackup.repos.backup.path = "/srv/backup";
 
   networking = {
     hostName = "scipi5";

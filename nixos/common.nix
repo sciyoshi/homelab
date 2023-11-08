@@ -1,20 +1,29 @@
 { pkgs, config, ... }: {
   environment.systemPackages = with pkgs; [
+    bcache-tools
     borgbackup
+    btrfs-progs
+    dmraid
     docker
     eza
+    fio
+    flashbench
     fzf
     git
     k3s
+    netcat-gnu
     openiscsi
+    parted
     ripgrep
-    # rustup
+    smartmontools
     starship
     tailscale
     unzip
     wget
     wireguard-tools
-  ];
+  ] ++ (if !pkgs.stdenv.isAarch64 then [
+    nvme-cli
+  ] else [ ]);
 
   environment.shellAliases = {
     l = "eza -l";
