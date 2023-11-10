@@ -2,6 +2,8 @@
 
 ## Infrastructure
 
+- `misaki`: Montreal Raspberry Pi.
+
 ## Deploying
 
 ## Cross-Platform Deploy

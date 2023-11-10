@@ -46,7 +46,7 @@ in
     ];
   };
 
-  "scipi5" = nixpkgs.lib.nixosSystem {
+  "misaki" = nixpkgs.lib.nixosSystem {
     specialArgs = {
       inherit nixpkgs;
     };
@@ -62,7 +62,7 @@ in
         home-manager.extraSpecialArgs = { inherit inputs; };
         home-manager.users.sciyoshi = import ../home;
       }
-      ../hosts/scipi5.nix
+      ../hosts/misaki.nix
     ];
   };
 }

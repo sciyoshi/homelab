@@ -56,7 +56,7 @@
   services.borgbackup.repos.backup.path = "/srv/backup";
 
   networking = {
-    hostName = "scipi5";
+    hostName = "misaki";
   };
 
   console = {
