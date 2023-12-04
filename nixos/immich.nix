@@ -32,6 +32,8 @@ in
         "immich_typesense"
       ];
 
+      ports = [ "2283:3001" ];
+
       autoStart = true;
     };
 
@@ -70,16 +72,6 @@ in
       autoStart = true;
     };
 
-    immich_web = {
-      image = "ghcr.io/immich-app/immich-web:release";
-      extraOptions = [ "--network=immich-bridge" "--add-host=host.docker.internal:host-gateway" "--pull=always" ];
-
-      environmentFiles = [ "${config.sops.templates.immich_env.path}" ];
-      environment = environment;
-
-      autoStart = true;
-    };
-
     immich_typesense = {
       image = "typesense/typesense:0.25.1";
       extraOptions = [ "--network=immich-bridge" "--pull=always" ];
@@ -94,24 +86,6 @@ in
       volumes = [
         "tsdata:/data"
       ];
-
-      autoStart = true;
-    };
-
-    immich_proxy = {
-      image = "ghcr.io/immich-app/immich-proxy:release";
-      extraOptions = [ "--network=immich-bridge" "--pull=always" ];
-
-      environment = environment;
-
-      log-driver = "none";
-
-      dependsOn = [
-        "immich_server"
-        "immich_web"
-      ];
-
-      ports = [ "2283:8080" ];
 
       autoStart = true;
     };

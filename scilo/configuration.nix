@@ -64,8 +64,8 @@
   boot.loader.grub.useOSProber = true;
   boot.loader.systemd-boot.configurationLimit = 3;
 
-  # boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.supportedFilesystems = [ "btrfs" "bcachefs" ];
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.supportedFilesystems = [ "btrfs" ];
 
   networking.hostName = "scilo"; # Define your hostname.
   networking.hostId = "a7619247";
@@ -233,7 +233,7 @@
     environment.BORG_RSH = "ssh -o 'StrictHostKeyChecking=no' -i ${config.sops.secrets.borg_private_key.path}";
     repo = "borg@100.119.209.24:.";
     compression = "auto,zstd";
-    startAt = "daily";
+    startAt = "*-*-* 00:10:00";
     exclude = [ "encoded-video" "thumbs" ];
     prune.keep = {
       daily = 7;
