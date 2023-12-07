@@ -10,7 +10,7 @@
   boot.loader.grub.enable = false;
 
   nixpkgs.hostPlatform = "aarch64-linux";
-  nixpkgs.buildPlatform = "x86_64-linux";
+  # nixpkgs.buildPlatform = "x86_64-linux";
 
   boot.tmp.cleanOnBoot = true;
 

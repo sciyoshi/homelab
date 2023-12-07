@@ -10,6 +10,10 @@
     pkgs.minio
     pkgs.apacheKafka
     pkgs.python311Packages.supervisor
+    pkgs.ffmpeg
+    pkgs.bun
+    pkgs.just
+    pkgs.process-compose
   ];
 
   fonts = {
@@ -99,6 +103,7 @@
   services.dnsmasq.enable = true;
   services.dnsmasq.addresses = {
     "localhost" = "127.0.0.1";
+    ".dev" = "127.0.0.1";
   };
 
   launchd.user.agents.mysql =
