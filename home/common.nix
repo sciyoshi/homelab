@@ -4,11 +4,13 @@
     caddy
     fastmod
     gnupg
+    just
     mkcert
     nixpkgs-fmt
     nodejs_20
     nssTools
     pre-commit
+    process-compose
     ripgrep
     sops
     stern
