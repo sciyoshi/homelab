@@ -10,8 +10,6 @@ let
     IMMICH_WEB_URL = "http://immich_web:3000";
     IMMICH_MACHINE_LEARNING_URL = "http://immich_machine_learning:3003";
     REDIS_HOSTNAME = "host.docker.internal";
-    TYPESENSE_API_KEY = "test";
-    TYPESENSE_HOST = "immich_typesense";
   };
 in
 {
@@ -27,10 +25,6 @@ in
 
       environmentFiles = [ "${config.sops.templates.immich_env.path}" ];
       environment = environment;
-
-      dependsOn = [
-        "immich_typesense"
-      ];
 
       ports = [ "2283:3001" ];
 
@@ -50,10 +44,6 @@ in
       environmentFiles = [ "${config.sops.templates.immich_env.path}" ];
       environment = environment;
 
-      dependsOn = [
-        "immich_typesense"
-      ];
-
       autoStart = true;
     };
 
@@ -67,24 +57,6 @@ in
       volumes = [
         "${photosLocation}:/usr/src/app/upload"
         "model-cache:/cache"
-      ];
-
-      autoStart = true;
-    };
-
-    immich_typesense = {
-      image = "typesense/typesense:0.25.1";
-      extraOptions = [ "--network=immich-bridge" "--pull=always" ];
-
-      environment = {
-        TYPESENSE_API_KEY = "test";
-        TYPESENSE_DATA_DIR = "/data";
-      };
-
-      log-driver = "none";
-
-      volumes = [
-        "tsdata:/data"
       ];
 
       autoStart = true;

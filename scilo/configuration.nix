@@ -12,6 +12,7 @@
   nixpkgs.config.allowUnfree = true;
   nixpkgs.overlays = [
     (import ../overlays/filebot)
+    (import ../overlays/pgvecto-rs.nix)
   ];
 
   console = {

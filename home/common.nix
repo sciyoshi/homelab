@@ -11,6 +11,7 @@
     nssTools
     pre-commit
     process-compose
+    python312
     ripgrep
     sops
     stern

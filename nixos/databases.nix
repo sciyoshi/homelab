@@ -13,6 +13,7 @@
     enable = true;
     package = pkgs.postgresql_16;
     enableTCPIP = true;
+    extraPlugins = [ pkgs.pgvecto-rs ];
     authentication = lib.mkForce ''
       local all  all           peer
       host  all  all 0.0.0.0/0 scram-sha-256
