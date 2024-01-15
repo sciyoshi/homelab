@@ -1,10 +1,12 @@
 { pkgs, ... }: {
   home.packages = with pkgs; [
+    aws-vault
     borgbackup
     caddy
     fastmod
     gnupg
     just
+    micro
     mkcert
     nixpkgs-fmt
     nodejs_20

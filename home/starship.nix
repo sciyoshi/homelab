@@ -29,10 +29,16 @@
         format = "\\[[$symbol$context( \($namespace\))]($style)\\]";
         symbol = "🧿";
         style = "bold yellow";
-        context_aliases = {
-          "arn:aws:eks:ca-central-1:326253947186:cluster/staging" = "staging";
-          "arn:aws:eks:ca-central-1:326253947186:cluster/production" = "production";
-        };
+        contexts = [
+          {
+            context_pattern = "arn:aws:eks:ca-central-1:326253947186:cluster/staging";
+            context_alias = "staging";
+          }
+          {
+            context_pattern = "arn:aws:eks:ca-central-1:326253947186:cluster/production";
+            context_alias = "production";
+          }
+        ];
       };
     };
   };
