@@ -13,7 +13,6 @@
     nssTools
     pre-commit
     process-compose
-    python312
     ripgrep
     sops
     stern
@@ -24,6 +23,7 @@
   ] ++ (if !pkgs.stdenv.isAarch64 || pkgs.stdenv.isDarwin then [
     awscli2
     poetry
+    python312
     rustup
     kubectl
     kubectx

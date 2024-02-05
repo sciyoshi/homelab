@@ -45,6 +45,7 @@
   };
 
   virtualisation.docker.enable = true;
+  virtualisation.oci-containers.backend = "docker";
 
   nixpkgs.config.allowUnfree = true;
 
