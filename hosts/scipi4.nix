@@ -47,4 +47,22 @@
   networking = {
     hostName = "scipi4";
   };
+
+
+  services.zigbee2mqtt = {
+    enable = true;
+    settings = {
+      homeassistant = true;
+      permit_join = true;
+      advanced = {
+        channel = 25;
+      };
+      mqtt = {
+        server = "mqtt://localhost:1883";
+      };
+      serial = {
+        port = "/dev/serial/by-id/usb-dresden_elektronik_ingenieurtechnik_GmbH_ConBee_II_DE2234146-if00";
+      };
+    };
+  };
 }

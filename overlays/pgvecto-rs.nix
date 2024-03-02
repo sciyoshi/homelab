@@ -2,19 +2,19 @@ let
   pgvecto-rs = { lib, stdenv, fetchurl, dpkg, postgresql }:
     let
       versionHashes = {
-        "16" = "sha256-L+57VRFv4rIEjvqExFvU5C9XI7l0zWj9pkKvNE5DP+k=";
+        "16" = "sha256-aJ1wLNZVdsZAvQeE26YVnJBr8lAm6i6/3eio5H44d7s=";
       };
       major = "16";
     in
     stdenv.mkDerivation rec {
       pname = "pgvecto-rs";
-      version = "0.1.11";
+      version = "0.2.0";
 
       buildInputs = [ dpkg ];
 
       src = fetchurl {
         url =
-          "https://github.com/tensorchord/pgvecto.rs/releases/download/v${version}/vectors-pg${major}-v${version}-x86_64-unknown-linux-gnu.deb";
+          "https://github.com/tensorchord/pgvecto.rs/releases/download/v${version}/vectors-pg${major}_${version}_amd64.deb";
         hash = versionHashes."${major}";
       };
 
