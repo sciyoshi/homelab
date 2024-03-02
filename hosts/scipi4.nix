@@ -2,6 +2,7 @@
   imports = [
     ../nixos/configuration.nix
     ../nixos/homeassistant.nix
+    ../nixos/rumqttd.nix
   ];
 
   boot.initrd.supportedFilesystems = lib.mkForce [ "vfat" ];
@@ -13,6 +14,9 @@
   nixpkgs.hostPlatform = "aarch64-linux";
   nixpkgs.buildPlatform = "x86_64-linux";
 
+  nixpkgs.overlays = [
+    (import ../overlays/rumqttd.nix)
+  ];
 
   fileSystems = {
     "/" = {
@@ -28,6 +32,7 @@
   networking.wireless.networks.sci24.psk = "@PSK_HOME@";
   networking.interfaces.wlan0.useDHCP = true;
   networking.interfaces.end0.useDHCP = true;
+  networking.firewall.enable = false;
   networking.firewall = {
     allowedTCPPorts = [ 1883 1884 8123 ];
     allowedUDPPorts = [ 1883 1884 8123 ];

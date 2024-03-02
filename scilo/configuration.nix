@@ -68,6 +68,8 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.supportedFilesystems = [ "btrfs" ];
 
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+
   networking.hostName = "scilo"; # Define your hostname.
   networking.hostId = "a7619247";
 
@@ -75,6 +77,8 @@
   networking.interfaces.enp5s0.useDHCP = true;
 
   networking.networkmanager.enable = true;
+
+  programs.nix-ld.enable = true;
 
   systemd.services.NetworkManager-wait-online.enable = lib.mkForce false;
 
