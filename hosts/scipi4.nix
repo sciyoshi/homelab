@@ -16,6 +16,7 @@
 
   nixpkgs.overlays = [
     (import ../overlays/rumqttd.nix)
+    (import ../overlays/zigbee2mqtt.nix)
   ];
 
   fileSystems = {

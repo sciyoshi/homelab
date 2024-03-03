@@ -1,6 +1,5 @@
 { pkgs, ... }: {
   home.packages = with pkgs; [
-    aws-vault
     borgbackup
     caddy
     fastmod
@@ -21,6 +20,7 @@
     xh
     zstd
   ] ++ (if !pkgs.stdenv.isAarch64 || pkgs.stdenv.isDarwin then [
+    aws-vault
     awscli2
     poetry
     python312
