@@ -6,7 +6,6 @@
     home-manager
     git
     nixpkgs-fmt
-    rnix-lsp
     deploy-rs
     sops
     gnupg

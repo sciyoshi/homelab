@@ -49,21 +49,26 @@
     hostName = "scipi4";
   };
 
+  virtualisation.oci-containers.containers = {
+    zigbee2mqtt = {
+      image = "koenkk/zigbee2mqtt:latest";
+      extraOptions = [
+        "--pull=always"
+        "--device=/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9a9e953ad1dbed11bfcbe92d62c613ac-if00-port0"
+      ];
 
-  services.zigbee2mqtt = {
-    enable = true;
-    settings = {
-      homeassistant = true;
-      permit_join = true;
-      advanced = {
-        channel = 25;
+      volumes = [
+        "/run/udev:/run/udev:ro"
+        "/var/lib/zigbee2mqtt:/app/data"
+      ];
+
+      environment = {
+        TZ = "America/Montreal";
       };
-      mqtt = {
-        server = "mqtt://localhost:1883";
-      };
-      serial = {
-        port = "/dev/serial/by-id/usb-dresden_elektronik_ingenieurtechnik_GmbH_ConBee_II_DE2234146-if00";
-      };
+
+      ports = [ "8080:8080/tcp" ];
+
+      autoStart = true;
     };
   };
 }
