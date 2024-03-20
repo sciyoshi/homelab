@@ -7,6 +7,7 @@
     ../nixos/databases.nix
     ../nixos/immich.nix
     ../nixos/secrets.nix
+    ../nixos/frigate.nix
   ];
 
   nixpkgs.config.allowUnfree = true;
@@ -90,7 +91,26 @@
     };
   };
 
-  virtualisation.docker.enable = true;
+  hardware.opengl = {
+    enable = true;
+    driSupport = true;
+    driSupport32Bit = true;
+    setLdLibraryPath = true;
+  };
+
+  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
+  hardware.nvidia.nvidiaSettings = true;
+  hardware.nvidia.powerManagement.enable = false;
+  hardware.nvidia.modesetting.enable = true;
+  hardware.nvidia.open = false;
+
+  services.xserver.enable = true;
+  services.xserver.videoDrivers = [ "nvidia" ];
+  systemd.enableUnifiedCgroupHierarchy = false;
+
+  virtualisation.podman.enable = true;
+  virtualisation.containers.cdi.dynamic.nvidia.enable = true;
+  virtualisation.oci-containers.backend = "podman";
 
   security.sudo.wheelNeedsPassword = false;
 
@@ -161,6 +181,7 @@
   networking.firewall.allowedTCPPorts = [ 30303 8000 80 443 6443 9443 9080 ];
   networking.firewall.allowedUDPPorts = [ 30303 8000 6443 ];
   networking.firewall.checkReversePath = "loose";
+  networking.firewall.interfaces.podman1.allowedUDPPorts = [ 53 ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
@@ -170,7 +191,7 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "21.11"; # Did you read the comment?
+  system.stateVersion = "23.11"; # Did you read the comment?
 
   security.acme.acceptTerms = true;
   security.acme.defaults = {

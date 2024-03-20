@@ -71,10 +71,10 @@ in
     script = ''
       # Put a true at the end to prevent getting non-zero return code, which will
       # crash the whole service.
-      check=$(${pkgs.docker}/bin/docker network ls | grep "immich-bridge" || true)
+      check=$(${pkgs.podman}/bin/podman network ls | grep "immich-bridge" || true)
       if [ -z "$check" ];
-        then ${pkgs.docker}/bin/docker network create immich-bridge
-        else echo "immich-bridge already exists in docker"
+        then ${pkgs.podman}/bin/podman network create immich-bridge
+        else echo "immich-bridge already exists in podman"
       fi
     '';
   };
