@@ -4,6 +4,7 @@
   ];
 
   environment.systemPackages = [
+    pkgs.cachix
     pkgs.nixpkgs-fmt
     pkgs.python311
     pkgs.mysql80
@@ -29,7 +30,9 @@
 
   services.nix-daemon.enable = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.trusted-users = [ "root" "sciyoshi" ];
   nix.package = pkgs.nixUnstable;
+  nix.linux-builder.enable = true;
   # home-manager.useUserPackages = true;
   home-manager.users.sciyoshi = import ./home;
   programs.zsh.enable = true;

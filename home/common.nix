@@ -2,6 +2,7 @@
   home.packages = with pkgs; [
     borgbackup
     caddy
+    envsubst
     fastmod
     gnupg
     just
