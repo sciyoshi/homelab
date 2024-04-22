@@ -31,6 +31,14 @@
     pinentry.curses
   ] else [ ]);
 
+  xdg.enable = true;
+
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
+    nix-direnv.enable = true;
+  };
+
   programs.ssh = {
     enable = true;
     forwardAgent = true;

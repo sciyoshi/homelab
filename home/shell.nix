@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, config, ... }: {
   programs.eza.enable = true;
   programs.fzf.enable = true;
   programs.direnv.enable = true;
@@ -14,6 +14,15 @@
 
   programs.zsh = {
     enable = true;
+    dotDir = ".config/zsh";
+    history.path = "${config.xdg.stateHome}/zsh/history";
+    sessionVariables = {
+      CARGO_HOME = "${config.xdg.dataHome}/cargo";
+      RUSTUP_HOME = "${config.xdg.dataHome}/rustup";
+      NODE_REPL_HISTORY = "${config.xdg.stateHome}/node_repl_history";
+      MYSQL_HISTFILE = "${config.xdg.stateHome}/mysql_history";
+      FLY_CONFIG_DIR = "${config.xdg.stateHome}/fly";
+    };
     initExtra = ''
       # create a zkbd compatible hash;
       # to add other keys to this hash, see: man 5 terminfo
@@ -66,7 +75,7 @@
       }
 
       pathadd "$HOME/.local/bin"
-      pathadd "$HOME/.cargo/bin"
+      pathadd "$HOME/.local/share/cargo/bin"
       pathadd "/opt/homebrew/bin"
 
       for al in `git --list-cmds=alias`; do
