@@ -15,13 +15,13 @@
     openiscsi
     parted
     ripgrep
-    smartmontools
     starship
     tailscale
     unzip
     wget
     wireguard-tools
   ] ++ (if !pkgs.stdenv.isAarch64 then [
+    smartmontools
     nvme-cli
   ] else [ ]);
 

@@ -9,6 +9,16 @@
     };
   };
 
+  services.mysql = {
+    enable = true;
+    package = pkgs.mysql80;
+  };
+
+  services.mysqlBackup = {
+    enable = true;
+    location = "/media/local/backup/mysql";
+  };
+
   services.postgresql = {
     enable = true;
     package = pkgs.postgresql_16;

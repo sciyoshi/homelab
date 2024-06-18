@@ -47,9 +47,11 @@
       "/var/lib/jellyfin"
       "/var/lib/rancher"
       "/var/lib/docker"
+      "/var/lib/containers"
       "/var/lib/cni"
       "/var/lib/kubelet"
       "/var/lib/postgresql"
+      "/var/lib/mysql"
     ];
     files = [
       "/etc/machine-id"
