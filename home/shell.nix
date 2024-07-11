@@ -10,7 +10,10 @@
     la = "${pkgs.eza}/bin/eza -la --group-directories-first";
     dc = "docker compose";
     k = "kubectl";
+    # wget = "wget --hsts-file=\"${config.xdg.dataHome}/wget-hsts\"";
   };
+
+  xdg.enable = true;
 
   programs.zsh = {
     enable = true;
@@ -22,8 +25,15 @@
       NODE_REPL_HISTORY = "${config.xdg.stateHome}/node_repl_history";
       MYSQL_HISTFILE = "${config.xdg.stateHome}/mysql_history";
       FLY_CONFIG_DIR = "${config.xdg.stateHome}/fly";
+      # PSQL_HISTORY = "${config.xdg.dataHome}/psql_history";
+      # GNUPGHOME = "${config.xdg.dataHome}/gnupg";
+
+      # AWS_SHARED_CREDENTIALS_FILE = "${config.xdg.configHome}/aws/credentials";
+      # AWS_CONFIG_FILE = "${config.xdg.configHome}/aws/config";
     };
     initExtra = ''
+      # compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-"$ZSH_VERSION"
+
       # create a zkbd compatible hash;
       # to add other keys to this hash, see: man 5 terminfo
       typeset -g -A key

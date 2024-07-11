@@ -1,11 +1,15 @@
 { pkgs, ... }: {
   home.packages = with pkgs; [
+    aws-sso-creds
     borgbackup
+    cachix
     caddy
     envsubst
     fastmod
     gnupg
+    jq
     just
+    maturin
     micro
     mkcert
     nixpkgs-fmt
@@ -19,6 +23,7 @@
     tig
     vim
     xh
+    yq-go
     zstd
   ] ++ (if !pkgs.stdenv.isAarch64 || pkgs.stdenv.isDarwin then [
     aws-vault
