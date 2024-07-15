@@ -36,7 +36,7 @@
     pinentry.curses
   ] else [ ]);
 
-  xdg.enable = true;
+  # xdg.enable = true;
 
   programs.direnv = {
     enable = true;
