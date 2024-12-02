@@ -30,7 +30,7 @@
   system.autoUpgrade.enable = true;
   system.autoUpgrade.allowReboot = true;
 
-  systemd.enableUnifiedCgroupHierarchy = true;
+  # systemd.enableUnifiedCgroupHierarchy = true;
 
   security.sudo.wheelNeedsPassword = false;
 

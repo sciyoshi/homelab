@@ -39,6 +39,7 @@
     directories = [
       "/etc/nixos"
       "/var/log"
+      "/var/lib/nixos"
       "/var/lib/tailscale"
       "/var/lib/transmission"
       "/var/lib/samba"
@@ -93,11 +94,11 @@
     };
   };
 
-  hardware.opengl = {
+  hardware.graphics = {
     enable = true;
-    driSupport = true;
-    driSupport32Bit = true;
-    setLdLibraryPath = true;
+    # driSupport = true;
+    enable32Bit = true;
+    # setLdLibraryPath = true;
   };
 
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
@@ -108,10 +109,10 @@
 
   services.xserver.enable = true;
   services.xserver.videoDrivers = [ "nvidia" ];
-  systemd.enableUnifiedCgroupHierarchy = false;
+  # systemd.enableUnifiedCgroupHierarchy = false;
 
   virtualisation.podman.enable = true;
-  virtualisation.containers.cdi.dynamic.nvidia.enable = true;
+  hardware.nvidia-container-toolkit.enable =  true;
   virtualisation.oci-containers.backend = "podman";
 
   security.sudo.wheelNeedsPassword = false;
@@ -153,7 +154,6 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    adoptopenjdk-bin
     bcache-tools
     btrfs-progs
     dmraid
@@ -167,6 +167,7 @@
     parted
     smartmontools
     openiscsi
+    temurin-bin
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -216,9 +217,9 @@
 
   services.samba = {
     enable = true;
-    securityType = "user";
     openFirewall = true;
-    shares = {
+    settings = {
+      global.security = "user";
       Data = {
         path = "/media/data";
         browseable = "yes";

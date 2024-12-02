@@ -6,8 +6,7 @@ let
     DB_USERNAME = "immich";
     DB_DATABASE_NAME = "immich";
     DB_PASSWORD = "immich";
-    IMMICH_SERVER_URL = "http://immich_server:3001";
-    IMMICH_WEB_URL = "http://immich_web:3000";
+    IMMICH_SERVER_URL = "http://immich_server:2283";
     IMMICH_MACHINE_LEARNING_URL = "http://immich_machine_learning:3003";
     REDIS_HOSTNAME = "host.docker.internal";
   };
@@ -17,7 +16,6 @@ in
     immich_server = {
       image = "ghcr.io/immich-app/immich-server:release";
       extraOptions = [ "--network=immich-bridge" "--add-host=host.docker.internal:host-gateway" "--pull=always" ];
-      cmd = [ "start.sh" "immich" ];
 
       volumes = [
         "${photosLocation}:/usr/src/app/upload"
@@ -26,23 +24,7 @@ in
       environmentFiles = [ "${config.sops.templates.immich_env.path}" ];
       environment = environment;
 
-      ports = [ "2283:3001" ];
-
-      autoStart = true;
-    };
-
-    immich_microservices = {
-      image = "ghcr.io/immich-app/immich-server:release";
-      extraOptions = [ "--network=immich-bridge" "--add-host=host.docker.internal:host-gateway" "--pull=always" ];
-      cmd = [ "start.sh" "microservices" ];
-
-      volumes = [
-        "${photosLocation}:/usr/src/app/upload"
-        "/etc/localtime:/etc/localtime:ro"
-      ];
-
-      environmentFiles = [ "${config.sops.templates.immich_env.path}" ];
-      environment = environment;
+      ports = [ "2283:2283" ];
 
       autoStart = true;
     };

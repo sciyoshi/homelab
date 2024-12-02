@@ -33,7 +33,8 @@
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.opengl.enable = true;
   hardware.nvidia.modesetting.enable = true;
-  hardware.opengl.driSupport = true;
+  hardware.nvidia.open = false;
+  # hardware.opengl.driSupport = true;
 
   # programs.xwayland.enable = true;
   # programs.sway.enable = true;
@@ -82,7 +83,7 @@
   #services.printing.enable = true;
 
   # Enable sound with pipewire.
-  sound.enable = true;
+  # sound.enable = true;
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {

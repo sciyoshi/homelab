@@ -17,6 +17,7 @@
       "/var/log"
       "/var/lib/tailscale"
       "/var/lib/borg"
+      "/var/lib/nixos"
     ];
     files = [
       "/etc/machine-id"

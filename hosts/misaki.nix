@@ -39,7 +39,7 @@
   system.stateVersion = "23.11";
   services.sshd.enable = true;
   networking.wireless.enable = true;
-  networking.wireless.environmentFile = config.sops.secrets.wireless_env.path;
+  # networking.wireless.environmentFile = config.sops.secrets.wireless_env.path;
   networking.wireless.networks.sci24.psk = "@PSK_HOME@";
   networking.interfaces.wlan0.useDHCP = true;
   networking.interfaces.end0.useDHCP = true;
