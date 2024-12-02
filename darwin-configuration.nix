@@ -3,6 +3,8 @@
     "nodejs-16.20.0"
   ];
 
+  system.stateVersion = 5;
+
   environment.systemPackages = [
     pkgs.cachix
     pkgs.nixpkgs-fmt
@@ -19,8 +21,7 @@
   ];
 
   fonts = {
-    fontDir.enable = true;
-    fonts = with pkgs; [
+    packages = with pkgs; [
       fira-code
       fira-code-symbols
       noto-fonts
@@ -32,7 +33,7 @@
   services.nix-daemon.enable = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nix.settings.trusted-users = [ "root" "sciyoshi" ];
-  nix.package = pkgs.nixUnstable;
+  nix.package = pkgs.nixVersions.latest;
   nix.linux-builder.enable = true;
   # home-manager.useUserPackages = true;
   home-manager.users.sciyoshi = import ./home;
