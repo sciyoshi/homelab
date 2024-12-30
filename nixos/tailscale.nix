@@ -36,6 +36,7 @@
       fi
 
       # otherwise authenticate with tailscale
+      echo "tailscale key: $(${config.services.tailscale.autoconnect.authKeyCommand})"
       ${tailscale}/bin/tailscale up --auth-key=$(${config.services.tailscale.autoconnect.authKeyCommand}) ${builtins.concatStringsSep " " config.services.tailscale.autoconnect.params}
     '';
   };
