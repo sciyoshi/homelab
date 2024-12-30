@@ -32,7 +32,11 @@
 
   # systemd.enableUnifiedCgroupHierarchy = true;
 
+  security.sudo.enable = false;
+  security.sudo-rs.enable = true;
+
   security.sudo.wheelNeedsPassword = false;
+  security.sudo-rs.wheelNeedsPassword = false;
 
   networking.firewall.allowPing = true;
   networking.firewall.checkReversePath = "loose";
@@ -50,6 +54,8 @@
 
   nixpkgs.config.allowUnfree = true;
 
+  networking.nameservers = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
+
   networking.nat.enable = true;
   networking.nat.externalInterface = "ens3";
   networking.nat.internalInterfaces = [ "wg0" ];
@@ -58,7 +64,12 @@
     allowedUDPPorts = [ 51820 ];
   };
 
-  services.resolved.enable = true;
+  services.resolved = {
+    enable = true;
+    dnssec = "true";
+    fallbackDns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
+    dnsovertls = "true";
+  };
 
   services.k3s = {
     enable = true;
