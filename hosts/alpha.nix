@@ -53,7 +53,6 @@
 
   networking = {
     hostName = "alpha";
-    nameservers = [ "1.1.1.1" ];
   };
 
   nixpkgs.hostPlatform = "x86_64-linux";
