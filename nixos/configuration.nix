@@ -39,11 +39,10 @@
 
   services.tailscale = {
     enable = true;
-    autoconnect = {
-      enable = true;
-      params = [ "--advertise-exit-node" "--accept-routes" ];
-      authKeyCommand = ''cat "${config.sops.secrets.tailscale_key.path}"'';
-    };
+    authKeyFile = config.sops.secrets.tailscale_key.path;
+    extraSetFlags = [
+      "--advertise-exit-node"
+    ];
   };
 
   virtualisation.docker.enable = true;

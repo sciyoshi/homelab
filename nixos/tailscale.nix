@@ -26,17 +26,15 @@
     # have the job run this shell script
     script = with pkgs; ''
       # wait for tailscaled to settle
-      sleep 2
+      sleep 5
 
       # check if we are already authenticated to tailscale
       status="$(${tailscale}/bin/tailscale status -json | ${jq}/bin/jq -r .BackendState)"
-      echo "tailscale status: $status"
       if [ $status = "Running" ]; then # if so, then do nothing
         exit 0
       fi
 
       # otherwise authenticate with tailscale
-      echo "tailscale key: $(${config.services.tailscale.autoconnect.authKeyCommand})"
       ${tailscale}/bin/tailscale up --auth-key=$(${config.services.tailscale.autoconnect.authKeyCommand}) ${builtins.concatStringsSep " " config.services.tailscale.autoconnect.params}
     '';
   };
