@@ -25,7 +25,8 @@
     fira-code-symbols
     noto-fonts
     victor-mono
-    (nerdfonts.override { fonts = [ "VictorMono" "FiraCode" ]; })
+    nerd-fonts.victor-mono
+    nerd-fonts.fira-code
   ];
 
   boot.supportedFilesystems = [ "ntfs" "btrfs" ];

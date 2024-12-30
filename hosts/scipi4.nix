@@ -2,7 +2,7 @@
   imports = [
     ../nixos/configuration.nix
     ../nixos/homeassistant.nix
-    ../nixos/rumqttd.nix
+    # ../nixos/rumqttd.nix
   ];
 
   boot.initrd.supportedFilesystems = lib.mkForce [ "vfat" ];
@@ -15,7 +15,7 @@
   nixpkgs.buildPlatform = "x86_64-linux";
 
   nixpkgs.overlays = [
-    (import ../overlays/rumqttd.nix)
+    # (import ../overlays/rumqttd.nix)
     (import ../overlays/zigbee2mqtt.nix)
   ];
 

@@ -3,7 +3,6 @@
     bcache-tools
     borgbackup
     btrfs-progs
-    dmraid
     docker
     eza
     fio

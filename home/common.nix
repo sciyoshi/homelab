@@ -2,13 +2,11 @@
   home.packages = with pkgs; [
     aws-sso-creds
     borgbackup
-    cachix
     caddy
     envsubst
     fastmod
-    gnupg
+    # gnupg
     jq
-    just
     maturin
     micro
     mkcert
@@ -21,13 +19,12 @@
     sops
     stern
     tig
-    vim
     xh
     yq-go
     zstd
   ] ++ (if !pkgs.stdenv.isAarch64 || pkgs.stdenv.isDarwin then [
     aws-vault
-    awscli2
+    just
     poetry
     python312
     rustup
