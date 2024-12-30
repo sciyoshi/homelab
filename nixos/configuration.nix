@@ -39,10 +39,10 @@
 
   services.tailscale = {
     enable = true;
-    # authKeyFile = config.sops.secrets.tailscale_key.path;
-    # extraSetFlags = [
-    #   "--advertise-exit-node"
-    # ];
+    authKeyFile = config.sops.secrets.tailscale_key.path;
+    extraSetFlags = [
+      "--advertise-exit-node"
+    ];
   };
 
   virtualisation.docker.enable = true;
