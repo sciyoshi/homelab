@@ -2,6 +2,11 @@
   description = "Homelab";
 
   nixConfig.extra-experimental-features = "nix-command flakes";
+  nixConfig = {
+    extra-trusted-substituters = ["https://cache.flox.dev"];
+    extra-trusted-public-keys = ["flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs="];
+  };
+
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
@@ -20,6 +25,9 @@
     darwin = {
       url = "github:lnl7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+    flox = {
+      url = "github:flox/flox/v1.3.11";
     };
   };
 

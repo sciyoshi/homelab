@@ -1,15 +1,22 @@
-{ pkgs, ... }: {
+{ pkgs, specialArgs, ... }: {
   nixpkgs.config.permittedInsecurePackages = [
     "nodejs-16.20.0"
   ];
 
   system.stateVersion = 5;
 
+  # nixpkgs.overlays = [
+  #   (import ./overlays/mysql80.nix)
+  # ];
+
   environment.systemPackages = [
     pkgs.cachix
     pkgs.nixpkgs-fmt
-    pkgs.python311
-    pkgs.mysql80
+    pkgs.python313
+    pkgs.podman
+    pkgs.podman-compose
+    specialArgs.inputs.flox.packages.${pkgs.system}.default
+    # pkgs.mysql80
     pkgs.minio
     pkgs.apacheKafka
     pkgs.python311Packages.supervisor
@@ -26,15 +33,27 @@
       fira-code-symbols
       noto-fonts
       victor-mono
-      (nerdfonts.override { fonts = [ "VictorMono" "FiraCode" ]; })
+      nerd-fonts.victor-mono
+      nerd-fonts.fira-code
     ];
   };
 
   services.nix-daemon.enable = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nix.settings.trusted-users = [ "root" "sciyoshi" ];
+  nix.settings = {
+    substituters = [
+      "https://cache.flox.dev"
+    ];
+    trusted-public-keys = [
+      "flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs="
+    ];
+  };
+
   nix.package = pkgs.nixVersions.latest;
   nix.linux-builder.enable = true;
+  nix.linux-builder.systems = [ "aarch64-linux" ];
+
   # home-manager.useUserPackages = true;
   home-manager.users.sciyoshi = import ./home;
   programs.zsh.enable = true;
@@ -111,14 +130,14 @@
     "fellow.dev" = "127.0.0.1";
   };
 
-  launchd.user.agents.mysql =
-    {
-      path = [ pkgs.mysql80 ];
-      command = "${pkgs.mysql80}/bin/mysqld";
+  # launchd.user.agents.mysql =
+  #   {
+  #     path = [ pkgs.mysql80 ];
+  #     command = "${pkgs.mysql80}/bin/mysqld";
 
-      serviceConfig.KeepAlive = true;
-      serviceConfig.RunAtLoad = true;
-    };
+  #     serviceConfig.KeepAlive = true;
+  #     serviceConfig.RunAtLoad = true;
+  #   };
 
   launchd.user.agents.minio =
     {

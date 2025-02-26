@@ -9,6 +9,7 @@
     ls = "${pkgs.eza}/bin/eza -l --group-directories-first";
     la = "${pkgs.eza}/bin/eza -la --group-directories-first";
     dc = "docker compose";
+    pc = "podman compose";
     k = "kubectl";
     # wget = "wget --hsts-file=\"${config.xdg.dataHome}/wget-hsts\"";
   };
@@ -20,6 +21,8 @@
     dotDir = ".config/zsh";
     history.path = "${config.xdg.stateHome}/zsh/history";
     sessionVariables = {
+      PODMAN_COMPOSE_WARNING_LOGS = "false";
+
       CARGO_HOME = "${config.xdg.dataHome}/cargo";
       RUSTUP_HOME = "${config.xdg.dataHome}/rustup";
       NODE_REPL_HISTORY = "${config.xdg.stateHome}/node_repl_history";
