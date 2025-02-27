@@ -38,7 +38,7 @@
     ];
   };
 
-  services.nix-daemon.enable = true;
+  ids.gids.nixbld = 30000;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nix.settings.trusted-users = [ "root" "sciyoshi" ];
   nix.settings = {
