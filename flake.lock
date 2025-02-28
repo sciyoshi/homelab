@@ -138,16 +138,16 @@
         "t3-src": "t3-src"
       },
       "locked": {
-        "lastModified": 1737567930,
-        "narHash": "sha256-Fvcza4ffhFYrxC+az7jlX8xGf+mmlzqiczdfuaXYpdI=",
+        "lastModified": 1740010601,
+        "narHash": "sha256-n2dWnFt0ucBLt/sYqzgRa6nxe7XHQm12pRjZDf4fW2o=",
         "owner": "flox",
         "repo": "flox",
-        "rev": "9557a2067103a9527a07aee0146c19b05e510b22",
+        "rev": "8fa0811be7ae44763619e59dc1fab4ddae333316",
         "type": "github"
       },
       "original": {
         "owner": "flox",
-        "ref": "v1.3.11",
+        "ref": "v1.3.15",
         "repo": "flox",
         "type": "github"
       }
@@ -394,15 +394,16 @@
     "t3-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1734542708,
-        "narHash": "sha256-D0igUpqO2Es9QyhcJtPUc1rInSVC96lrx4z+takOwWg=",
+        "lastModified": 1738681975,
+        "narHash": "sha256-QLaOMYlEYjUZpuXJ/MOKb+UqzrTiOu6Isuqj07HTxkQ=",
         "owner": "flox",
         "repo": "t3",
-        "rev": "813ed220eab7f678a1bfbf70e4145d9de738d562",
+        "rev": "83caeb1cc47fd07117ee5cf478f82cc177cca598",
         "type": "github"
       },
       "original": {
         "owner": "flox",
+        "ref": "v1.0.7",
         "repo": "t3",
         "type": "github"
       }

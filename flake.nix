@@ -27,7 +27,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flox = {
-      url = "github:flox/flox/v1.3.11";
+      url = "github:flox/flox/v1.3.15";
     };
   };
 
@@ -41,6 +41,7 @@
     , deploy-rs
     , darwin
     , nixos-hardware
+    , flox
     , ...
     }@inputs: rec {
       darwinConfigurations = import ./nix/darwin.nix inputs;

@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, flox, ... }: {
   home.packages = with pkgs; [
     aws-sso-creds
     awscli2
@@ -23,6 +23,7 @@
     xh
     yq-go
     zstd
+    flox.packages.${pkgs.system}.default
   ] ++ (if !pkgs.stdenv.isAarch64 || pkgs.stdenv.isDarwin then [
     aws-vault
     just
