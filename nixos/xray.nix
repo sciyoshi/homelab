@@ -1,4 +1,10 @@
-{ pkgs, config, lib, ... }: {
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
+{
   services.caddy = {
     enable = true;
     virtualHosts."beta.sciyoshi.com".extraConfig = ''
@@ -8,24 +14,32 @@
 
   services.xray.enable = true;
   services.xray.settings = {
-    inbounds = [{
-      port = 20001;
-      listen = "127.0.0.1";
-      protocol = "http";
-      settings = {
-        clients = [{
-          id = "58372395-ece7-482f-8f95-ae7db4b1f91b";
-          level = 0;
-          email = "sciyoshi@gmail.com";
-        }];
-        decryption = "none";
-        fallbacks = [{
-          dest = "34.223.124.45:80";
-        }];
-      };
-    }];
-    outbounds = [{
-      protocol = "freedom";
-    }];
+    inbounds = [
+      {
+        port = 20001;
+        listen = "127.0.0.1";
+        protocol = "http";
+        settings = {
+          clients = [
+            {
+              id = "58372395-ece7-482f-8f95-ae7db4b1f91b";
+              level = 0;
+              email = "sciyoshi@gmail.com";
+            }
+          ];
+          decryption = "none";
+          fallbacks = [
+            {
+              dest = "34.223.124.45:80";
+            }
+          ];
+        };
+      }
+    ];
+    outbounds = [
+      {
+        protocol = "freedom";
+      }
+    ];
   };
 }

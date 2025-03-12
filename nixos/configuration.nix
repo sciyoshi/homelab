@@ -1,4 +1,5 @@
-{ pkgs, config, ... }@inputs: {
+{ pkgs, config, ... }@inputs:
+{
   imports = [
     ./hardware/ovh.nix
     ./common.nix
@@ -54,20 +55,32 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  networking.nameservers = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
+  networking.nameservers = [
+    "1.1.1.1#one.one.one.one"
+    "1.0.0.1#one.one.one.one"
+  ];
 
   networking.nat.enable = true;
   networking.nat.externalInterface = "ens3";
   networking.nat.internalInterfaces = [ "wg0" ];
   networking.firewall = {
-    allowedTCPPorts = [ 80 443 6443 9443 9080 ];
+    allowedTCPPorts = [
+      80
+      443
+      6443
+      9443
+      9080
+    ];
     allowedUDPPorts = [ 51820 ];
   };
 
   services.resolved = {
     enable = true;
     dnssec = "true";
-    fallbackDns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
+    fallbackDns = [
+      "1.1.1.1#one.one.one.one"
+      "1.0.0.1#one.one.one.one"
+    ];
     dnsovertls = "true";
   };
 

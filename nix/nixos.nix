@@ -1,25 +1,28 @@
-{ nixpkgs
-, home-manager
-, sops-nix
-, impermanence
-, nixos-hardware
-, ...
+{
+  nixpkgs,
+  home-manager,
+  sops-nix,
+  impermanence,
+  nixos-hardware,
+  ...
 }@inputs:
 let
-  makeSystem = hostModules: nixpkgs.lib.nixosSystem {
-    system = "x86_64-linux";
-    modules = [
-      home-manager.nixosModules.home-manager
-      sops-nix.nixosModules.sops
-      impermanence.nixosModules.impermanence
-      {
-        home-manager.useGlobalPkgs = true;
-        home-manager.useUserPackages = true;
-        home-manager.extraSpecialArgs = { inherit inputs; };
-        home-manager.users.sciyoshi = import ../home;
-      }
-    ] ++ hostModules;
-  };
+  makeSystem =
+    hostModules:
+    nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        home-manager.nixosModules.home-manager
+        sops-nix.nixosModules.sops
+        impermanence.nixosModules.impermanence
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.extraSpecialArgs = { inherit inputs; };
+          home-manager.users.sciyoshi = import ../home;
+        }
+      ] ++ hostModules;
+    };
 in
 {
   "alpha" = makeSystem [ ../hosts/alpha.nix ];

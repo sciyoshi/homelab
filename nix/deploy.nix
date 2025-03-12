@@ -1,4 +1,10 @@
-{ self, deploy-rs, nixpkgs, ... }: {
+{
+  self,
+  deploy-rs,
+  nixpkgs,
+  ...
+}:
+{
   autoRollback = false;
   magicRollback = true;
   user = "root";

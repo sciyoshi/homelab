@@ -1,4 +1,5 @@
-{ pkgs, specialArgs, ... }: {
+{ pkgs, specialArgs, ... }:
+{
   nixpkgs.config.permittedInsecurePackages = [
     "nodejs-16.20.0"
   ];
@@ -11,7 +12,8 @@
 
   environment.systemPackages = [
     pkgs.cachix
-    pkgs.nixpkgs-fmt
+    pkgs.nixfmt-rfc-style
+    pkgs.nil
     pkgs.python313
     pkgs.podman
     pkgs.podman-compose
@@ -39,8 +41,14 @@
   };
 
   ids.gids.nixbld = 30000;
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nix.settings.trusted-users = [ "root" "sciyoshi" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
+  nix.settings.trusted-users = [
+    "root"
+    "sciyoshi"
+  ];
   nix.settings = {
     substituters = [
       "https://cache.flox.dev"
@@ -54,7 +62,13 @@
   nix.linux-builder.enable = true;
   nix.linux-builder.systems = [ "aarch64-linux" ];
 
+  # Debug output for specialArgs
+  # _debug = builtins.trace "specialArgs: ${builtins.toJSON specialArgs}" null;
   # home-manager.useUserPackages = true;
+  home-manager.extraSpecialArgs = {
+    flox = specialArgs.inputs.flox;
+  };
+
   home-manager.users.sciyoshi = import ./home;
   programs.zsh.enable = true;
 
@@ -139,29 +153,29 @@
   #     serviceConfig.RunAtLoad = true;
   #   };
 
-  launchd.user.agents.minio =
-    {
-      path = [ pkgs.minio ];
-      command = "${pkgs.minio}/bin/minio server /var/lib/minio";
+  launchd.user.agents.minio = {
+    path = [ pkgs.minio ];
+    command = "${pkgs.minio}/bin/minio server /var/lib/minio";
 
-      serviceConfig.KeepAlive = true;
-      serviceConfig.RunAtLoad = true;
-    };
+    serviceConfig.KeepAlive = true;
+    serviceConfig.RunAtLoad = true;
+  };
 
-  launchd.user.agents.kafka =
-    {
-      path = [ pkgs.apacheKafka ];
-      command = "${pkgs.apacheKafka}/bin/kafka-server-start.sh ${pkgs.apacheKafka}/config/kraft/server.properties";
+  launchd.user.agents.kafka = {
+    path = [ pkgs.apacheKafka ];
+    command = "${pkgs.apacheKafka}/bin/kafka-server-start.sh ${pkgs.apacheKafka}/config/kraft/server.properties";
 
-      serviceConfig.KeepAlive = true;
-      serviceConfig.RunAtLoad = true;
-    };
+    serviceConfig.KeepAlive = true;
+    serviceConfig.RunAtLoad = true;
+  };
 
   launchd.user.agents.connect =
     let
       connectConfigBase = builtins.readFile "${pkgs.apacheKafka}/config/connect-standalone.properties";
       connectConfig = builtins.toFile "connect-standalone.properties" "
-        ${connectConfigBase}
+        ${
+                connectConfigBase
+              }
         plugin.path=/opt/debezium/
       ";
     in
@@ -173,19 +187,17 @@
       serviceConfig.RunAtLoad = true;
     };
 
-  launchd.user.agents.elasticsearch =
-    {
-      command = "/opt/elasticsearch/bin/elasticsearch";
+  launchd.user.agents.elasticsearch = {
+    command = "/opt/elasticsearch/bin/elasticsearch";
 
-      serviceConfig.KeepAlive = true;
-      serviceConfig.RunAtLoad = true;
-    };
+    serviceConfig.KeepAlive = true;
+    serviceConfig.RunAtLoad = true;
+  };
 
-  launchd.user.agents.kibana =
-    {
-      command = "/opt/kibana/bin/kibana";
+  launchd.user.agents.kibana = {
+    command = "/opt/kibana/bin/kibana";
 
-      serviceConfig.KeepAlive = true;
-      serviceConfig.RunAtLoad = true;
-    };
+    serviceConfig.KeepAlive = true;
+    serviceConfig.RunAtLoad = true;
+  };
 }

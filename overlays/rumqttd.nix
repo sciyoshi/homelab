@@ -1,5 +1,12 @@
 let
-  rumqttd = { lib, stdenv, fetchFromGitHub, rustPlatform, cmake }:
+  rumqttd =
+    {
+      lib,
+      stdenv,
+      fetchFromGitHub,
+      rustPlatform,
+      cmake,
+    }:
     rustPlatform.buildRustPackage rec {
       pname = "rumqtt";
       version = "0.19.0";
@@ -25,4 +32,3 @@ in
 final: prev: {
   rumqttd = prev.callPackage rumqttd { };
 }
-

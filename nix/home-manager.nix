@@ -1,4 +1,5 @@
-{ nixpkgs, home-manager, ... }@inputs: {
+{ nixpkgs, home-manager, ... }@inputs:
+{
   "sciyoshi" = home-manager.lib.homeManagerConfiguration {
     pkgs = nixpkgs.legacyPackages."x86_64-linux";
 

@@ -1,4 +1,5 @@
-{ pkgs, config, ... }: {
+{ pkgs, config, ... }:
+{
   virtualisation.oci-containers = {
     containers.homeassistant = {
       volumes = [ "home-assistant:/config" ];

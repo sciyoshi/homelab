@@ -1,5 +1,12 @@
 let
-  pgvecto-rs = { lib, stdenv, fetchurl, dpkg, postgresql }:
+  pgvecto-rs =
+    {
+      lib,
+      stdenv,
+      fetchurl,
+      dpkg,
+      postgresql,
+    }:
     let
       versionHashes = {
         "16" = "sha256-aJ1wLNZVdsZAvQeE26YVnJBr8lAm6i6/3eio5H44d7s=";
@@ -13,8 +20,7 @@ let
       buildInputs = [ dpkg ];
 
       src = fetchurl {
-        url =
-          "https://github.com/tensorchord/pgvecto.rs/releases/download/v${version}/vectors-pg${major}_${version}_amd64.deb";
+        url = "https://github.com/tensorchord/pgvecto.rs/releases/download/v${version}/vectors-pg${major}_${version}_amd64.deb";
         hash = versionHashes."${major}";
       };
 
@@ -32,8 +38,7 @@ let
       '';
 
       meta = with lib; {
-        description =
-          "pgvecto.rs extension for PostgreSQL: Scalable Vector database plugin for Postgres, written in Rust, specifically designed for LLM";
+        description = "pgvecto.rs extension for PostgreSQL: Scalable Vector database plugin for Postgres, written in Rust, specifically designed for LLM";
         homepage = "https://github.com/tensorchord/pgvecto.rs";
       };
     };
@@ -41,4 +46,3 @@ in
 final: prev: {
   pgvecto-rs = prev.callPackage pgvecto-rs { };
 }
-

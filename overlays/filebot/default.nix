@@ -13,9 +13,11 @@ final: prev: {
         cp ${lanterna_3_1_1} jar/lanterna.jar
       '';
 
-    installPhase = old.installPhase + ''
-      substituteInPlace $out/opt/.filebot.sh-wrapped \
-        --replace '-jar "$FILEBOT_HOME/jar/filebot.jar"' '-Dcom.googlecode.lanterna.terminal.UnixTerminal.sttyCommand=${final.coreutils}/bin/stty  -cp "$FILEBOT_HOME/jar/filebot-license.jar:$FILEBOT_HOME/jar/filebot.jar" "net.filebot.Main"'
-    '';
+    installPhase =
+      old.installPhase
+      + ''
+        substituteInPlace $out/opt/.filebot.sh-wrapped \
+          --replace '-jar "$FILEBOT_HOME/jar/filebot.jar"' '-Dcom.googlecode.lanterna.terminal.UnixTerminal.sttyCommand=${final.coreutils}/bin/stty  -cp "$FILEBOT_HOME/jar/filebot-license.jar:$FILEBOT_HOME/jar/filebot.jar" "net.filebot.Main"'
+      '';
   });
 }

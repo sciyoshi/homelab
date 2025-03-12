@@ -1,10 +1,23 @@
-{ pkgs, lib, config, modulesPath, ... }: {
+{
+  pkgs,
+  lib,
+  config,
+  modulesPath,
+  ...
+}:
+{
   imports = [
     ../nixos/configuration.nix
   ];
 
-  boot.initrd.supportedFilesystems = lib.mkForce [ "vfat" "btrfs" ];
-  boot.supportedFilesystems = lib.mkForce [ "vfat" "btrfs" ];
+  boot.initrd.supportedFilesystems = lib.mkForce [
+    "vfat"
+    "btrfs"
+  ];
+  boot.supportedFilesystems = lib.mkForce [
+    "vfat"
+    "btrfs"
+  ];
 
   boot.loader.generic-extlinux-compatible.enable = true;
   boot.loader.grub.enable = false;

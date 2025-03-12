@@ -1,4 +1,5 @@
-{ lib, config, ... }: {
+{ lib, config, ... }:
+{
   imports = [
     ../scilo/configuration.nix
   ];

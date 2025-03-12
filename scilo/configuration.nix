@@ -1,4 +1,10 @@
-{ config, pkgs, lib, ... }: {
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+{
   imports = [
     ./hardware-configuration.nix
     ../nixos/common.nix
@@ -21,7 +27,10 @@
     font = "ter-v32n";
   };
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   boot.initrd.postDeviceCommands = pkgs.lib.mkBefore ''
     mkdir -p /mnt
@@ -137,13 +146,18 @@
   users.mutableUsers = false;
 
   users.groups.media.members = [ "sciyoshi" ];
-  users.groups.sciyoshi = { gid = 1000; };
+  users.groups.sciyoshi = {
+    gid = 1000;
+  };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.sciyoshi = {
     isNormalUser = true;
     group = "sciyoshi";
-    extraGroups = [ "wheel" "media" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [
+      "wheel"
+      "media"
+    ]; # Enable ‘sudo’ for the user.
     shell = pkgs.zsh;
     initialHashedPassword = "$6$8n5a7Wv2pSxRbnlC$wUaKV9g05iT9USwuBssSG3/CBxNIjgNUw/HqWGcXntKBsVafADCUf8Wv4n0nAvhwUOx0ruPZ/YJKy1rpveERk.";
     openssh.authorizedKeys.keys = [
@@ -180,8 +194,20 @@
   # List services that you want to enable:
 
   # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [ 30303 8000 80 443 6443 9443 9080 ];
-  networking.firewall.allowedUDPPorts = [ 30303 8000 6443 ];
+  networking.firewall.allowedTCPPorts = [
+    30303
+    8000
+    80
+    443
+    6443
+    9443
+    9080
+  ];
+  networking.firewall.allowedUDPPorts = [
+    30303
+    8000
+    6443
+  ];
   networking.firewall.checkReversePath = "loose";
   networking.firewall.interfaces.podman1.allowedUDPPorts = [ 53 ];
   # Or disable the firewall altogether.
@@ -262,7 +288,10 @@
     repo = "borg@100.119.209.24:.";
     compression = "auto,zstd";
     startAt = "*-*-* 00:10:00";
-    exclude = [ "encoded-video" "thumbs" ];
+    exclude = [
+      "encoded-video"
+      "thumbs"
+    ];
     prune.keep = {
       daily = 7;
       weekly = 4;

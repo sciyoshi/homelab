@@ -1,28 +1,37 @@
-{ pkgs, config, ... }: {
-  environment.systemPackages = with pkgs; [
-    bcache-tools
-    borgbackup
-    btrfs-progs
-    docker
-    eza
-    fio
-    flashbench
-    fzf
-    git
-    k3s
-    netcat-gnu
-    openiscsi
-    parted
-    ripgrep
-    starship
-    tailscale
-    unzip
-    wget
-    wireguard-tools
-  ] ++ (if !pkgs.stdenv.isAarch64 then [
-    smartmontools
-    nvme-cli
-  ] else [ ]);
+{ pkgs, config, ... }:
+{
+  environment.systemPackages =
+    with pkgs;
+    [
+      bcache-tools
+      borgbackup
+      btrfs-progs
+      docker
+      eza
+      fio
+      flashbench
+      fzf
+      git
+      k3s
+      netcat-gnu
+      openiscsi
+      parted
+      ripgrep
+      starship
+      tailscale
+      unzip
+      wget
+      wireguard-tools
+    ]
+    ++ (
+      if !pkgs.stdenv.isAarch64 then
+        [
+          smartmontools
+          nvme-cli
+        ]
+      else
+        [ ]
+    );
 
   environment.shellAliases = {
     l = "eza -l";

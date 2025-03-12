@@ -1,4 +1,5 @@
-{ pkgs, config, ... }: {
+{ pkgs, config, ... }:
+{
   users = {
     mutableUsers = false;
 
@@ -12,7 +13,10 @@
 
       sciyoshi = {
         isNormalUser = true;
-        extraGroups = [ "sudo" "wheel" ];
+        extraGroups = [
+          "sudo"
+          "wheel"
+        ];
         shell = pkgs.zsh;
         initialHashedPassword = "$6$8n5a7Wv2pSxRbnlC$wUaKV9g05iT9USwuBssSG3/CBxNIjgNUw/HqWGcXntKBsVafADCUf8Wv4n0nAvhwUOx0ruPZ/YJKy1rpveERk.";
         openssh.authorizedKeys.keys = [

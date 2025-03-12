@@ -1,4 +1,5 @@
-{ pkgs, config, ... }: {
+{ pkgs, config, ... }:
+{
   programs.eza.enable = true;
   programs.fzf.enable = true;
   programs.direnv.enable = true;

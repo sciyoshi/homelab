@@ -15,7 +15,11 @@ in
   virtualisation.oci-containers.containers = {
     immich_server = {
       image = "ghcr.io/immich-app/immich-server:release";
-      extraOptions = [ "--network=immich-bridge" "--add-host=host.docker.internal:host-gateway" "--pull=always" ];
+      extraOptions = [
+        "--network=immich-bridge"
+        "--add-host=host.docker.internal:host-gateway"
+        "--pull=always"
+      ];
 
       volumes = [
         "${photosLocation}:/usr/src/app/upload"
@@ -31,7 +35,11 @@ in
 
     immich_machine_learning = {
       image = "ghcr.io/immich-app/immich-machine-learning:release";
-      extraOptions = [ "--network=immich-bridge" "--add-host=host.docker.internal:host-gateway" "--pull=always" ];
+      extraOptions = [
+        "--network=immich-bridge"
+        "--add-host=host.docker.internal:host-gateway"
+        "--pull=always"
+      ];
 
       environmentFiles = [ "${config.sops.templates.immich_env.path}" ];
       environment = environment;

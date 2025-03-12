@@ -22,7 +22,12 @@
         FRIGATE_RTSP_PASSWORD = "password";
       };
 
-      ports = [ "5000:5000" "8554:8554" "8555:8555/tcp" "8555:8555/udp" ];
+      ports = [
+        "5000:5000"
+        "8554:8554"
+        "8555:8555/tcp"
+        "8555:8555/udp"
+      ];
 
       autoStart = true;
     };

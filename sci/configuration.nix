@@ -5,10 +5,10 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -18,7 +18,10 @@
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   fonts.fonts = with pkgs; [
     fira-code
@@ -29,7 +32,10 @@
     nerd-fonts.fira-code
   ];
 
-  boot.supportedFilesystems = [ "ntfs" "btrfs" ];
+  boot.supportedFilesystems = [
+    "ntfs"
+    "btrfs"
+  ];
 
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.opengl.enable = true;
@@ -107,10 +113,13 @@
   users.users.sciyoshi = {
     isNormalUser = true;
     description = "Samuel Cormier-Iijima";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
     packages = with pkgs; [
       firefox
-    #  thunderbird
+      #  thunderbird
     ];
   };
 

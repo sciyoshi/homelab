@@ -1,4 +1,11 @@
-{ pkgs, lib, config, modulesPath, ... }: {
+{
+  pkgs,
+  lib,
+  config,
+  modulesPath,
+  ...
+}:
+{
   imports = [
     ../nixos/configuration.nix
     ../nixos/homeassistant.nix
@@ -35,8 +42,16 @@
   networking.interfaces.end0.useDHCP = true;
   networking.firewall.enable = false;
   networking.firewall = {
-    allowedTCPPorts = [ 1883 1884 8123 ];
-    allowedUDPPorts = [ 1883 1884 8123 ];
+    allowedTCPPorts = [
+      1883
+      1884
+      8123
+    ];
+    allowedUDPPorts = [
+      1883
+      1884
+      8123
+    ];
   };
   users.users.root.initialHashedPassword = "$6$8n5a7Wv2pSxRbnlC$wUaKV9g05iT9USwuBssSG3/CBxNIjgNUw/HqWGcXntKBsVafADCUf8Wv4n0nAvhwUOx0ruPZ/YJKy1rpveERk.";
   users.users.root.openssh.authorizedKeys.keys = [

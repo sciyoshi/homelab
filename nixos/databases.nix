@@ -1,4 +1,10 @@
-{ lib, pkgs, config, ... }: {
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+{
   services.redis.servers = {
     immich = {
       enable = true;
@@ -51,5 +57,8 @@
     };
   };
 
-  networking.firewall.allowedTCPPorts = [ 5432 6379 ];
+  networking.firewall.allowedTCPPorts = [
+    5432
+    6379
+  ];
 }

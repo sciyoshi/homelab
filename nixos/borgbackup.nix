@@ -1,4 +1,10 @@
-{ pkgs, config, lib, ... }: {
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
+{
   services.borgbackup.repos.backup = {
     path = lib.mkDefault "/var/lib/borg/backup";
     authorizedKeys = [
