@@ -9,6 +9,7 @@
       caddy
       envsubst
       fastmod
+      gh
       # gnupg
       jq
       maturin

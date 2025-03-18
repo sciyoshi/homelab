@@ -139,10 +139,11 @@
   services.redis.enable = true;
 
   services.dnsmasq.enable = true;
-  services.dnsmasq.addresses = {
-    "localhost" = "127.0.0.1";
-    "fellow.dev" = "127.0.0.1";
-  };
+
+  launchd.daemons.dnsmasq.serviceConfig.ProgramArguments = [
+    "--address=/fellow.dev/127.0.0.1"
+    "--address=/fellow.dev/::1"
+  ];
 
   # launchd.user.agents.mysql =
   #   {
