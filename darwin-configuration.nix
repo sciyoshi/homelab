@@ -141,8 +141,8 @@
   services.dnsmasq.enable = true;
 
   launchd.daemons.dnsmasq.serviceConfig.ProgramArguments = [
-    "--address=/fellow.dev/127.0.0.1"
-    "--address=/fellow.dev/::1"
+    "--address=/sci.fellow.dev/127.0.0.1"
+    "--address=/sci.fellow.dev/::1"
   ];
 
   # launchd.user.agents.mysql =
