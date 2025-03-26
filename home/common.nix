@@ -9,6 +9,7 @@
       caddy
       envsubst
       fastmod
+      fd
       gh
       # gnupg
       jq
