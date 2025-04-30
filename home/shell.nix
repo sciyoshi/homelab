@@ -35,7 +35,7 @@
       # AWS_SHARED_CREDENTIALS_FILE = "${config.xdg.configHome}/aws/credentials";
       # AWS_CONFIG_FILE = "${config.xdg.configHome}/aws/config";
     };
-    initExtra = ''
+    initContent = ''
       # compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-"$ZSH_VERSION"
 
       # create a zkbd compatible hash;
