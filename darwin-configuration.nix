@@ -37,6 +37,7 @@
       victor-mono
       nerd-fonts.victor-mono
       nerd-fonts.fira-code
+      monaspace
     ];
   };
 

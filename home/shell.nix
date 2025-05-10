@@ -97,7 +97,7 @@
       done
     '';
     profileExtra = ''
-      ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start zsh)"
+      # ZELLIJ_AUTO_EXIT=true eval "$(zellij setup --generate-auto-start zsh)"
     '';
   };
 
