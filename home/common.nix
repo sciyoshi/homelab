@@ -1,4 +1,4 @@
-{ pkgs, flox, ... }:
+{ pkgs, ... }:
 {
   home.packages =
     with pkgs;
@@ -29,7 +29,7 @@
       xh
       yq-go
       zstd
-      flox.packages.${pkgs.system}.default
+      # flox.packages.${pkgs.system}.default
     ]
     ++ (
       if !pkgs.stdenv.isAarch64 || pkgs.stdenv.isDarwin then

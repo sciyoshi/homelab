@@ -3,11 +3,10 @@
     frigate = {
       image = "ghcr.io/blakeblackshear/frigate:stable";
       extraOptions = [
-        "--network=immich-bridge"
         "--pull=always"
-        "--shm-size=256m"
+        "--shm-size=512m"
         "--device=/dev/bus/usb:/dev/bus/usb"
-        # "--device=nvidia.com/gpu=all"
+        "--device=nvidia.com/gpu=all"
         "--mount=type=tmpfs,target=/tmp/cache,tmpfs-size=1000000000"
         "--privileged"
       ];
