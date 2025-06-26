@@ -38,7 +38,7 @@
           just
           poetry
           python313
-          rustup
+          # rustup
           kubectl
           kubectx
           pinentry.curses

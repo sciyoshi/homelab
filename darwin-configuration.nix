@@ -6,6 +6,8 @@
 
   system.stateVersion = 5;
 
+  system.primaryUser = "sciyoshi";
+
   # nixpkgs.overlays = [
   #   (import ./overlays/mysql80.nix)
   # ];
