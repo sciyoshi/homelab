@@ -134,8 +134,12 @@
     vim
     vscode
     slack
-    wine
     tailscale
+    (wineWowPackages.full.override {
+      wineRelease = "staging";
+      mingwSupport = true;
+    })
+    winetricks
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -180,7 +184,7 @@
     # powerManagement.finegrained = true;
     open = true;
     nvidiaSettings = true;
-    package = config.boot.kernelPackages.nvidiaPackages.beta;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
   programs.steam = {

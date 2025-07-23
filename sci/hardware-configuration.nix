@@ -24,11 +24,22 @@
   ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
+  boot.kernelParams = [ "drm.edid_firmware=DP-3:edid/MonitorEDID.bin" "video=DP-3:e" "nvidia_drm.fbdev=1" "nvidia-drm.modeset=1" "nvidia.NVreg_PreserveVideoMemoryAllocations=1" ];
+  hardware.firmware = [ (pkgs.runCommand "edid-firmware" { } ''
+    mkdir -p $out/lib/firmware/edid
+    cp ${./edid.bin} $out/lib/firmware/edid/MonitorEDID.bin
+  '') ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/01bf5eef-5419-4b98-99c9-9cfb7f52b876";
     fsType = "ext4";
+  };
+
+  fileSystems."/srv/data" = {
+    device = "/dev/disk/by-uuid/11E90BFF7F639C7F";
+    fsType = "ntfs-3g";
+    options = [ "permissions" "users" "uid=sciyoshi" ];
   };
 
   fileSystems."/boot" = {
