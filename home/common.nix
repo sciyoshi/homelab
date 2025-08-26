@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, specialArgs, ... }:
 {
   home.packages =
     with pkgs;
@@ -10,7 +10,7 @@
       fastmod
       fd
       gh
-      # gnupg
+      gnupg
       jq
       maturin
       micro
@@ -25,19 +25,19 @@
       sops
       stern
       tig
+      uv
+      python313
       xh
       yq-go
       zstd
-      # flox.packages.${pkgs.system}.default
+      rustup
+      specialArgs.inputs.flox.packages.${pkgs.system}.default
     ]
     ++ (
       if !pkgs.stdenv.isAarch64 || pkgs.stdenv.isDarwin then
         [
           aws-vault
           just
-          poetry
-          python313
-          # rustup
           kubectl
           kubectx
           pinentry.curses

@@ -15,7 +15,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.configurationLimit = 3;
 
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # boot.kernelPackages = pkgs.linuxPackages_6_6;
 
   fonts.packages = with pkgs; [
     fira-code
@@ -53,6 +53,34 @@
 
   # Enable networking
   networking.networkmanager.enable = true;
+  networking.networkmanager.dns = "systemd-resolved";
+
+  systemd.network.wait-online.enable = false;
+  systemd.services."systemd-networkd-wait-online".enable = false;
+
+  services.resolved.enable = true;
+
+  systemd.network.enable = true;
+
+  systemd.network.networks."30-sci-split" = {
+    matchConfig.Name = "lo";
+    dns = [ "127.0.0.1" ];
+    domains = [ "~sci.fellow.dev" ];
+    linkConfig.RequiredForOnline = "no";
+  };
+
+  services.dnsmasq = {
+    enable = true;
+    settings = {
+      address = [ "/sci.fellow.dev/127.0.0.1" "/sci.fellow.dev/::1" ];
+      local = "/sci.fellow.dev/";
+      no-resolv = true;
+      listen-address = "127.0.0.1,::1";
+      bind-interfaces = true;
+      txt-record = "sci.fellow.dev,SOA,ns.sci.fellow.dev. hostmaster.sci.fellow.dev. 1 3600 600 86400 60";
+      host-record = "ns.sci.fellow.dev,127.0.0.1,::1";
+    };
+  };
 
   # Set your time zone.
   time.timeZone = "America/Toronto";
@@ -124,12 +152,16 @@
   environment.systemPackages = with pkgs; [
     wget
     firefox-wayland
+    code-cursor
     chromium
+    ghostty
     git
     vim
     vscode
     slack
+    signal-desktop
     tailscale
+    wofi
     (wineWowPackages.full.override {
       wineRelease = "staging";
       mingwSupport = true;
@@ -179,7 +211,7 @@
     # powerManagement.finegrained = true;
     open = true;
     nvidiaSettings = true;
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    # package = config.boot.kernelPackages.nvidiaPackages.legacy_535;
   };
 
   programs.steam = {
@@ -187,6 +219,12 @@
     remotePlay.openFirewall = true;
     dedicatedServer.openFirewall = true;
     localNetworkGameTransfers.openFirewall = true;
+  };
+
+  programs.hyprland = {
+    enable = true;
+    withUWSM = true;
+    xwayland.enable = true;
   };
 
 }
