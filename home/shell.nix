@@ -19,7 +19,7 @@
 
   programs.zsh = {
     enable = true;
-    dotDir = ".config/zsh";
+    dotDir = "${config.xdg.configHome}/zsh";
     history.path = "${config.xdg.stateHome}/zsh/history";
     sessionVariables = {
       PODMAN_COMPOSE_WARNING_LOGS = "false";

@@ -124,7 +124,7 @@
     "vlc"
     "signal"
     "linear-linear"
-    "docker"
+    "docker-desktop"
     "transmission-remote-gui"
     "adobe-acrobat-reader"
   ];

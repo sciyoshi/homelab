@@ -3,7 +3,6 @@
   home.packages =
     with pkgs;
     [
-      aws-sso-creds
       awscli2
       borgbackup
       caddy
@@ -60,7 +59,7 @@
     forwardAgent = true;
     extraConfig = ''
       SendEnv ZELLIJ
-      # IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+      IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
     '';
   };
 
@@ -69,5 +68,5 @@
   #   pinentryFlavor = "curses";
   # };
 
-  programs.gitui.enable = true;
+  # programs.gitui.enable = true;
 }

@@ -26,7 +26,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flox = {
-      url = "github:flox/flox/v1.3.17";
+      url = "github:flox/flox/v1.7.1";
     };
   };
 
