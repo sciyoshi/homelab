@@ -17,11 +17,6 @@
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
-
   fonts.packages = with pkgs; [
     fira-code
     fira-code-symbols
