@@ -72,7 +72,10 @@
   services.dnsmasq = {
     enable = true;
     settings = {
-      address = [ "/sci.fellow.dev/127.0.0.1" "/sci.fellow.dev/::1" ];
+      address = [
+        "/sci.fellow.dev/127.0.0.1"
+        "/sci.fellow.dev/::1"
+      ];
       local = "/sci.fellow.dev/";
       no-resolv = true;
       listen-address = "127.0.0.1,::1";
@@ -167,6 +170,7 @@
       mingwSupport = true;
     })
     winetricks
+    zed-editor
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -220,6 +224,8 @@
     dedicatedServer.openFirewall = true;
     localNetworkGameTransfers.openFirewall = true;
   };
+
+  programs.niri.enable = true;
 
   programs.hyprland = {
     enable = true;

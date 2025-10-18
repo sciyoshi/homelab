@@ -54,8 +54,7 @@
     nix-direnv.enable = true;
   };
 
-  programs.ssh = {
-    enable = true;
+  programs.ssh.matchBlocks."*" = {
     forwardAgent = true;
     extraConfig = ''
       SendEnv ZELLIJ
