@@ -57,6 +57,7 @@
       "/var/lib/kubelet"
       "/var/lib/postgresql"
       "/var/lib/mysql"
+      "/var/lib/zigbee2mqtt"
     ];
     files = [
       "/etc/machine-id"

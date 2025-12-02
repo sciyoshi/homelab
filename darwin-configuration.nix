@@ -19,7 +19,7 @@
     pkgs.python313
     pkgs.podman
     pkgs.podman-compose
-    specialArgs.inputs.flox.packages.${pkgs.system}.default
+    specialArgs.inputs.flox.packages.${pkgs.stdenv.hostPlatform.system}.default
     # pkgs.mysql80
     pkgs.minio
     pkgs.apacheKafka

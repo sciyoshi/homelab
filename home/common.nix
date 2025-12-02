@@ -31,7 +31,7 @@
       yq-go
       zstd
       rustup
-      specialArgs.inputs.flox.packages.${pkgs.system}.default
+      specialArgs.inputs.flox.packages.${pkgs.stdenv.hostPlatform.system}.default
     ]
     ++ (
       if !pkgs.stdenv.isAarch64 || pkgs.stdenv.isDarwin then
