@@ -225,6 +225,7 @@
 
   services.transmission = {
     enable = true;
+    package = pkgs.transmission_4;
     user = "sciyoshi";
     group = "media";
     openRPCPort = true;

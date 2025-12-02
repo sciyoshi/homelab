@@ -40,7 +40,7 @@
           just
           kubectl
           kubectx
-          pinentry.curses
+          pinentry-curses
         ]
       else
         [ ]
