@@ -1,6 +1,6 @@
 { pkgs, config, ... }:
 let
-  config = pkgs.writeText "rumqttd.toml" ''
+  rumqttdConfig = pkgs.writeText "rumqttd.toml" ''
     id = 0
 
     # A commitlog read will pull full segment. Make sure that a segment isn't
@@ -50,7 +50,7 @@ let
         max_inflight_size = 1024
 
     [console]
-    listen = "0.0.0.0:3030"
+    listen = "127.0.0.1:3030"
   '';
 in
 {
@@ -60,7 +60,13 @@ in
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "exec";
-      ExecStart = ''${pkgs.rumqttd}/bin/rumqttd -c ${config}'';
+      ExecStart = ''${pkgs.rumqttd}/bin/rumqttd -c ${rumqttdConfig}'';
     };
   };
+
+  networking.firewall.allowedTCPPorts = [
+    1883 # MQTT v4
+    1884 # MQTT v5
+    8083 # WebSocket
+  ];
 }

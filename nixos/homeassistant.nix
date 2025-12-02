@@ -2,7 +2,7 @@
 {
   virtualisation.oci-containers = {
     containers.homeassistant = {
-      volumes = [ "home-assistant:/config" ];
+      volumes = [ "/var/lib/home-assistant:/config" ];
       image = "ghcr.io/home-assistant/home-assistant:latest";
 
       extraOptions = [
@@ -15,4 +15,6 @@
       };
     };
   };
+
+  networking.firewall.allowedTCPPorts = [ 8123 ];
 }

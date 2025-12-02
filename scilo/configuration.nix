@@ -14,12 +14,15 @@
     ../nixos/immich.nix
     ../nixos/secrets.nix
     ../nixos/frigate.nix
+    ../nixos/homeassistant.nix
+    ../nixos/rumqttd.nix
   ];
 
   nixpkgs.config.allowUnfree = true;
   nixpkgs.overlays = [
     (import ../overlays/filebot)
     (import ../overlays/pgvecto-rs.nix)
+    (import ../overlays/rumqttd.nix)
   ];
 
   console = {
@@ -58,6 +61,7 @@
       "/var/lib/postgresql"
       "/var/lib/mysql"
       "/var/lib/zigbee2mqtt"
+      "/var/lib/home-assistant"
     ];
     files = [
       "/etc/machine-id"
@@ -119,6 +123,26 @@
   virtualisation.podman.enable = true;
   hardware.nvidia-container-toolkit.enable = true;
   virtualisation.oci-containers.backend = "podman";
+
+  # zigbee2mqtt - update device path after plugging in the Zigbee dongle
+  # Run: ls /dev/serial/by-id/ to find the correct device
+  virtualisation.oci-containers.containers.zigbee2mqtt = {
+    image = "koenkk/zigbee2mqtt:latest";
+    extraOptions = [
+      "--pull=always"
+      # TODO: Update this device path after plugging in the Zigbee dongle
+      "--device=/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9a9e953ad1dbed11bfcbe92d62c613ac-if00-port0"
+    ];
+    volumes = [
+      "/run/udev:/run/udev:ro"
+      "/var/lib/zigbee2mqtt:/app/data"
+    ];
+    environment = {
+      TZ = "America/Montreal";
+    };
+    ports = [ "8080:8080/tcp" ];
+    autoStart = true;
+  };
 
   security.sudo.wheelNeedsPassword = false;
 
