@@ -8,17 +8,17 @@ let
       cmake,
     }:
     rustPlatform.buildRustPackage rec {
-      pname = "rumqtt";
-      version = "0.19.0";
+      pname = "rumqttd";
+      version = "0.20.0";
 
       src = fetchFromGitHub {
         owner = "bytebeamio";
         repo = "rumqtt";
         rev = "rumqttd-${version}";
-        hash = "sha256-3rDnJ1VsyGBDhjOq0Rd55WI1EbIo+17tcFZCoeJB3Kc=";
+        hash = "sha256-WFhVSFAp5ZIqranLpU86L7keQaReEUXxxGhvikF+TBw=";
       };
 
-      cargoHash = "sha256-a6HVcaL6OKIK0h3yuUFDlPASNRciOdW09uXoewld4F8=";
+      cargoHash = "sha256-UP1uhG+Ow/jN/B8i//vujP7vpoQ5PjYGCrXs0b1bym4=";
 
       nativeBuildInputs = [ cmake ];
 
