@@ -20,7 +20,7 @@ let
     next_connection_delay_ms = 1
         [v4.1.connections]
         connection_timeout_ms = 60000
-        max_payload_size = 20480
+        max_payload_size = 262144
         max_inflight_count = 100
         dynamic_filters = true
 
@@ -30,7 +30,7 @@ let
     next_connection_delay_ms = 1
         [v5.1.connections]
         connection_timeout_ms = 60000
-        max_payload_size = 56480
+        max_payload_size = 262144
         max_inflight_count = 100
 
     [prometheus]

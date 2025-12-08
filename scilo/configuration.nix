@@ -124,18 +124,16 @@
   hardware.nvidia-container-toolkit.enable = true;
   virtualisation.oci-containers.backend = "podman";
 
-  # zigbee2mqtt - update device path after plugging in the Zigbee dongle
-  # Run: ls /dev/serial/by-id/ to find the correct device
   virtualisation.oci-containers.containers.zigbee2mqtt = {
     image = "koenkk/zigbee2mqtt:latest";
     extraOptions = [
       "--pull=always"
-      # TODO: Update this device path after plugging in the Zigbee dongle
       "--device=/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_9a9e953ad1dbed11bfcbe92d62c613ac-if00-port0"
     ];
     volumes = [
       "/run/udev:/run/udev:ro"
       "/var/lib/zigbee2mqtt:/app/data"
+      "/dev/serial:/dev/serial:ro"
     ];
     environment = {
       TZ = "America/Montreal";
