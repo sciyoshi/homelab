@@ -54,14 +54,19 @@
     nix-direnv.enable = true;
   };
 
+  programs.ssh.enable = true;
+  programs.ssh.enableDefaultConfig = false;
   programs.ssh.matchBlocks."*" = {
     forwardAgent = true;
-    extraConfig = ''
-      SendEnv ZELLIJ
-      ${pkgs.lib.optionalString pkgs.stdenv.isDarwin ''
-        IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-      ''}
-    '';
+    sendEnv = [ "ZELLIJ" ];
+    identityAgent = if pkgs.stdenv.isDarwin then "\"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock\"" else null;
+
+    #extraConfig = ''
+    #  SendEnv ZELLIJ
+    #  ${pkgs.lib.optionalString pkgs.stdenv.isDarwin ''
+    #    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+    #  ''}
+    #'';
   };
 
   # services.gpg-agent = {

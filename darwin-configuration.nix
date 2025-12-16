@@ -69,7 +69,7 @@
   # _debug = builtins.trace "specialArgs: ${builtins.toJSON specialArgs}" null;
   # home-manager.useUserPackages = true;
   home-manager.extraSpecialArgs = {
-    flox = specialArgs.inputs.flox;
+    inherit (specialArgs) inputs;
   };
 
   home-manager.users.sciyoshi = import ./home;
@@ -135,6 +135,7 @@
   };
 
   users.users.sciyoshi = {
+    uid = 501;
     name = "sciyoshi";
     home = "/Users/sciyoshi";
   };
