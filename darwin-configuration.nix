@@ -14,7 +14,7 @@
 
   environment.systemPackages = [
     pkgs.cachix
-    pkgs.nixfmt-rfc-style
+    pkgs.nixfmt
     pkgs.nil
     pkgs.python313
     pkgs.podman
@@ -141,9 +141,10 @@
   };
 
   services.dnsmasq.enable = true;
-
-  launchd.daemons.dnsmasq.serviceConfig.ProgramArguments = [
-    "--address=/sci.fellow.dev/127.0.0.1"
-    "--address=/sci.fellow.dev/::1"
-  ];
+  environment.etc."dnsmasq.conf".text = ''
+    listen-address=127.0.0.1
+    port=53
+    address=/sci.fellow.dev/127.0.0.1
+    address=/sci.fellow.dev/::1
+  '';
 }
