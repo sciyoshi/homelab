@@ -16,7 +16,7 @@
       micro
       mkcert
       nil
-      nixfmt-rfc-style
+      nixfmt
       nodejs_22
       nssTools
       pre-commit

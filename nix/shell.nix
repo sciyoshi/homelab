@@ -6,7 +6,7 @@ pkgs.mkShell {
     nix
     home-manager
     git
-    nixfmt-rfc-style
+    nixfmt
     deploy-rs
     sops
     gnupg

@@ -96,8 +96,20 @@
   services.xserver.enable = true;
 
   # Enable the GNOME Desktop Environment.
-  services.displayManager.gdm.enable = true;
-  services.desktopManager.gnome.enable = true;
+  # services.displayManager.gdm.enable = true;
+  # services.desktopManager.gnome.enable = true;
+
+  services.greetd = {
+    enable = true;
+    settings = rec {
+      default_session = {
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd niri";
+        user = "greeter";
+      };
+
+      initial_session = default_session;
+    };
+  };
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -154,7 +166,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     wget
-    firefox-wayland
+    firefox
     code-cursor
     chromium
     ghostty
