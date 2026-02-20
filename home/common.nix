@@ -9,6 +9,7 @@
       envsubst
       fastmod
       fd
+      fresh-editor
       gh
       gnupg
       jq
@@ -17,7 +18,7 @@
       mkcert
       nil
       nixfmt
-      nodejs_22
+      nodejs_24
       nssTools
       pre-commit
       process-compose
