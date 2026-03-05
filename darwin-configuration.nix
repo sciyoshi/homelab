@@ -1,5 +1,6 @@
 { pkgs, specialArgs, ... }:
 {
+  nixpkgs.config.allowUnfree = true;
   nixpkgs.config.permittedInsecurePackages = [
     "nodejs-16.20.0"
   ];
@@ -67,6 +68,7 @@
 
   # Debug output for specialArgs
   # _debug = builtins.trace "specialArgs: ${builtins.toJSON specialArgs}" null;
+  home-manager.useGlobalPkgs = true;
   # home-manager.useUserPackages = true;
   home-manager.extraSpecialArgs = {
     inherit (specialArgs) inputs;

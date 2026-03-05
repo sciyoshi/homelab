@@ -5,6 +5,7 @@
     [
       awscli2
       borgbackup
+      bun
       caddy
       envsubst
       fastmod
@@ -16,9 +17,11 @@
       maturin
       micro
       mkcert
+      ngrok
       nil
       nixfmt
       nodejs_24
+      postgresql
       nssTools
       pre-commit
       process-compose
