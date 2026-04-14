@@ -20,7 +20,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flox = {
-      url = "github:flox/flox/v1.7.8";
+      url = "github:flox/flox/v1.11.2";
+    };
+    nix-ai-tools = {
+      url = "github:numtide/nix-ai-tools";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -36,6 +40,7 @@
       darwin,
       nixos-hardware,
       flox,
+      nix-ai-tools,
       ...
     }@inputs:
     rec {
