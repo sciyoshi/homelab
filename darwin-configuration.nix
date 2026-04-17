@@ -143,6 +143,7 @@
     "obsidian"
     "ollama-app"
     "lm-studio"
+    "cursor"
   ];
 
   homebrew.masApps = {
