@@ -68,7 +68,8 @@
     ];
   };
 
-  nix.package = pkgs.nixVersions.latest;
+  nix.nixPath = [ "nixpkgs=${specialArgs.inputs.nixpkgs}" ];
+  nix.registry.nixpkgs.flake = specialArgs.inputs.nixpkgs;
   # nix.linux-builder.enable = true;
   # nix.linux-builder.systems = [ "aarch64-linux" ];
 
