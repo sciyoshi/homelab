@@ -1,5 +1,7 @@
 { pkgs, specialArgs, ... }:
 {
+  determinateNix.enable = true;
+
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.permittedInsecurePackages = [
     "nodejs-16.20.0"
@@ -8,6 +10,8 @@
   system.stateVersion = 5;
 
   system.primaryUser = "sciyoshi";
+
+  documentation.enable = false;
 
   # nixpkgs.overlays = [
   #   (import ./overlays/mysql80.nix)
@@ -30,6 +34,8 @@
     pkgs.just
     pkgs.process-compose
     pkgs.less
+    pkgs.ghostty-bin
+    pkgs._1password-cli
   ];
 
   fonts = {
@@ -63,8 +69,8 @@
   };
 
   nix.package = pkgs.nixVersions.latest;
-  nix.linux-builder.enable = true;
-  nix.linux-builder.systems = [ "aarch64-linux" ];
+  # nix.linux-builder.enable = true;
+  # nix.linux-builder.systems = [ "aarch64-linux" ];
 
   # Debug output for specialArgs
   # _debug = builtins.trace "specialArgs: ${builtins.toJSON specialArgs}" null;
@@ -129,6 +135,7 @@
     "docker-desktop"
     "transmission-remote-gui"
     "adobe-acrobat-reader"
+    "1password"
   ];
 
   homebrew.masApps = {

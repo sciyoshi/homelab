@@ -1,8 +1,9 @@
 inputs@{ darwin, home-manager, ... }:
 {
-  "fellow-sam-2" = darwin.lib.darwinSystem {
+  "fellow-sci" = darwin.lib.darwinSystem {
     system = "aarch64-darwin";
     modules = [
+      inputs.determinate.darwinModules.default
       ../darwin-configuration.nix
       home-manager.darwinModules.home-manager
     ];
