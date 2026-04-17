@@ -30,16 +30,26 @@
     font = "ter-v32n";
   };
 
-  boot.initrd.postDeviceCommands = pkgs.lib.mkBefore ''
-    mkdir -p /mnt
-    mount -o subvol=/ UUID=e5fb150b-0925-44d3-a2c1-aa9cf33f850d /mnt
-    btrfs subvolume list -o /mnt/root | cut -f9 -d' ' | while read subvolume; do
-      btrfs subvolume delete "/mnt/$subvolume"
-    done
-    btrfs subvolume delete /mnt/root
-    btrfs subvolume snapshot /mnt/blank /mnt/root
-    umount /mnt
-  '';
+  boot.initrd.systemd.services.rollback = {
+    description = "Rollback BTRFS root subvolume to a pristine state";
+    wantedBy = [ "initrd.target" ];
+    after = [
+      "dev-disk-by\\x2duuid-e5fb150b\\x2d0925\\x2d44d3\\x2da2c1\\x2daa9cf33f850d.device"
+    ];
+    before = [ "sysroot.mount" ];
+    unitConfig.DefaultDependencies = "no";
+    serviceConfig.Type = "oneshot";
+    script = ''
+      mkdir -p /mnt
+      mount -t btrfs -o subvol=/ /dev/disk/by-uuid/e5fb150b-0925-44d3-a2c1-aa9cf33f850d /mnt
+      btrfs subvolume list -o /mnt/root | cut -f9 -d' ' | while read subvolume; do
+        btrfs subvolume delete "/mnt/$subvolume"
+      done
+      btrfs subvolume delete /mnt/root
+      btrfs subvolume snapshot /mnt/blank /mnt/root
+      umount /mnt
+    '';
+  };
 
   environment.persistence."/persist" = {
     hideMounts = true;
