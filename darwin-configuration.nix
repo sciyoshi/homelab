@@ -119,6 +119,9 @@
   homebrew.enable = true;
   homebrew.global.brewfile = true;
   homebrew.onActivation.autoUpdate = true;
+  homebrew.brews = [
+    "beads"
+  ];
   homebrew.casks = [
     "visual-studio-code"
     "firefox"
