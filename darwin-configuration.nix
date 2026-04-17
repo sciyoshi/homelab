@@ -136,6 +136,7 @@
     "transmission-remote-gui"
     "adobe-acrobat-reader"
     "1password"
+    "obsidian"
   ];
 
   homebrew.masApps = {
