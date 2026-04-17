@@ -140,6 +140,8 @@
     "adobe-acrobat-reader"
     "1password"
     "obsidian"
+    "ollama-app"
+    "lm-studio"
   ];
 
   homebrew.masApps = {
