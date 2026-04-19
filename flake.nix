@@ -61,7 +61,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in
       rec {
-        packages.default = home-manager.defaultPackage.${system};
+        packages.default = home-manager.packages.${system}.default;
 
         devShells.default = import ./nix/shell.nix { inherit pkgs; };
       }
