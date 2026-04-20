@@ -144,6 +144,7 @@
     "ollama-app"
     "lm-studio"
     "cursor"
+    "gitbutler"
   ];
 
   homebrew.masApps = {
