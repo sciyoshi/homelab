@@ -115,6 +115,11 @@
       NSAutomaticQuoteSubstitutionEnabled = false;
       "com.apple.swipescrolldirection" = false;
     };
+    CustomUserPreferences = {
+      "com.apple.HIToolbox" = {
+        AppleFnUsageType = 0;
+      };
+    };
   };
 
   homebrew.enable = true;
