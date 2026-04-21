@@ -122,6 +122,8 @@
     };
   };
 
+  security.pam.services.sudo_local.touchIdAuth = true;
+
   homebrew.enable = true;
   homebrew.global.brewfile = true;
   homebrew.onActivation.autoUpdate = true;
