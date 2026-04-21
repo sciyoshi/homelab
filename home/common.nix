@@ -38,6 +38,7 @@
       specialArgs.inputs.flox.packages.${pkgs.stdenv.hostPlatform.system}.default
       specialArgs.inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.crush
       specialArgs.inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
+      specialArgs.inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.codex
     ]
     ++ (
       if !pkgs.stdenv.isAarch64 || pkgs.stdenv.isDarwin then
