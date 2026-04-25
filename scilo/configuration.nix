@@ -253,7 +253,7 @@
   security.acme.defaults = {
     email = "samuel@cormier-iijima.com";
     dnsProvider = "cloudflare";
-    credentialsFile = "${config.sops.secrets.acme_credentials.path}";
+    environmentFile = "${config.sops.secrets.acme_credentials.path}";
   };
 
   services.transmission = {
