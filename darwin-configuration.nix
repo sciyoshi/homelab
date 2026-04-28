@@ -17,6 +17,14 @@
   #   (import ./overlays/mysql80.nix)
   # ];
 
+  nixpkgs.overlays = [
+    (_: prev: {
+      direnv = prev.direnv.overrideAttrs (_: {
+        doCheck = false;
+      });
+    })
+  ];
+
   environment.systemPackages = [
     pkgs.cachix
     pkgs.nixfmt
