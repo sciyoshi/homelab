@@ -160,6 +160,7 @@
     "lm-studio"
     "cursor"
     "gitbutler"
+    "mysqlworkbench"
   ];
 
   homebrew.masApps = {
