@@ -160,6 +160,7 @@
     "cursor"
     "gitbutler"
     "mysqlworkbench"
+    "zed@preview"
   ];
 
   homebrew.masApps = {
