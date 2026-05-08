@@ -151,7 +151,7 @@
     "discord"
     "vlc"
     "signal"
-    "linear-linear"
+    "linear"
     "docker-desktop"
     "transmission-remote-gui"
     "adobe-acrobat-reader"

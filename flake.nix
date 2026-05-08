@@ -31,8 +31,7 @@
       url = "github:flox/flox/v1.11.2";
     };
     nix-ai-tools = {
-      url = "github:numtide/llm-agents.nix/619f510cfca7b1661105c548916c106c865148c4";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:numtide/llm-agents.nix";
     };
   };
 
