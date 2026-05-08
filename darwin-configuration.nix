@@ -69,9 +69,11 @@
   nix.settings = {
     substituters = [
       "https://cache.flox.dev"
+      "https://cache.numtide.com"
     ];
     trusted-public-keys = [
       "flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs="
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
     ];
   };
 
