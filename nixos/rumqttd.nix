@@ -1,5 +1,6 @@
 { pkgs, config, ... }:
 let
+  maxPayloadSize = "1048576";
   rumqttdConfig = pkgs.writeText "rumqttd.toml" ''
     id = 0
 
@@ -20,7 +21,7 @@ let
     next_connection_delay_ms = 1
         [v4.1.connections]
         connection_timeout_ms = 60000
-        max_payload_size = 262144
+        max_payload_size = ${maxPayloadSize}
         max_inflight_count = 100
         dynamic_filters = true
 
@@ -30,7 +31,7 @@ let
     next_connection_delay_ms = 1
         [v5.1.connections]
         connection_timeout_ms = 60000
-        max_payload_size = 262144
+        max_payload_size = ${maxPayloadSize}
         max_inflight_count = 100
 
     [prometheus]
@@ -45,7 +46,7 @@ let
         connection_timeout_ms = 60000
         max_client_id_len = 256
         throttle_delay_ms = 0
-        max_payload_size = 20480
+        max_payload_size = ${maxPayloadSize}
         max_inflight_count = 500
         max_inflight_size = 1024
 
@@ -60,7 +61,7 @@ in
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "exec";
-      ExecStart = ''${pkgs.rumqttd}/bin/rumqttd -c ${rumqttdConfig}'';
+      ExecStart = "${pkgs.rumqttd}/bin/rumqttd -c ${rumqttdConfig}";
     };
   };
 
