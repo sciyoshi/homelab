@@ -120,13 +120,14 @@
     # setLdLibraryPath = true;
   };
 
-  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
+  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
   hardware.nvidia.nvidiaSettings = true;
   hardware.nvidia.powerManagement.enable = false;
   hardware.nvidia.modesetting.enable = true;
   hardware.nvidia.open = false;
 
   services.xserver.enable = true;
+  services.xserver.displayManager.lightdm.enable = false;
   services.xserver.videoDrivers = [ "nvidia" ];
   # systemd.enableUnifiedCgroupHierarchy = false;
 
