@@ -58,20 +58,16 @@
   };
 
   ids.gids.nixbld = 30000;
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
-  nix.settings.trusted-users = [
-    "root"
-    "sciyoshi"
-  ];
-  nix.settings = {
-    substituters = [
+  determinateNix.customSettings = {
+    trusted-users = [
+      "root"
+      "sciyoshi"
+    ];
+    extra-substituters = [
       "https://cache.flox.dev"
       "https://cache.numtide.com"
     ];
-    trusted-public-keys = [
+    extra-trusted-public-keys = [
       "flox-cache-public-1:7F4OyH7ZCnFhcze3fJdfyXYLQw/aV7GEed86nQ7IsOs="
       "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
     ];
