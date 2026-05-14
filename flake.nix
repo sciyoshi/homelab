@@ -28,7 +28,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flox = {
-      url = "github:flox/flox/v1.11.2";
+      url = "github:flox/flox";
     };
     nix-ai-tools = {
       url = "github:numtide/llm-agents.nix";
