@@ -32,6 +32,7 @@
       uv
       python313
       xh
+      xz
       yq-go
       zstd
       rustup
@@ -66,7 +67,11 @@
   programs.ssh.matchBlocks."*" = {
     forwardAgent = true;
     sendEnv = [ "ZELLIJ" ];
-    identityAgent = if pkgs.stdenv.isDarwin then "\"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock\"" else null;
+    identityAgent =
+      if pkgs.stdenv.isDarwin then
+        "\"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock\""
+      else
+        null;
 
     #extraConfig = ''
     #  SendEnv ZELLIJ
