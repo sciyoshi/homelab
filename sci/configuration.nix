@@ -246,6 +246,17 @@
   };
 
   programs.niri.enable = true;
+  programs.partition-manager.enable = true;
+
+  systemd.user.services.polkit-kde-authentication-agent-1 = {
+    description = "KDE Polkit authentication agent";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.kdePackages.polkit-kde-agent-1}/libexec/polkit-kde-authentication-agent-1";
+    };
+  };
 
   programs.hyprland = {
     enable = true;
