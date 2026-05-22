@@ -70,6 +70,8 @@
     linkConfig.RequiredForOnline = "no";
   };
 
+  services.sshd.enable = true;
+
   services.dnsmasq = {
     enable = true;
     settings = {
