@@ -65,10 +65,10 @@
 
   programs.ssh.enable = true;
   programs.ssh.enableDefaultConfig = false;
-  programs.ssh.matchBlocks."*" = {
-    forwardAgent = true;
-    sendEnv = [ "ZELLIJ" ];
-    identityAgent =
+  programs.ssh.settings."*" = {
+    ForwardAgent = true;
+    SendEnv = [ "ZELLIJ" ];
+    IdentityAgent =
       if pkgs.stdenv.isDarwin then
         "\"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock\""
       else
