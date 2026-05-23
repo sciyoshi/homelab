@@ -11,6 +11,10 @@
     ../nixos/nix-cache.nix
   ];
 
+  home-manager.users.sciyoshi.imports = [
+    ../home/sci.nix
+  ];
+
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
@@ -111,7 +115,7 @@
     enable = true;
     settings = rec {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd niri";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd ${config.programs.niri.package}/bin/niri-session";
         user = "greeter";
       };
 
@@ -185,6 +189,7 @@
     signal-desktop
     tailscale
     wofi
+    gparted
     (wineWow64Packages.full.override {
       wineRelease = "staging";
       mingwSupport = true;
@@ -246,15 +251,16 @@
   };
 
   programs.niri.enable = true;
-  programs.partition-manager.enable = true;
 
-  systemd.user.services.polkit-kde-authentication-agent-1 = {
-    description = "KDE Polkit authentication agent";
+  systemd.user.services.polkit-gnome-authentication-agent-1 = {
+    description = "Polkit GNOME authentication agent";
     wantedBy = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
     partOf = [ "graphical-session.target" ];
     serviceConfig = {
       Type = "simple";
-      ExecStart = "${pkgs.kdePackages.polkit-kde-agent-1}/libexec/polkit-kde-authentication-agent-1";
+      Restart = "on-failure";
+      ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
     };
   };
 
