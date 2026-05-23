@@ -1,61 +1,88 @@
 # AGENTS.md
 
-Personal Nix homelab config — one Mac laptop (`fellow-sci`), a desktop (`sci`),
-and a handful of NixOS servers. Public repo, but for my use only, so prioritize
-making it easy for me (and you) to change things, not onboarding strangers.
+Personal Nix homelab config. This is a public repo, but it is for my machines
+only. Prioritize making it easy for me and future agents to change safely, not
+onboarding strangers.
 
-The human-facing bootstrap notes live in `README.md` (OSX install, OVH
-install, cross-arch binfmt setup). This file is for agents: layout, conventions,
-and the commands you'll actually run.
+The human-facing runbook lives in `README.md`. This file is for agents: current
+layout, conventions, commands, and operational boundaries.
+
+The repo is normally checked out at `~/.homelab`; newer machines may use
+`~/.setup`. Hosts keep local checkouts so quick local `nixos-rebuild` or
+`darwin-rebuild` testing stays possible even though the long-term goal is
+centralized automation and daily deployment.
+
+## Current Operating Model
+
+- Most editing and automation happens from `fellow-sci` or `sci`.
+- `fellow-sci` is the Mac laptop and currently runs Claude automation that keeps
+  flakes up to date and switches Darwin locally.
+- `sci` is the home Linux desktop and has the better GPU for ML workloads.
+- `scilo` is the home Linux server, usually accessed over SSH for persistent
+  services or server-side work.
+- `alpha`, `beta`, and `gamma` are OVH NixOS hosts.
+- `misaki` is a Raspberry Pi in Montreal used as a borg backup target.
+- `scipi4` likely died and is probably unused now; Home Assistant moved off it.
+- `homeConfigurations.sciyoshi` is intentional: it is the standalone Home
+  Manager profile for Ubuntu/WSL2 VMs, not an orphaned host.
+
+The desired direction is centralized automation/editing, daily deployment to
+remote hosts, quick local test switches where useful, and easy rollback through
+Nix generations and deploy tooling.
 
 ## Layout
 
-```
-flake.nix              # inputs + outputs dispatcher
-darwin-configuration.nix   # the one Darwin host (fellow-sci)
+```text
+flake.nix                  # inputs + outputs dispatcher
+darwin-configuration.nix   # fellow-sci nix-darwin config
 nix/
-  darwin.nix           # darwinConfigurations = { fellow-sci = ...; }
-  nixos.nix            # nixosConfigurations = { alpha, beta, gamma, scilo, sci, scipi4, misaki }
-  home-manager.nix     # standalone HM for linux non-NixOS
-  deploy.nix           # deploy-rs nodes, hostnames + ssh users
-  shell.nix            # devShell (nix, home-manager, deploy-rs, sops, age, gnupg)
-  sd-utils/            # custom sd-image module for misaki
-hosts/                 # per-NixOS-host entrypoints (import ../nixos/configuration.nix + overrides)
-nixos/                 # shared NixOS modules (common, tailscale, openssh, immich, frigate, etc.)
-sci/                   # desktop (full NixOS install, not a server) — own configuration.nix + hardware
-scilo/                 # home server (same shape as sci/)
-home/                  # home-manager modules shared across hosts
-overlays/              # custom package overlays (filebot, rumqttd, zigbee2mqtt, pgvecto-rs)
-secrets.yaml           # sops-encrypted, age + pgp
-.sops.yaml             # recipients
-scripts/               # one-off shell scripts
+  darwin.nix               # darwinConfigurations = { fellow-sci = ...; }
+  nixos.nix                # nixosConfigurations
+  home-manager.nix         # standalone HM for Ubuntu/WSL2 VMs
+  deploy.nix               # deploy-rs nodes, hostnames + ssh users
+  shell.nix                # devShell
+  sd-utils/                # custom sd-image module for misaki
+hosts/                     # per-NixOS-host entrypoints for alpha/beta/gamma/misaki/scipi4/scilo
+nixos/                     # shared NixOS modules and service configs
+sci/                       # home Linux desktop config + hardware
+scilo/                     # home Linux server config + hardware
+home/                      # Home Manager modules shared across hosts/profiles
+overlays/                  # custom package overlays
+k3s/                       # Kubernetes-side config artifacts
+secrets.yaml               # sops-encrypted, age + pgp
+.sops.yaml                 # recipients
+scripts/                   # one-off shell scripts
 ```
 
-Hosts and their roles:
+Hosts and outputs:
 
-| Host        | Platform        | Role                                                |
-| ----------- | --------------- | --------------------------------------------------- |
-| `fellow-sci`| aarch64-darwin  | Work laptop (nix-darwin + home-manager + homebrew)  |
-| `sci`       | x86_64-linux    | Personal desktop (NixOS, niri/hyprland, nvidia)     |
-| `scilo`     | x86_64-linux    | Home server (jellyfin, immich, vaultwarden, ha)     |
-| `alpha/beta/gamma` | x86_64-linux  | OVH VPSes (k3s agents, impermanent tmpfs root) |
-| `scipi4`    | aarch64-linux   | Pi 4, zigbee2mqtt + home assistant                  |
-| `misaki`    | aarch64-linux   | Pi 4 in Montreal, borg backup target                |
+| Name | Platform | Role |
+| --- | --- | --- |
+| `fellow-sci` | `aarch64-darwin` | Work laptop, nix-darwin + Home Manager + Homebrew |
+| `sci` | `x86_64-linux` | Home desktop, niri/hyprland, Nvidia GPU, ML workloads |
+| `scilo` | `x86_64-linux` | Home server, persistent services, backups, home automation, media |
+| `alpha` | `x86_64-linux` | OVH VPS, k3s agent, impermanent tmpfs root |
+| `beta` | `x86_64-linux` | OVH VPS, k3s agent, impermanent tmpfs root |
+| `gamma` | `x86_64-linux` | OVH VPS, k3s agent, impermanent tmpfs root |
+| `misaki` | `aarch64-linux` | Montreal Raspberry Pi, borg backup target |
+| `scipi4` | `aarch64-linux` | Old/dead Raspberry Pi config; likely unused |
+| `sciyoshi` | `x86_64-linux` | Standalone Home Manager output for Ubuntu/WSL2 VMs |
 
 ## Conventions
 
-### Commits — conventional commits
+### Commits
 
-Going forward, use [Conventional Commits](https://www.conventionalcommits.org/).
-Types I use:
+Use Conventional Commits.
+
+Types:
 
 - `feat` — new host, new module, new service
-- `fix` — bug fix / broken build / wrong config
+- `fix` — bug fix, broken build, wrong config
 - `chore` — flake lock bumps, housekeeping, no behavior change
 - `refactor` — moving things without changing behavior
 - `docs` — README / AGENTS.md
 
-Scope when it adds signal (usually host or module name):
+Useful examples:
 
 - `feat(scilo): enable jackett`
 - `fix(immich): bump memory limit`
@@ -63,113 +90,131 @@ Scope when it adds signal (usually host or module name):
 - `chore(flake): bump flox to 1.11.2`
 - `feat(darwin): add obsidian cask`
 
-Keep subject ≤72 chars, imperative mood, no trailing period. Body optional —
-add one when the *why* isn't obvious from the diff.
+Keep the subject <=72 chars, imperative mood, no trailing period. Add a body
+when the why is not obvious from the diff.
 
-### Nix style
+### Nix Style
 
-- Formatter is `nixfmt` (RFC style, the one in nixpkgs). Run it on any file you
-  touch. It's in the devShell and in `darwin-configuration.nix`.
+- Formatter is `nixfmt` from nixpkgs. Run it on any Nix file you touch.
 - Prefer extending existing modules over creating new top-level files.
-- Host-specific stuff goes in `hosts/<name>.nix` (or `sci/`, `scilo/` for
-  full-desktop/server setups). Shared NixOS bits go in `nixos/`. Shared
-  home-manager bits go in `home/`.
-- When adding a package that needs an overlay, put it under `overlays/` and
-  wire it into the host that needs it, not globally.
+- Keep host-specific configuration in the existing host files unless the user has
+  asked for a layout refactor.
+- Shared NixOS bits go in `nixos/`; shared Home Manager bits go in `home/`.
+- If a package needs an overlay, put it under `overlays/` and wire it into the
+  host that needs it. Do not make overlays global by default.
+- Do not remove `cache.flox.dev` from trusted substituters.
+- On Darwin, `determinateNix.enable = true`; do not add a second Nix install
+  manager.
 
 ### Secrets
 
-`secrets.yaml` is sops-encrypted (age + pgp). Recipients in `.sops.yaml`. Host
-age keys are derived from `/etc/ssh/ssh_host_ed25519_key` — new hosts need
-their pubkey added to `.sops.yaml` and `secrets.yaml` re-encrypted
-(`sops updatekeys secrets.yaml`).
+`secrets.yaml` is sops-encrypted. Recipients live in `.sops.yaml`.
 
-Never commit plaintext secrets. Never ask for the sops passphrase — let me
-run sops commands myself.
+Host age keys are derived from:
 
-## Common commands
+```text
+/etc/ssh/ssh_host_ed25519_key
+```
 
-All of these assume you're in the devShell (`nix develop` or via direnv,
-`.envrc` is set up).
+New hosts need their public key added to `.sops.yaml`, then:
 
-**Format Nix files:**
+```sh
+sops updatekeys secrets.yaml
+```
+
+Never commit plaintext secrets. Never ask for the sops passphrase; let the user
+run sops commands.
+
+## Common Commands
+
+Assume the dev shell is available through `nix develop` or direnv.
+
+Format Nix files:
 
 ```sh
 nixfmt <files...>
 ```
 
-**Check the flake evaluates:**
+Evaluate the flake:
 
 ```sh
-nix flake check --no-build   # evaluation only, fast
-nix flake check              # also builds deploy checks — slow
+nix flake check --no-build
+nix flake check
 ```
 
-**Update flake inputs:**
+Update flake inputs:
 
 ```sh
-nix flake update                 # all inputs
-nix flake update <input-name>    # one input (e.g. nixpkgs, flox)
+nix flake update
+nix flake update <input-name>
 ```
 
-**Darwin (this laptop):**
+Build one NixOS host:
 
 ```sh
-# Build only (no activation):
-nix build .#darwinConfigurations.fellow-sci.system
-
-# Switch:
-sudo darwin-rebuild switch --flake .
-```
-
-**NixOS remote hosts (deploy-rs):**
-
-```sh
-# Deploy one host (safer — magic rollback on failure):
-deploy .#<host>
-
-# Deploy all:
-deploy .
-
-# Dry-run / build without activating:
 nix build .#nixosConfigurations.<host>.config.system.build.toplevel
 ```
 
-`autoRollback = false; magicRollback = true` in `nix/deploy.nix` — so a broken
-deploy rolls itself back once the SSH check fails, but we don't fight
-activation rollbacks.
-
-**Home-manager standalone (non-NixOS linux):**
+Build Darwin:
 
 ```sh
-home-manager switch --flake .#sciyoshi
+nix build .#darwinConfigurations.fellow-sci.system
 ```
 
-## Before finishing a change
+Switch local NixOS from the local checkout:
 
-1. `nixfmt` any files you edited.
-2. `nix flake check --no-build` at minimum.
-3. For a host change, build that host's toplevel (`nix build
-   .#nixosConfigurations.<host>.config.system.build.toplevel` or the darwin
-   equivalent) to catch eval + build errors before trying to activate.
-4. Stage only the files you meant to touch (`flake.lock` often tags along — that's
-   fine, but call it out in the commit).
-5. Commit with a conventional-commits message.
+```sh
+sudo nixos-rebuild switch --flake ~/.homelab#<host>
+sudo nixos-rebuild switch --flake ~/.setup#<host>
+```
 
-Do **not** deploy remote hosts or `darwin-rebuild switch` without my say-so —
-those are side-effectful and I want to eyeball the diff first.
+Switch Darwin:
+
+```sh
+sudo darwin-rebuild switch --flake ~/.homelab#fellow-sci
+```
+
+Standalone Home Manager for Ubuntu/WSL2:
+
+```sh
+home-manager switch --flake ~/.homelab#sciyoshi
+```
+
+Remote deploy with deploy-rs:
+
+```sh
+deploy .#<host>
+deploy .
+```
+
+`autoRollback = false; magicRollback = true` in `nix/deploy.nix`. Deploy-rs has
+been troublesome, so do not assume it is final. Colmena and
+`nixos-rebuild --target-host` are plausible alternatives.
+
+## Before Finishing A Change
+
+1. `nixfmt` any Nix files you edited.
+2. Run `nix flake check --no-build` at minimum.
+3. For a host change, build that host's toplevel, or the Darwin equivalent.
+4. Stage only the files you meant to touch. `flake.lock` often tags along; call
+   it out if it does.
+5. Commit with a conventional-commits message if the user asked for a commit.
+
+Do not deploy remote hosts or run `darwin-rebuild switch` / `nixos-rebuild
+switch` without explicit user approval. Those are side-effectful and the user
+wants to eyeball diffs first.
 
 ## Gotchas
 
-- `misaki` and `scipi4` are aarch64; cross-building from x86_64 needs the
-  binfmt setup in `README.md`. From `fellow-sci` (aarch64 Darwin), misaki can
-  build natively but you still need a linux-builder or remote builder.
+- `misaki` and `scipi4` are `aarch64-linux`; cross-building from `x86_64-linux`
+  needs binfmt or a remote builder.
 - `scilo` has `boot.binfmt.emulatedSystems = [ "aarch64-linux" ]` so it can
-  cross-build for the Pis.
-- Flox's cache (`cache.flox.dev`) is in trusted substituters on every host;
-  keep it there when touching nix settings.
-- `determinate.enable = true` on Darwin — do NOT layer a second nix install
-  manager on top.
-- OVH hosts (`alpha`, `beta`, `gamma`) use tmpfs root + `/persist` —
-  anything that needs to survive a reboot has to be in
-  `environment.persistence`.
+  cross-build for Raspberry Pi hosts.
+- `scipi4` is likely stale/dead. Do not spend time preserving it unless the user
+  asks or the change explicitly concerns retired host cleanup.
+- OVH hosts use tmpfs root plus `/persist`; anything that must survive reboot
+  needs to be in `environment.persistence`.
+- `k3s/traefik-config.yaml` is a Kubernetes-side artifact outside the Nix module
+  graph.
+- This repo has local uncommitted work sometimes. Never revert user changes you
+  did not make.
