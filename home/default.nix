@@ -16,4 +16,8 @@
   # the Home Manager release notes for a list of state version
   # changes in each release.
   home.stateVersion = "22.11";
+
+  # This repo follows nixpkgs-unstable, whose release version can intentionally
+  # run ahead of Home Manager's release metadata.
+  home.enableNixpkgsReleaseCheck = false;
 }
