@@ -25,7 +25,8 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.configurationLimit = 3;
 
-  # boot.kernelPackages = pkgs.linuxPackages_6_6;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelParams = [ "hid_apple.fnmode=2" ];
 
   fonts.packages = with pkgs; [
     fira-code
@@ -195,7 +196,6 @@
       mingwSupport = true;
     })
     winetricks
-    zed-editor
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -233,12 +233,12 @@
 
   hardware.nvidia = {
     modesetting.enable = true;
-    powerManagement.enable = true;
+    powerManagement.enable = false;
     # offload.enable = true;
     # offload.enableOffloadCmd = true;
     # nvidiaBusId = "PCI:10:0:0";
     # powerManagement.finegrained = true;
-    open = true;
+    open = false;
     nvidiaSettings = true;
     # package = config.boot.kernelPackages.nvidiaPackages.legacy_535;
   };

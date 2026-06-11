@@ -24,11 +24,18 @@
   ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
-  boot.kernelParams = [ "drm.edid_firmware=DP-3:edid/MonitorEDID.bin" "video=DP-3:e" "nvidia_drm.fbdev=1" "nvidia-drm.modeset=1" "nvidia.NVreg_PreserveVideoMemoryAllocations=1" ];
-  hardware.firmware = [ (pkgs.runCommand "edid-firmware" { } ''
-    mkdir -p $out/lib/firmware/edid
-    cp ${./edid.bin} $out/lib/firmware/edid/MonitorEDID.bin
-  '') ];
+  boot.kernelParams = [
+    "drm.edid_firmware=DP-3:edid/MonitorEDID.bin"
+    "video=DP-3:e"
+    "nvidia_drm.fbdev=1"
+    "nvidia-drm.modeset=1"
+  ];
+  hardware.firmware = [
+    (pkgs.runCommand "edid-firmware" { } ''
+      mkdir -p $out/lib/firmware/edid
+      cp ${./edid.bin} $out/lib/firmware/edid/MonitorEDID.bin
+    '')
+  ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
@@ -39,13 +46,20 @@
   fileSystems."/srv/data" = {
     device = "/dev/disk/by-uuid/11E90BFF7F639C7F";
     fsType = "ntfs-3g";
-    options = [ "permissions" "users" "uid=sciyoshi" ];
+    options = [
+      "permissions"
+      "users"
+      "uid=sciyoshi"
+    ];
   };
 
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/1F89-F6BB";
     fsType = "vfat";
-    options = [ "fmask=0077" "dmask=0077" ];
+    options = [
+      "fmask=0077"
+      "dmask=0077"
+    ];
   };
 
   swapDevices = [ ];
