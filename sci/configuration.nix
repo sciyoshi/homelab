@@ -65,6 +65,7 @@
   # Enable networking
   networking.networkmanager.enable = true;
   networking.networkmanager.dns = "systemd-resolved";
+  networking.networkmanager.wifi.powersave = false;
 
   systemd.network.wait-online.enable = false;
   systemd.services."systemd-networkd-wait-online".enable = false;
@@ -196,6 +197,9 @@
       mingwSupport = true;
     })
     winetricks
+    lutris
+    umu-launcher
+    xwayland-satellite
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
