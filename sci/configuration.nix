@@ -33,6 +33,7 @@
     fira-code-symbols
     noto-fonts
     victor-mono
+    nerd-fonts.jetbrains-mono
     nerd-fonts.victor-mono
     nerd-fonts.fira-code
   ];
