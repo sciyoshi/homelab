@@ -70,6 +70,18 @@
     run mkdir -m 0700 -p ${lib.escapeShellArg config.home.sessionVariables.CODEX_HOME}
   '';
 
+  # Pi uses ~/.pi/agent by default. Keep its config/assets under XDG config
+  # and new session transcripts under XDG state; do not import the old agent.
+  home.sessionVariables = {
+    PI_CODING_AGENT_DIR = "${config.xdg.configHome}/pi/agent";
+    PI_CODING_AGENT_SESSION_DIR = "${config.xdg.stateHome}/pi/sessions";
+  };
+  home.activation.createPiDirectories = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run mkdir -m 0700 -p \
+      ${lib.escapeShellArg config.home.sessionVariables.PI_CODING_AGENT_DIR} \
+      ${lib.escapeShellArg config.home.sessionVariables.PI_CODING_AGENT_SESSION_DIR}
+  '';
+
   programs.gpg = {
     enable = true;
     # Start a new keyring under XDG data instead of ~/.gnupg. Home Manager
