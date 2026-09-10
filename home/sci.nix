@@ -32,6 +32,19 @@ in
   # Launchers that explicitly choose another WINEPREFIX retain their own prefix.
   home.sessionVariables.WINEPREFIX = "${config.xdg.dataHome}/wine";
 
+  programs.firefox = {
+    enable = true;
+    # Keep the NixOS package; managing only the profile also avoids Home
+    # Manager creating an unused ~/.mozilla/native-messaging-hosts directory.
+    package = null;
+    # Override the legacy default selected by home.stateVersion = "22.11".
+    # Firefox 147+ uses this XDG config directory for a fresh profile.
+    # One-time cleanup after closing Firefox: rm -rf ~/.mozilla
+    # An existing ~/.mozilla wins over XDG; no profile data is imported here.
+    configPath = "${config.xdg.configHome}/mozilla/firefox";
+    profiles.default.isDefault = true;
+  };
+
   home.pointerCursor = {
     enable = true;
     package = pkgs.apple-cursor;
