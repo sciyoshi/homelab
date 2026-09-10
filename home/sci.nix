@@ -64,6 +64,9 @@ in
 
   home.pointerCursor = {
     enable = true;
+    # Keep Home Manager's XDG data/icons links and exported XCURSOR_PATH,
+    # but stop generating the legacy ~/.icons compatibility copies.
+    dotIcons.enable = false;
     package = pkgs.apple-cursor;
     name = "macOS";
     size = 20;
