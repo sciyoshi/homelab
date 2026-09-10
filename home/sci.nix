@@ -74,6 +74,10 @@ in
     x11.enable = true;
   };
 
+  # Relocate generated ~/.Xresources; Home Manager's xrdb invocation follows
+  # this path. Manual loading: xrdb -merge ~/.config/X11/Xresources
+  xresources.path = "${config.xdg.configHome}/X11/Xresources";
+
   xdg.configFile."wofi/config" = {
     force = true;
     text = ''
