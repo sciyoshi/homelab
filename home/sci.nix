@@ -22,6 +22,12 @@ in
     run mkdir -p ${lib.escapeShellArg config.home.sessionVariables.XCOMPOSECACHE}
   '';
 
+  # CUDA regenerates JIT kernels here instead of ~/.nv/ComputeCache.
+  home.sessionVariables.CUDA_CACHE_PATH = "${config.xdg.cacheHome}/nvidia/ComputeCache";
+  home.activation.createCudaCache = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run mkdir -p ${lib.escapeShellArg config.home.sessionVariables.CUDA_CACHE_PATH}
+  '';
+
   home.pointerCursor = {
     enable = true;
     package = pkgs.apple-cursor;
