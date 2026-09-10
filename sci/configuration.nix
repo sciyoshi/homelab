@@ -263,7 +263,12 @@
   environment.systemPackages = with pkgs; [
     wget
     firefox
-    code-cursor
+    # Relocate ~/.cursor/extensions for both CLI and desktop launches.
+    # Extensions start fresh under XDG data. Cursor may still create
+    # ~/.cursor/argv.json; --extensions-dir does not relocate that file.
+    (code-cursor.override {
+      commandLineArgs = "--extensions-dir ${config.home-manager.users.sciyoshi.xdg.dataHome}/cursor/extensions";
+    })
     chromium
     ghostty
     git
