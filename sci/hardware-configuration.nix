@@ -39,8 +39,44 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {
-    device = "/dev/disk/by-uuid/01bf5eef-5419-4b98-99c9-9cfb7f52b876";
-    fsType = "ext4";
+    device = "/dev/disk/by-label/sci-btrfs";
+    fsType = "btrfs";
+    options = [
+      "subvol=root"
+      "compress=zstd"
+      "noatime"
+    ];
+  };
+
+  fileSystems."/home" = {
+    device = "/dev/disk/by-label/sci-btrfs";
+    fsType = "btrfs";
+    options = [
+      "subvol=home"
+      "compress=zstd"
+      "noatime"
+    ];
+  };
+
+  fileSystems."/nix" = {
+    device = "/dev/disk/by-label/sci-btrfs";
+    fsType = "btrfs";
+    options = [
+      "subvol=nix"
+      "compress=zstd"
+      "noatime"
+    ];
+  };
+
+  fileSystems."/persist" = {
+    device = "/dev/disk/by-label/sci-btrfs";
+    fsType = "btrfs";
+    options = [
+      "subvol=persist"
+      "compress=zstd"
+      "noatime"
+    ];
+    neededForBoot = true;
   };
 
   fileSystems."/srv/data" = {

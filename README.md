@@ -55,6 +55,75 @@ secrets.yaml               # sops-encrypted secrets
 
 ## Common Commands
 
+### Pending sci Btrfs migration
+
+The `sci` configuration now targets Btrfs labelled `sci-btrfs`. **Do not run
+`nixos-rebuild switch` or `nixos-rebuild boot` on the existing ext4 installation.**
+The pre-migration configuration is commit
+`4640e3dadf19611cfc88b94845131c183fb911e0`; record this outside the machine.
+The old ext4 UUID is `01bf5eef-5419-4b98-99c9-9cfb7f52b876`.
+
+Build before recovery (this does not require the new filesystem to exist):
+
+```sh
+nix flake check --no-build
+nix build .#nixosConfigurations.sci.config.system.build.toplevel --no-link
+```
+
+In recovery, after shrinking ext4 and creating the new Btrfs filesystem, create
+top-level subvolumes `root`, `home`, `nix`, and `persist`. Snapshot the **empty**
+`root` as read-only `blank` immediately, before mounting the installation target
+or running `nixos-install`. Mount the old ext4 filesystem read-only at
+`/run/migration-old`, outside `/mnt`. Mount the new root at `/mnt`, with its
+`home`, `nix`, and `persist` subvolumes at the corresponding paths and the
+existing ESP at `/mnt/boot`. Copy `/home`, `/nix`, and all paths listed in
+`environment.persistence` from the old installation, preserving numeric owners,
+permissions, ACLs, and xattrs. Check optional paths exist before copying.
+In particular, copy `/etc/NetworkManager/system-connections`, including its
+directory permissions, and all existing SSH host keys listed in the config.
+
+Before installation, seed the password file from the old system's current
+shadow entry. Run these commands as root in recovery; they never print the hash
+and must not be run with shell tracing enabled:
+
+```sh
+set +x
+awk -F: '$1 == "sciyoshi" && $2 ~ /^\$/ { found=1 } END { exit !found }' \
+  /run/migration-old/etc/shadow || { echo 'Missing usable password hash'; exit 1; }
+install -d -m 0700 -o root -g root /mnt/persist/passwords
+install -m 0600 -o root -g root /dev/null /mnt/persist/passwords/sciyoshi
+awk -F: '$1 == "sciyoshi" { print $2 }' /run/migration-old/etc/shadow \
+  > /mnt/persist/passwords/sciyoshi
+test -s /mnt/persist/passwords/sciyoshi
+```
+
+The password file is deliberately outside Git and the Nix store. It is the
+source for the password after root resets; subsequent `passwd` changes alone
+will not survive a reset. Update the protected hash file when changing passwords.
+Rollback refuses to delete root if this file is missing or empty.
+
+Check available ESP space before `nixos-install`; old generation entries are
+not guaranteed to survive bootloader cleanup. Keep the recovery media and ext4
+partition intact. Install using `/mnt/home/sciyoshi/.homelab#sci` and select the
+`no-rollback` specialisation for the first boot. It adds
+`impermanence.disable=1`, skipping root reset. Verify login, network profiles,
+SSH/Tailscale identities and mounts, then reboot into the normal entry and
+verify an unpersisted marker disappears while home/persist markers remain.
+
+The rollback service runs in systemd initrd after the resume ordering point and
+root-device discovery, before `sysroot.mount`. It checks the baseline is a
+read-only subvolume, validates root is a subvolume, then uses native Btrfs
+recursive deletion and snapshots `blank`. A failed rollback blocks root mount;
+use `no-rollback` or recovery media to investigate. This specialisation still
+boots Btrfs; it is not an ext4 fallback.
+
+Keep ext4 during validation. Before eventual Btrfs device-add/remove
+consolidation, all live data **and metadata allocations** must fit comfortably
+on the former ext4 partition. That operation needs a separate review of the
+actual partition geometry and Btrfs usage.
+
+### Routine commands
+
 Enter the dev shell first if direnv has not already done it:
 
 ```sh

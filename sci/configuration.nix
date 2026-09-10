@@ -25,6 +25,76 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.configurationLimit = 3;
 
+  # Migration prerequisites and recovery procedure are in README.md.
+  boot.initrd.systemd.enable = true;
+  boot.initrd.systemd.services.rollback = {
+    description = "Restore the empty Btrfs root";
+    unitConfig = {
+      DefaultDependencies = false;
+      ConditionKernelCommandLine = "!impermanence.disable=1";
+    };
+    after = [
+      "local-fs-pre.target"
+      "initrd-root-device.target"
+    ];
+    before = [ "sysroot.mount" ];
+    requiredBy = [ "sysroot.mount" ];
+    path = [
+      pkgs.btrfs-progs
+      pkgs.coreutils
+      pkgs.util-linux
+    ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      set -euo pipefail
+      top=/btrfs-tmp
+      mkdir -p "$top"
+      mount -t btrfs -o subvolid=5 ${config.fileSystems."/".device} "$top"
+      trap 'umount "$top"' EXIT
+
+      # Validate both targets before deleting anything. Never follow symlinks.
+      test ! -L "$top/blank"
+      btrfs subvolume show "$top/blank" >/dev/null
+      test "$(btrfs property get -ts "$top/blank" ro)" = "ro=true"
+      # A missing migration seed must not destroy the installed root.
+      test -s "$top/persist/passwords/sciyoshi"
+
+      test ! -L "$top/root"
+      if [ -e "$top/root" ]; then
+        btrfs subvolume show "$top/root" >/dev/null
+        # Native recursion avoids parsing human-readable subvolume paths.
+        btrfs subvolume delete --recursive "$top/root"
+      fi
+      btrfs subvolume snapshot "$top/blank" "$top/root"
+    '';
+  };
+
+  specialisation.no-rollback.configuration.boot.kernelParams = [
+    "impermanence.disable=1"
+  ];
+
+  environment.persistence."/persist" = {
+    hideMounts = true;
+    directories = [
+      "/etc/NetworkManager/system-connections"
+      "/var/lib/NetworkManager"
+      "/var/lib/bluetooth"
+      "/var/lib/nixos"
+      "/var/lib/tailscale"
+      "/var/log"
+    ];
+    files = [
+      "/etc/machine-id"
+      "/etc/ssh/ssh_host_ed25519_key"
+      "/etc/ssh/ssh_host_ed25519_key.pub"
+      "/etc/ssh/ssh_host_rsa_key"
+      "/etc/ssh/ssh_host_rsa_key.pub"
+    ];
+  };
+
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.kernelParams = [ "hid_apple.fnmode=2" ];
 
@@ -169,7 +239,7 @@
       "wheel"
     ];
     shell = pkgs.zsh;
-    initialHashedPassword = "$6$8n5a7Wv2pSxRbnlC$wUaKV9g05iT9USwuBssSG3/CBxNIjgNUw/HqWGcXntKBsVafADCUf8Wv4n0nAvhwUOx0ruPZ/YJKy1rpveERk.";
+    hashedPasswordFile = "/persist/passwords/sciyoshi";
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHza4EH8WS4lwVWhoLBPqAXv8u3rqGibpPRX5KCxoOwE samuel@cormier-iijima.com"
     ];
