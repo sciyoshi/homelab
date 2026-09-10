@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  config,
   specialArgs,
   ...
 }:
@@ -13,6 +14,13 @@ in
     codexAcp
     pkgs.zed-editor
   ];
+
+  # libX11 writes its Compose cache here instead of ~/.compose-cache.
+  # The directory must exist before X clients start; old caches are disposable.
+  home.sessionVariables.XCOMPOSECACHE = "${config.xdg.cacheHome}/X11/xcompose";
+  home.activation.createXcomposeCache = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run mkdir -p ${lib.escapeShellArg config.home.sessionVariables.XCOMPOSECACHE}
+  '';
 
   home.pointerCursor = {
     enable = true;
