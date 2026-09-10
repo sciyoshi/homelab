@@ -26,6 +26,11 @@
   # the unused legacy link/directory can be removed after switching.
   nix.settings.use-xdg-base-directories = true;
 
+  # Root resets at boot, so sudo cannot remember having shown its lecture.
+  security.sudo.extraConfig = ''
+    Defaults lecture = never
+  '';
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
