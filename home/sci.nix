@@ -54,6 +54,14 @@ in
     run mkdir -m 0700 -p ${lib.escapeShellArg "${config.xdg.dataHome}/pki/nssdb"}
   '';
 
+  # PERF_CONFIG replaces ~/.perfconfig; buildid.dir redirects the regenerable
+  # ~/.debug build-ID cache. Old cached binaries are not copied.
+  home.sessionVariables.PERF_CONFIG = "${config.xdg.configHome}/perf/config";
+  xdg.configFile."perf/config".text = ''
+    [buildid]
+      dir = ${config.xdg.cacheHome}/perf/buildid
+  '';
+
   home.pointerCursor = {
     enable = true;
     package = pkgs.apple-cursor;
