@@ -1,6 +1,7 @@
 {
   pkgs,
   config,
+  lib,
   specialArgs,
   ...
 }:
@@ -60,6 +61,14 @@
     );
 
   # xdg.enable = true;
+
+  # CODEX_HOME relocates ~/.codex as a unit: config, credentials, skills, and
+  # sessions remain together under XDG data. Existing Codex data is not copied.
+  # Export through Home Manager so GUI-launched agents inherit this path too.
+  home.sessionVariables.CODEX_HOME = "${config.xdg.dataHome}/codex";
+  home.activation.createCodexHome = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run mkdir -m 0700 -p ${lib.escapeShellArg config.home.sessionVariables.CODEX_HOME}
+  '';
 
   programs.gpg = {
     enable = true;
