@@ -17,7 +17,6 @@
       fd
       fresh-editor
       gh
-      gnupg
       jq
       maturin
       micro
@@ -61,6 +60,14 @@
     );
 
   # xdg.enable = true;
+
+  programs.gpg = {
+    enable = true;
+    # Start a new keyring under XDG data instead of ~/.gnupg. Home Manager
+    # exports GNUPGHOME, creates this directory with mode 0700, and shares
+    # this path with its gpg-agent module if that is enabled later.
+    homedir = "${config.xdg.dataHome}/gnupg";
+  };
 
   # Vim reads this XDG vimrc and writes fresh state instead of ~/.viminfo.
   # Keep the usual defaults; no legacy viminfo is imported.
