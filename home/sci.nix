@@ -28,6 +28,10 @@ in
     run mkdir -p ${lib.escapeShellArg config.home.sessionVariables.CUDA_CACHE_PATH}
   '';
 
+  # Wine creates a fresh default prefix here instead of ~/.wine.
+  # Launchers that explicitly choose another WINEPREFIX retain their own prefix.
+  home.sessionVariables.WINEPREFIX = "${config.xdg.dataHome}/wine";
+
   home.pointerCursor = {
     enable = true;
     package = pkgs.apple-cursor;
