@@ -20,6 +20,12 @@
     "flakes"
   ];
 
+  # Put new user profiles and channel expressions in $XDG_STATE_HOME/nix
+  # (profile and defexpr), instead of ~/.nix-profile and ~/.nix-defexpr.
+  # Home Manager follows this setting too. No old profile/channel is imported;
+  # the unused legacy link/directory can be removed after switching.
+  nix.settings.use-xdg-base-directories = true;
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
