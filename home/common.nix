@@ -1,4 +1,9 @@
-{ pkgs, specialArgs, ... }:
+{
+  pkgs,
+  config,
+  specialArgs,
+  ...
+}:
 {
   home.packages =
     with pkgs;
@@ -56,6 +61,14 @@
     );
 
   # xdg.enable = true;
+
+  # Vim reads this XDG vimrc and writes fresh state instead of ~/.viminfo.
+  # Keep the usual defaults; no legacy viminfo is imported.
+  xdg.configFile."vim/vimrc".text = ''
+    source $VIMRUNTIME/defaults.vim
+    call mkdir('${config.xdg.stateHome}/vim', 'p', 0700)
+    let &viminfofile = '${config.xdg.stateHome}/vim/viminfo'
+  '';
 
   programs.direnv = {
     enable = true;
