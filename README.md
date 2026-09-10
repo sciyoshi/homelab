@@ -53,76 +53,101 @@ secrets.yaml               # sops-encrypted secrets
 .sops.yaml                 # sops recipients
 ```
 
+## Zigbee on sci
+
+The ConBee II USB adapter uses Home Assistant's built-in **Zigbee Home
+Automation (ZHA)** integration. Its dependencies and serial-device permissions
+are enabled through `services.home-assistant.extraComponents` in
+`sci/configuration.nix`.
+
+After activating the NixOS configuration, open Settings → Devices & services
+in Home Assistant and configure the discovered ConBee II, or add **Zigbee Home
+Automation** manually. Select this stable serial path:
+
+```text
+/dev/serial/by-id/usb-dresden_elektronik_ingenieurtechnik_GmbH_ConBee_II_DE2234146-if00
+```
+
+If radio detection fails, select **deCONZ** as the radio type. Complete the
+setup, then add devices through ZHA while putting each device into pairing
+mode. Zigbee state is stored in Home Assistant's existing persisted directory.
+Only one service can use the adapter at a time.
+
+Upstream instructions: [Zigbee Home Automation](https://www.home-assistant.io/integrations/zha/).
+
+## Eufy Security on sci
+
+Home Assistant's Eufy Security integration and the `eufy-security-ws` bridge
+are pinned in `overlays/eufy-security.nix`; HACS is not needed. The native bridge
+listens on `127.0.0.1:3000`, with go2rtc on `127.0.0.1:1984` (API) and
+`127.0.0.1:8554` (RTSP). Home Assistant handles access from browsers.
+
+Create a separate Eufy account, share the home/devices with it with admin access,
+and log into that account in the Eufy app once to accept the invitation. Provision
+its credentials locally, outside Git and the Nix store:
+
+```sh
+sudo install -d -m 0700 /persist/credentials
+sudo test -e /persist/credentials/eufy-security.json || \
+  sudo install -m 0600 /dev/null /persist/credentials/eufy-security.json
+sudoedit /persist/credentials/eufy-security.json
+```
+
+Use this JSON structure, replacing the placeholders and setting `country` to
+the account's two-letter country code (`CA` for Canada):
+
+```json
+{
+  "username": "EUFY_ACCOUNT_EMAIL",
+  "password": "EUFY_ACCOUNT_PASSWORD",
+  "country": "CA"
+}
+```
+
+The service remains stopped until this file exists. After activating the NixOS
+configuration and saving the credentials, run `sudo systemctl restart eufy-security`.
+Systemd supplies a private credential copy; bridge tokens and station state
+persist under `/persist/var/lib/eufy-security`. Credential changes require a restart.
+
+In Home Assistant, add **Eufy Security** under Settings → Devices & services,
+using host `127.0.0.1` and port `3000`. Set its GO2RTC host option to `127.0.0.1`.
+Complete any CAPTCHA or two-factor challenge through the integration's
+reauthentication prompt. Enable device push notifications in Eufy's app for
+events. The E340 doorbell and eufyCam 3C cameras are discovered from the shared
+account; live video may need the camera's Start P2P Stream action and consumes
+battery while active.
+
+Start live video with `camera.turn_on` and stop it with `camera.turn_off` on
+the relevant camera entity. Leave the integration's "No stream in HA" option
+disabled. P2P video is converted on demand to 1080p H.264 by go2rtc/FFmpeg for
+browser compatibility; Eufy's Auto mode can otherwise deliver 4K H.265. This
+uses CPU on `sci` while viewing and does not change camera recording settings.
+Front Door live-stream quality is set to Low in Eufy; Auto repeatedly stalled
+in testing. The compatibility patch is `overlays/eufy-security-h264.patch`.
+
+Useful diagnostics: `journalctl -u eufy-security -u go2rtc -u home-assistant`.
+Upstream setup notes: [Eufy Security integration](https://github.com/fuatakgun/eufy_security)
+and [bridge](https://github.com/bropat/eufy-security-ws).
+
+## Btrfs impermanence on sci
+
+The Btrfs migration is complete. `sci` uses the filesystem labelled `sci-btrfs`
+with separate `root`, `home`, `nix`, and `persist` subvolumes. On normal boots,
+the initrd resets `root` from the read-only `blank` snapshot before mounting it.
+`/home`, `/nix`, and `/persist` survive resets; system state that must persist
+is listed in `environment.persistence` in `sci/configuration.nix`.
+
+The login password hash lives in `/persist/passwords/sciyoshi`, outside Git and
+the Nix store. Update this protected file when changing the password; `passwd`
+changes alone will not survive a reset. Root reset refuses to proceed if the
+file is missing or empty.
+
+For troubleshooting, select the `no-rollback` boot specialisation. It adds
+`impermanence.disable=1` to skip the root reset while keeping the same Btrfs
+mounts. A failed reset blocks the normal root mount; use this entry or recovery
+media to investigate.
+
 ## Common Commands
-
-### Pending sci Btrfs migration
-
-The `sci` configuration now targets Btrfs labelled `sci-btrfs`. **Do not run
-`nixos-rebuild switch` or `nixos-rebuild boot` on the existing ext4 installation.**
-The pre-migration configuration is commit
-`4640e3dadf19611cfc88b94845131c183fb911e0`; record this outside the machine.
-The old ext4 UUID is `01bf5eef-5419-4b98-99c9-9cfb7f52b876`.
-
-Build before recovery (this does not require the new filesystem to exist):
-
-```sh
-nix flake check --no-build
-nix build .#nixosConfigurations.sci.config.system.build.toplevel --no-link
-```
-
-In recovery, after shrinking ext4 and creating the new Btrfs filesystem, create
-top-level subvolumes `root`, `home`, `nix`, and `persist`. Snapshot the **empty**
-`root` as read-only `blank` immediately, before mounting the installation target
-or running `nixos-install`. Mount the old ext4 filesystem read-only at
-`/run/migration-old`, outside `/mnt`. Mount the new root at `/mnt`, with its
-`home`, `nix`, and `persist` subvolumes at the corresponding paths and the
-existing ESP at `/mnt/boot`. Copy `/home`, `/nix`, and all paths listed in
-`environment.persistence` from the old installation, preserving numeric owners,
-permissions, ACLs, and xattrs. Check optional paths exist before copying.
-In particular, copy `/etc/NetworkManager/system-connections`, including its
-directory permissions, and all existing SSH host keys listed in the config.
-
-Before installation, seed the password file from the old system's current
-shadow entry. Run these commands as root in recovery; they never print the hash
-and must not be run with shell tracing enabled:
-
-```sh
-set +x
-awk -F: '$1 == "sciyoshi" && $2 ~ /^\$/ { found=1 } END { exit !found }' \
-  /run/migration-old/etc/shadow || { echo 'Missing usable password hash'; exit 1; }
-install -d -m 0700 -o root -g root /mnt/persist/passwords
-install -m 0600 -o root -g root /dev/null /mnt/persist/passwords/sciyoshi
-awk -F: '$1 == "sciyoshi" { print $2 }' /run/migration-old/etc/shadow \
-  > /mnt/persist/passwords/sciyoshi
-test -s /mnt/persist/passwords/sciyoshi
-```
-
-The password file is deliberately outside Git and the Nix store. It is the
-source for the password after root resets; subsequent `passwd` changes alone
-will not survive a reset. Update the protected hash file when changing passwords.
-Rollback refuses to delete root if this file is missing or empty.
-
-Check available ESP space before `nixos-install`; old generation entries are
-not guaranteed to survive bootloader cleanup. Keep the recovery media and ext4
-partition intact. Install using `/mnt/home/sciyoshi/.homelab#sci` and select the
-`no-rollback` specialisation for the first boot. It adds
-`impermanence.disable=1`, skipping root reset. Verify login, network profiles,
-SSH/Tailscale identities and mounts, then reboot into the normal entry and
-verify an unpersisted marker disappears while home/persist markers remain.
-
-The rollback service runs in systemd initrd after the resume ordering point and
-root-device discovery, before `sysroot.mount`. It checks the baseline is a
-read-only subvolume, validates root is a subvolume, then uses native Btrfs
-recursive deletion and snapshots `blank`. A failed rollback blocks root mount;
-use `no-rollback` or recovery media to investigate. This specialisation still
-boots Btrfs; it is not an ext4 fallback.
-
-Keep ext4 during validation. Before eventual Btrfs device-add/remove
-consolidation, all live data **and metadata allocations** must fit comfortably
-on the former ext4 partition. That operation needs a separate review of the
-actual partition geometry and Btrfs usage.
-
-### Routine commands
 
 Enter the dev shell first if direnv has not already done it:
 

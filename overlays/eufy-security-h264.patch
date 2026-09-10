@@ -1,0 +1,18 @@
+--- a/custom_components/eufy_security/eufy_security_api/camera.py
++++ b/custom_components/eufy_security/eufy_security_api/camera.py
+@@ -33 +33 @@
+-    P2P = "rtsp://{server_address}:{server_port}/{serial_no}"  # replace with stream name
++    P2P = "rtsp://{server_address}:{server_port}/{serial_no}_ha"  # browser-compatible stream
+--- a/custom_components/eufy_security/eufy_security_api/p2p_streamer.py
++++ b/custom_components/eufy_security/eufy_security_api/p2p_streamer.py
+@@ -83,0 +84,10 @@
++        # Eufy's Auto mode can deliver 4K H.265, which many HA browsers cannot
++        # play. Keep the raw feed for ingestion and transcode only on demand.
++        parameters = {
++            "name": f"{self.camera.serial_no}_ha",
++            "src": f"ffmpeg:{self.camera.serial_no}#video=h264#height=1080",
++        }
++        async with aiohttp.ClientSession() as session:
++            async with session.put(url, params=parameters) as response:
++                response.raise_for_status()
++

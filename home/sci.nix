@@ -63,6 +63,8 @@ in
     # An existing ~/.mozilla wins over XDG; no profile data is imported here.
     configPath = "${config.xdg.configHome}/mozilla/firefox";
     profiles.default.isDefault = true;
+    # Leave Ctrl+. available for Multi-Account Containers.
+    profiles.default.settings."widget.gtk.native-emoji-dialog" = false;
   };
 
   # Chromium 146+ defaults to ~/.local/share/pki/nssdb for its NSS database.

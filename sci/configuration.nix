@@ -2,7 +2,12 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   imports = [
@@ -36,7 +41,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.configurationLimit = 3;
 
-  # Migration prerequisites and recovery procedure are in README.md.
+  # Impermanence behavior and recovery notes are in README.md.
   boot.initrd.systemd.enable = true;
   boot.initrd.systemd.services.rollback = {
     description = "Restore the empty Btrfs root";
@@ -70,7 +75,7 @@
       test ! -L "$top/blank"
       btrfs subvolume show "$top/blank" >/dev/null
       test "$(btrfs property get -ts "$top/blank" ro)" = "ro=true"
-      # A missing migration seed must not destroy the installed root.
+      # A missing password hash must not destroy the installed root.
       test -s "$top/persist/passwords/sciyoshi"
 
       test ! -L "$top/root"
@@ -100,6 +105,12 @@
         directory = config.services.home-assistant.configDir;
         user = "hass";
         group = "hass";
+        mode = "0700";
+      }
+      {
+        directory = "/var/lib/eufy-security";
+        user = "eufy-security";
+        group = "eufy-security";
         mode = "0700";
       }
     ];
@@ -266,7 +277,10 @@
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.overlays = [ (import ../overlays/chatgpt.nix) ];
+  nixpkgs.overlays = [
+    (import ../overlays/chatgpt.nix)
+    (import ../overlays/eufy-security.nix)
+  ];
 
   services.tailscale.enable = true;
 
@@ -274,11 +288,16 @@
     enable = true;
     # Add integrations configured through the UI here so Nix installs their dependencies.
     extraComponents = [
+      "august"
       "casper_glow" # Casper Glow light, advertised over Bluetooth as Jar_0.
       "default_config"
       "esphome"
+      "ffmpeg"
       "met"
+      "stream"
+      "zha" # ConBee II; the NixOS module also grants serial-device access.
     ];
+    customComponents = [ pkgs.home-assistant-custom-components.eufy_security ];
     config = {
       default_config = { };
       homeassistant = {
@@ -287,6 +306,73 @@
         time_zone = config.time.timeZone;
       };
     };
+  };
+
+  # Eufy's P2P video is fed into go2rtc by the custom integration.
+  services.go2rtc = {
+    enable = true;
+    settings = {
+      api.listen = "127.0.0.1:1984";
+      rtsp.listen = "127.0.0.1:8554";
+      webrtc.listen = "";
+    };
+  };
+
+  # go2rtc's stream-registration API writes to its first config file. Keep these
+  # transient entries writable while loading declarative settings from the store.
+  systemd.services.go2rtc = {
+    serviceConfig = {
+      RuntimeDirectory = "go2rtc";
+      RuntimeDirectoryMode = "0700";
+      ExecStart = lib.mkForce (
+        "${pkgs.go2rtc}/bin/go2rtc -config /run/go2rtc/streams.yaml -config "
+        + (pkgs.formats.yaml { }).generate "go2rtc.yaml" config.services.go2rtc.settings
+      );
+    };
+    preStart = ''
+      : > /run/go2rtc/streams.yaml
+    '';
+  };
+
+  users.groups.eufy-security = { };
+  users.users.eufy-security = {
+    isSystemUser = true;
+    group = "eufy-security";
+  };
+
+  systemd.services.eufy-security = {
+    description = "Eufy Security WebSocket bridge";
+    wantedBy = [ "multi-user.target" ];
+    wants = [ "network-online.target" ];
+    after = [ "network-online.target" ];
+    # Provision this root-only file as described in README.md before first start.
+    unitConfig.ConditionPathExists = "/persist/credentials/eufy-security.json";
+    serviceConfig = {
+      User = "eufy-security";
+      Group = "eufy-security";
+      StateDirectory = "eufy-security";
+      StateDirectoryMode = "0700";
+      RuntimeDirectory = "eufy-security";
+      RuntimeDirectoryMode = "0700";
+      WorkingDirectory = "/var/lib/eufy-security";
+      LoadCredential = "account.json:/persist/credentials/eufy-security.json";
+      UMask = "0077";
+      Restart = "on-failure";
+      RestartSec = 10;
+      NoNewPrivileges = true;
+      PrivateTmp = true;
+      ProtectSystem = "strict";
+      ProtectHome = true;
+      RestrictSUIDSGID = true;
+    };
+    script = ''
+      ${pkgs.jq}/bin/jq '. + {
+        persistentDir: "/var/lib/eufy-security",
+        trustedDeviceName: "Home Assistant sci"
+      }' "$CREDENTIALS_DIRECTORY/account.json" > "$RUNTIME_DIRECTORY/config.json"
+      exec ${pkgs.eufy-security-ws}/bin/eufy-security-server \
+        --host 127.0.0.1 --port 3000 --config "$RUNTIME_DIRECTORY/config.json"
+    '';
   };
 
   networking.firewall.allowedTCPPorts = [ 8123 ];
