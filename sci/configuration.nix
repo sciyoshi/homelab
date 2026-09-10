@@ -255,6 +255,7 @@
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.overlays = [ (import ../overlays/chatgpt.nix) ];
 
   services.tailscale.enable = true;
 
@@ -269,6 +270,7 @@
     (code-cursor.override {
       commandLineArgs = "--extensions-dir ${config.home-manager.users.sciyoshi.xdg.dataHome}/cursor/extensions";
     })
+    chatgpt
     chromium
     ghostty
     git
