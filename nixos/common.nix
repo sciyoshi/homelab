@@ -35,7 +35,7 @@
       wireguard-tools
     ]
     ++ (
-      if !pkgs.stdenv.isAarch64 then
+      if !pkgs.stdenv.hostPlatform.isAarch64 then
         [
           smartmontools
           nvme-cli

@@ -48,7 +48,7 @@
       specialArgs.inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.codex
     ]
     ++ (
-      if !pkgs.stdenv.isAarch64 || pkgs.stdenv.isDarwin then
+      if !pkgs.stdenv.hostPlatform.isAarch64 || pkgs.stdenv.hostPlatform.isDarwin then
         [
           aws-vault
           just
@@ -110,14 +110,14 @@
     ForwardAgent = true;
     SendEnv = [ "ZELLIJ" ];
     IdentityAgent =
-      if pkgs.stdenv.isDarwin then
+      if pkgs.stdenv.hostPlatform.isDarwin then
         "\"~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock\""
       else
         null;
 
     #extraConfig = ''
     #  SendEnv ZELLIJ
-    #  ${pkgs.lib.optionalString pkgs.stdenv.isDarwin ''
+    #  ${pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
     #    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
     #  ''}
     #'';
