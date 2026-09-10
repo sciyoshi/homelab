@@ -17,6 +17,13 @@
 
   xdg.enable = true;
 
+  programs.bash = {
+    enable = true;
+    # Write new Bash history under XDG state instead of ~/.bash_history.
+    # Home Manager creates the parent directory; old history is not imported.
+    historyFile = "${config.xdg.stateHome}/bash/history";
+  };
+
   programs.zsh = {
     enable = true;
     dotDir = "${config.xdg.configHome}/zsh";
