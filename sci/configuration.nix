@@ -96,6 +96,12 @@
       "/var/lib/nixos"
       "/var/lib/tailscale"
       "/var/log"
+      {
+        directory = config.services.home-assistant.configDir;
+        user = "hass";
+        group = "hass";
+        mode = "0700";
+      }
     ];
     files = [
       "/etc/machine-id"
@@ -263,6 +269,27 @@
   nixpkgs.overlays = [ (import ../overlays/chatgpt.nix) ];
 
   services.tailscale.enable = true;
+
+  services.home-assistant = {
+    enable = true;
+    # Add integrations configured through the UI here so Nix installs their dependencies.
+    extraComponents = [
+      "casper_glow" # Casper Glow light, advertised over Bluetooth as Jar_0.
+      "default_config"
+      "esphome"
+      "met"
+    ];
+    config = {
+      default_config = { };
+      homeassistant = {
+        name = "Home";
+        unit_system = "metric";
+        time_zone = config.time.timeZone;
+      };
+    };
+  };
+
+  networking.firewall.allowedTCPPorts = [ 8123 ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
