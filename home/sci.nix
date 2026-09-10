@@ -62,6 +62,13 @@ in
       dir = ${config.xdg.cacheHome}/perf/buildid
   '';
 
+  # libpulse clients read/create the cookie in XDG config rather than falling
+  # back to ~/.pulse-cookie. The cookie stays mutable and is never in Nix.
+  # Any existing XDG cookie is used as-is; the legacy cookie is not copied.
+  xdg.configFile."pulse/client.conf".text = ''
+    cookie-file = ${config.xdg.configHome}/pulse/cookie
+  '';
+
   home.pointerCursor = {
     enable = true;
     # Keep Home Manager's XDG data/icons links and exported XCURSOR_PATH,
