@@ -15,6 +15,26 @@ in
     pkgs.zed-editor
   ];
 
+  # Match the package's signal.desktop so app-menu launches use the existing
+  # GNOME keyring even though Electron does not recognize niri's desktop name.
+  xdg.desktopEntries.signal = {
+    name = "Signal";
+    comment = "Private messaging from your desktop";
+    exec = "signal-desktop --password-store=gnome-libsecret %U";
+    icon = "signal-desktop";
+    terminal = false;
+    categories = [
+      "Network"
+      "InstantMessaging"
+      "Chat"
+    ];
+    mimeType = [
+      "x-scheme-handler/sgnl"
+      "x-scheme-handler/signalcaptcha"
+    ];
+    settings.StartupWMClass = "signal";
+  };
+
   # libX11 writes its Compose cache here instead of ~/.compose-cache.
   # The directory must exist before X clients start; old caches are disposable.
   home.sessionVariables.XCOMPOSECACHE = "${config.xdg.cacheHome}/X11/xcompose";
