@@ -29,7 +29,12 @@
     enable = true;
     package = pkgs.postgresql_16;
     enableTCPIP = true;
-    extensions = [ pkgs.pgvecto-rs ];
+    extensions = [
+      pkgs.pgvecto-rs
+      pkgs.postgresql16Packages.pgvector
+      pkgs.postgresql16Packages.vectorchord
+    ];
+    settings.shared_preload_libraries = "vchord.so, vectors.so";
     authentication = lib.mkForce ''
       local all  all           peer
       host  all  all 0.0.0.0/0 scram-sha-256
