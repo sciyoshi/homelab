@@ -351,20 +351,6 @@
     "dotnet-sdk-wrapped-6.0.428"
   ];
 
-  services.sonarr = {
-    enable = true;
-    user = "sciyoshi";
-    group = "media";
-    openFirewall = true;
-  };
-
-  services.jackett = {
-    enable = true;
-    user = "sciyoshi";
-    group = "media";
-    openFirewall = true;
-  };
-
   services.jellyfin = {
     enable = true;
     openFirewall = true;
