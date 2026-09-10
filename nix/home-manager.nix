@@ -11,6 +11,6 @@
       ../home/linux.nix
     ];
 
-    extraSpecialArgs = inputs;
+    extraSpecialArgs = { inherit inputs; };
   };
 }
