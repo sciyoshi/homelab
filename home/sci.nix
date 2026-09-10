@@ -14,6 +14,15 @@ in
     pkgs.zed-editor
   ];
 
+  home.pointerCursor = {
+    enable = true;
+    package = pkgs.apple-cursor;
+    name = "macOS";
+    size = 20;
+    gtk.enable = true;
+    x11.enable = true;
+  };
+
   xdg.configFile."wofi/config" = {
     force = true;
     text = ''
@@ -34,82 +43,62 @@ in
   xdg.configFile."wofi/style.css" = {
     force = true;
     text = ''
-      /* Catppuccin Mocha - Wofi */
       * {
-        font-family: "JetBrainsMono Nerd Font", monospace;
-        font-size: 18px;
-      }
-      window {
-        background-color: #1e1e2e; /* Base */
-        border: 2px solid #b4befe; /* Accent */
+        all: unset;
+        font-family: "FiraCode Nerd Font";
+        font-size: 14px;
       }
 
-      scrollbar,
-      scrollbar trough,
-      undershoot.top,
-      undershoot.bottom {
-        min-width: 5px;
-        min-height: 5px;
-        background: none;
+      window {
+        padding: 14px;
+        border: 1px solid #353442;
+        border-radius: 14px;
+        background-color: rgba(24, 24, 32, 0.97);
+        color: #e6e1e5;
       }
-      scrollbar slider {
-        background-color: #b4befe;
+
+      #outer-box {
+        padding: 4px;
       }
 
       #input image {
-        color: #b4befe; /* Accent */
-        -gtk-icon-effect: none;
-      }
-      #input {
-        background-color: #313244; /* Surface0 */
-        color: #cdd6f4; /* Text */
-        border: 1px solid #45475a; /* Surface1 */
-        padding: 8px 12px;
-        margin: 10px;
-        border-radius: 35px;
-        outline: 1px solid #585b70;
-      }
-      #input:focus {
-        border-color: #b4befe; /* Accent */
-      }
-      #input placeholder {
-        color: #6c7086; /* Overlay0 */
-      }
-      #scroll {
-        margin: 0 8px 8px 8px;
-      }
-      #inner-box {
-        background-color: transparent;
-      }
-      #outer-box {
-        padding: 4px;
-        background-color: #1e1e2e;
-        padding: 10px;
-        border: 2px solid #b4befe;
-      }
-      #entry {
-        background-color: #1e1e2e;
-        color: #cdd6f4;
-      }
-      #entry #entry:selected {
-        background-color: #313244;
-        color: #b4befe;
-      }
-      #entry:selected {
-        background-color: #313244;
-        color: #b4befe;
-      }
-      #entry:hover {
-        background-color: #45475a; /* Surface1 */
-      }
-      #text {
-        color: #cdd6f4; /* Text */
-      }
-      #text:selected {
-        color: #b4befe; /* Accent */
-      }
-      #img {
         margin-right: 8px;
+      }
+
+      #input {
+        margin-bottom: 10px;
+        padding: 12px 14px;
+        border: 1px solid #353442;
+        border-radius: 9px;
+        background-color: #20202a;
+        color: #ffffff;
+      }
+
+      #input:focus {
+        border-color: #817f8a;
+      }
+
+      #scroll {
+        margin: 0;
+      }
+
+      #entry {
+        padding: 9px 11px;
+        border-radius: 8px;
+        color: #b8b4c0;
+      }
+
+      #entry:selected {
+        background-color: #353442;
+        color: #ffffff;
+      }
+
+      #text:selected {
+        color: #c4b5fd;
+      }
+
+      #img {
+        margin-right: 12px;
       }
     '';
   };

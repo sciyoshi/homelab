@@ -68,6 +68,11 @@
   networking.networkmanager.dns = "systemd-resolved";
   networking.networkmanager.wifi.powersave = false;
 
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
+
   systemd.network.wait-online.enable = false;
   systemd.services."systemd-networkd-wait-online".enable = false;
 
