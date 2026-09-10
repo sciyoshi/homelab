@@ -45,6 +45,15 @@ in
     profiles.default.isDefault = true;
   };
 
+  # Chromium 146+ defaults to ~/.local/share/pki/nssdb for its NSS database.
+  # No environment override is needed with our default XDG data location.
+  # After closing Chromium/Electron apps, discard the preferred legacy DB:
+  #   rm -rf ~/.pki
+  # Older Electron apps may still recreate ~/.pki; no certificates are copied.
+  home.activation.createNssDatabaseDirectory = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run mkdir -m 0700 -p ${lib.escapeShellArg "${config.xdg.dataHome}/pki/nssdb"}
+  '';
+
   home.pointerCursor = {
     enable = true;
     package = pkgs.apple-cursor;
