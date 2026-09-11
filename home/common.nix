@@ -71,6 +71,16 @@
     run mkdir -m 0700 -p ${lib.escapeShellArg "${config.xdg.configHome}/npm"}
   '';
 
+  # Claude Code normally uses ~/.claude/ plus the separate ~/.claude.json.
+  # CLAUDE_CONFIG_DIR moves both into one XDG data directory, including
+  # credentials, sessions, and plugins; global state becomes claude/.claude.json.
+  # Existing data is not copied: preserve ~/.claude's contents here and place
+  # ~/.claude.json inside this directory before restarting to retain sign-in.
+  home.sessionVariables.CLAUDE_CONFIG_DIR = "${config.xdg.dataHome}/claude";
+  home.activation.createClaudeHome = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run mkdir -m 0700 -p ${lib.escapeShellArg config.home.sessionVariables.CLAUDE_CONFIG_DIR}
+  '';
+
   # CODEX_HOME relocates ~/.codex as a unit: config, credentials, skills, and
   # sessions remain together under XDG data. Existing Codex data is not copied.
   # Export through Home Manager so GUI-launched agents inherit this path too.
