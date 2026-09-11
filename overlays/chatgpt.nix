@@ -6,6 +6,8 @@ let
       stdenv,
       fetchurl,
       dpkg,
+      asar,
+      glibc,
       autoPatchelfHook,
       makeWrapper,
       wrapGAppsHook3,
@@ -57,6 +59,7 @@ let
       };
       nativeBuildInputs = [
         dpkg
+        asar
         autoPatchelfHook
         makeWrapper
         wrapGAppsHook3
@@ -110,6 +113,15 @@ let
         runHook preUnpack
         dpkg-deb --fsys-tarfile "$src" | tar -x --no-same-owner --no-same-permissions
         runHook postUnpack
+      '';
+      postPatch = ''
+        # Project watchers use detect-libc. Its /usr/bin/ldd fallback is absent
+        # on NixOS, and Owl's process.report.getReport() traps in libc detection.
+        asar extract usr/lib/chatgpt/resources/app.asar app-asar
+        substituteInPlace app-asar/node_modules/@parcel/watcher/node_modules/detect-libc/lib/filesystem.js \
+          --replace-fail "'/usr/bin/ldd'" "'${lib.getBin glibc}/bin/ldd'"
+        # Keep native addons and their supporting files outside the archive.
+        asar pack app-asar usr/lib/chatgpt/resources/app.asar --unpack-dir node_modules
       '';
       installPhase = ''
         runHook preInstall
