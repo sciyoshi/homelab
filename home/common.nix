@@ -62,6 +62,15 @@
 
   # xdg.enable = true;
 
+  # npm puts its cache, logs, and update-notifier state in ~/.npm by default.
+  # Keep that disposable data in XDG cache, and use a mutable XDG npmrc
+  # instead of ~/.npmrc (it can contain registry credentials).
+  home.sessionVariables.NPM_CONFIG_CACHE = "${config.xdg.cacheHome}/npm";
+  home.sessionVariables.NPM_CONFIG_USERCONFIG = "${config.xdg.configHome}/npm/npmrc";
+  home.activation.createNpmConfigDirectory = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run mkdir -m 0700 -p ${lib.escapeShellArg "${config.xdg.configHome}/npm"}
+  '';
+
   # CODEX_HOME relocates ~/.codex as a unit: config, credentials, skills, and
   # sessions remain together under XDG data. Existing Codex data is not copied.
   # Export through Home Manager so GUI-launched agents inherit this path too.
