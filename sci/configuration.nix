@@ -400,6 +400,7 @@
     vscode
     slack
     signal-desktop
+    spotify
     tailscale
     wofi
     gparted
