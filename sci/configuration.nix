@@ -306,6 +306,26 @@
       default_config = { };
       # Load automations saved by the UI from the writable state directory.
       automation = "!include automations.yaml";
+      "automation managed" = [
+        {
+          id = "living_room_covers_open_after_morning_golden_hour";
+          alias = "Open Living Room covers after morning golden hour";
+          triggers = [
+            {
+              trigger = "sun.golden_hour_ended";
+              options.period = "morning";
+            }
+          ];
+          actions = [
+            {
+              action = "cover.open_cover";
+              # Resolve the area by name so its internal ID need not be hardcoded.
+              target.area_id = "{{ area_id('Living Room') }}";
+            }
+          ];
+          mode = "single";
+        }
+      ];
       homeassistant = {
         name = "Home";
         unit_system = "metric";
