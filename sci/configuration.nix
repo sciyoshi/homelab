@@ -100,6 +100,10 @@
       "/var/lib/bluetooth"
       "/var/lib/nixos"
       "/var/lib/tailscale"
+      {
+        directory = "/var/lib/ha-tailscale";
+        mode = "0700";
+      }
       "/var/log"
       {
         directory = config.services.home-assistant.configDir;
@@ -286,6 +290,67 @@
     enable = true;
     # Allow the desktop tray to switch accounts and manage the connection.
     extraSetFlags = [ "--operator=sciyoshi" ];
+  };
+
+  # Keep HA's public endpoint on the personal tailnet when the desktop switches
+  # accounts. Only Tailscale's identity is persistent; login once per README.md.
+  containers.ha-tailscale = {
+    autoStart = true;
+    ephemeral = true;
+    # Share loopback to reach HA, but create no VPN interface or host routes.
+    privateNetwork = false;
+    bindMounts."/var/lib/tailscale" = {
+      hostPath = "/var/lib/ha-tailscale";
+      isReadOnly = false;
+    };
+    config = {
+      nixpkgs.pkgs = pkgs;
+      system.stateVersion = "26.05";
+      networking = {
+        hostName = "ha-sci";
+        useHostResolvConf = true;
+        firewall.enable = false;
+      };
+      services.tailscale = {
+        enable = true;
+        interfaceName = "userspace-networking";
+        port = 0; # Do not contend with the desktop daemon's UDP port.
+        disableTaildrop = true;
+        extraSetFlags = [
+          "--hostname=ha-sci"
+          "--accept-dns=false"
+          "--accept-routes=false"
+        ];
+      };
+      # The upstream stop hook cleans up kernel VPN rules. This instance has
+      # none, and must not touch the desktop daemon's rules in the shared netns.
+      systemd.services.tailscaled.serviceConfig.ExecStopPost = [ "" ];
+      systemd.services.ha-funnel = {
+        description = "Home Assistant Tailscale Funnel";
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "tailscaled.service" ];
+        after = [
+          "tailscaled.service"
+          "tailscaled-set.service"
+        ];
+        unitConfig.StartLimitIntervalSec = 0;
+        serviceConfig = {
+          Restart = "always";
+          RestartSec = 30;
+        };
+        path = [
+          pkgs.tailscale
+          pkgs.jq
+        ];
+        enableStrictShellChecks = true;
+        script = ''
+          # Retry until the one-time browser login / device approval is done.
+          tailscale status --json --peers=false | jq -e '.BackendState == "Running"' >/dev/null
+          # Foreground mode ties public exposure to this service's lifetime.
+          exec tailscale funnel --yes --https=443 http://127.0.0.1:8123
+        '';
+      };
+    };
   };
 
   services.home-assistant = {

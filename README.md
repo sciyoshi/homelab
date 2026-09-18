@@ -141,6 +141,79 @@ Useful diagnostics: `journalctl -u eufy-security -u go2rtc -u home-assistant`.
 Upstream setup notes: [Eufy Security integration](https://github.com/fuatakgun/eufy_security)
 and [bridge](https://github.com/bropat/eufy-security-ws).
 
+## Home Assistant Funnel on sci
+
+The `ha-tailscale` NixOS container provides a dedicated personal-tailnet node
+named `ha-sci`. The desktop's normal Tailscale client can switch accounts
+independently. The container uses userspace networking, an automatically chosen
+UDP port, and the host's network namespace so Funnel can reach HA at
+`http://127.0.0.1:8123`. It does not install a VPN interface, routes, or DNS
+settings. The host's Internet connection, DNS, and any selected exit node still
+affect its outbound connectivity.
+
+The container's root is ephemeral, but its `/var/lib/tailscale` is bound to
+the host's root-only `/var/lib/ha-tailscale`, persisted under
+`/persist/var/lib/ha-tailscale`. This contains the node identity and must survive
+reboots. No Tailscale auth key is needed: authenticate once in a browser and
+Tailscale reuses its saved identity. `sci` has no `/run/secrets`; it includes the
+sops-nix module but does not declare SOPS secrets.
+
+Initial setup, after reviewing and switching the NixOS configuration:
+
+1. In HA **Settings → System → Network → HTTP server**, enable **Trust
+   X-Forwarded-For** and add **127.0.0.1** to **Trusted proxies**. Save and confirm
+   the settings after HA restarts, within the five-minute confirmation window.
+   HA 2026.8+ stores these settings in the UI; adding an `http:` YAML block is
+   no longer the supported way to manage them.
+2. Authenticate the dedicated node using your **personal** Tailscale account:
+
+   ```sh
+   sudo nixos-container run ha-tailscale -- tailscale up \
+     --hostname=ha-sci --accept-dns=false --accept-routes=false
+   ```
+
+   Open the printed login URL, choose the personal tailnet, and approve the
+   device if required. For unattended operation, disable key expiry for
+   **ha-sci** in Tailscale's Machines page; otherwise reauthentication will be
+   needed when the node key expires.
+3. The `ha-funnel` service retries until the node is connected. View its output:
+
+   ```sh
+   sudo nixos-container run ha-tailscale -- journalctl -u ha-funnel -n 30
+   ```
+
+   If it prints a Funnel enablement URL, open it and approve HTTPS/Funnel for
+   the personal tailnet. That tailnet needs MagicDNS, HTTPS certificates, and
+   the `funnel` node attribute. The service retries automatically; it can also
+   be restarted with:
+
+   ```sh
+   sudo nixos-container run ha-tailscale -- systemctl restart ha-funnel
+   sudo nixos-container run ha-tailscale -- tailscale funnel status
+   ```
+
+4. Use the actual HTTPS URL printed by Funnel, normally
+   `https://ha-sci.<personal-tailnet>.ts.net`, for Google Home's authorization,
+   token, and fulfillment URLs. Test the HA login page from a phone on cellular
+   with Tailscale disabled, then verify it still works after switching the
+   desktop client to work. Funnel exposes the HA web service publicly; normal
+   HA authentication still applies.
+
+Funnel runs in the foreground under systemd, so stopping `ha-funnel` removes
+the endpoint. It restarts on container boot. To stop public access temporarily:
+
+```sh
+sudo nixos-container run ha-tailscale -- systemctl stop ha-funnel
+```
+
+To disable it persistently, remove the container's `ha-funnel` service from
+`sci/configuration.nix` and switch. Do not run `tailscale logout` or delete its
+state unless deliberately replacing this node's identity.
+
+References: [Tailscale Funnel](https://tailscale.com/docs/features/tailscale-funnel),
+[Funnel CLI](https://tailscale.com/docs/reference/tailscale-cli/funnel), and
+[HA HTTP settings](https://www.home-assistant.io/integrations/http/).
+
 ## Btrfs impermanence on sci
 
 The Btrfs migration is complete. `sci` uses the filesystem labelled `sci-btrfs`
