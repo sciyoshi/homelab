@@ -119,11 +119,23 @@ battery while active.
 
 Start live video with `camera.turn_on` and stop it with `camera.turn_off` on
 the relevant camera entity. Leave the integration's "No stream in HA" option
-disabled. P2P video is converted on demand to 1080p H.264 by go2rtc/FFmpeg for
-browser compatibility; Eufy's Auto mode can otherwise deliver 4K H.265. This
-uses CPU on `sci` while viewing and does not change camera recording settings.
+disabled. P2P video is converted on demand to H.264, capped at 1080 pixels high,
+by go2rtc/FFmpeg for browser compatibility; Eufy's Auto mode can otherwise
+deliver 4K H.265. This uses CPU on `sci` while viewing and does not change
+camera recording settings.
+The scale filter keeps an even width for the E340's portrait video and avoids
+upscaling lower-resolution streams. An odd width makes the H.264 encoder fail
+with `width not divisible by 2`.
+The `eufy` FFmpeg input preset in `sci/configuration.nix` bounds startup probing
+to reduce the delay before video appears.
+The integration inspects video headers rather than Eufy's sometimes stale
+codec metadata. If a camera switches between H.265 and H.264, it reconnects
+the go2rtc input so the transcoder sees the correct format. It also waits for
+a complete codec header when joining an existing stream.
 Front Door live-stream quality is set to Low in Eufy; Auto repeatedly stalled
-in testing. The compatibility patch is `overlays/eufy-security-h264.patch`.
+in testing. If it sends a brief 4K burst and then the bridge reports no data,
+reapply Low even if the integration already displays that value, then start a
+fresh stream. The compatibility patch is `overlays/eufy-security-h264.patch`.
 
 Useful diagnostics: `journalctl -u eufy-security -u go2rtc -u home-assistant`.
 Upstream setup notes: [Eufy Security integration](https://github.com/fuatakgun/eufy_security)

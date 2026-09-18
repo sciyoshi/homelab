@@ -5,12 +5,69 @@
 +    P2P = "rtsp://{server_address}:{server_port}/{serial_no}_ha"  # browser-compatible stream
 --- a/custom_components/eufy_security/eufy_security_api/p2p_streamer.py
 +++ b/custom_components/eufy_security/eufy_security_api/p2p_streamer.py
-@@ -83,0 +84,10 @@
+@@ -5,0 +6 @@
++import re
+@@ -25,0 +27,2 @@
++        codec = None
++        self._codec_changed = False
+@@ -31,0 +35,27 @@
++                if queue_name == "video":
++                    # The camera can switch H.265 -> H.264 during startup, while
++                    # the bridge's metadata still reports the original codec.
++                    header = None
++                    for match in re.finditer(rb"\x00\x00(?:\x00)?\x01(.)", item, re.DOTALL):
++                        nal = match[1][0]
++                        if nal & 31 == 7:  # H.264 sequence parameter set
++                            header = ("h264", match.start())
++                            break
++                        if nal == 0x40:  # H.265 video parameter set, layer zero
++                            header = ("hevc", match.start())
++                            break
++                    if header is not None:
++                        next_codec, offset = header
++                        if codec is not None and next_codec != codec:
++                            # End this HTTP producer, retaining the new header
++                            # for the replacement producer's format detection.
++                            queue.appendleft(item[offset:])
++                            self._codec_changed = True
++                            _LOGGER.info("Eufy video codec changed from %s to %s; reconnecting go2rtc", codec, next_codec)
++                            return
++                        if codec is None:
++                            codec = next_codec
++                            item = item[offset:]
++                    if codec is None:
++                        # Joining an existing stream can begin mid-frame.
++                        continue
+@@ -44,6 +74,12 @@
+-                resp = await session.post(url, data = self.chunk_generator(queue, queue_name), timeout=aiohttp.ClientTimeout(total=None, connect=5))
+-                _LOGGER.debug(f"write_bytes {queue_name} - post response - {resp.status} - {await resp.text()}")
+-                if resp is not None and resp.status is not None:
+-                    if resp.status == 500:
+-                        self.retry = self.retry or True
+-                self.retry = self.retry or False
++                while True:
++                    async with session.post(url, data=self.chunk_generator(queue, queue_name), timeout=aiohttp.ClientTimeout(total=None, connect=5)) as resp:
++                        _LOGGER.debug(f"write_bytes {queue_name} - post response - {resp.status} - {await resp.text()}")
++                        if self._codec_changed and self.retry is not False:
++                            # Keep the camera session alive: only go2rtc's codec
++                            # detection and the transcoder need to restart.
++                            await self._create_stream_on_go2rtc()
++                            continue
++                        if resp.status == 500:
++                            self.retry = self.retry or True
++                        self.retry = self.retry or False
++                        break
+@@ -83,0 +120,15 @@
 +        # Eufy's Auto mode can deliver 4K H.265, which many HA browsers cannot
 +        # play. Keep the raw feed for ingestion and transcode only on demand.
++        # H.264 requires even dimensions (the E340 has portrait video). Cap
++        # height without upscaling low-quality streams and wasting CPU.
 +        parameters = {
 +            "name": f"{self.camera.serial_no}_ha",
-+            "src": f"ffmpeg:{self.camera.serial_no}#video=h264#height=1080",
++            "src": (
++                f"ffmpeg:{self.camera.serial_no}#input=eufy#video=h264#width=-2"
++                "#height=min(1080\\,ih)"
++            ),
 +        }
 +        async with aiohttp.ClientSession() as session:
 +            async with session.put(url, params=parameters) as response:

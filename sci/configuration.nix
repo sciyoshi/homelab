@@ -358,6 +358,8 @@
       api.listen = "127.0.0.1:1984";
       rtsp.listen = "127.0.0.1:8554";
       webrtc.listen = "";
+      # Bound FFmpeg's startup probing for the Eufy live-video pipeline.
+      ffmpeg.eufy = "-fflags nobuffer -flags low_delay -analyzeduration 1000000 -probesize 65536 -timeout {timeout} -user_agent go2rtc/ffmpeg -rtsp_transport tcp -i {input}";
     };
   };
 
