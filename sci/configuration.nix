@@ -304,6 +304,8 @@
     customComponents = [ pkgs.home-assistant-custom-components.eufy_security ];
     config = {
       default_config = { };
+      # Load automations saved by the UI from the writable state directory.
+      automation = "!include automations.yaml";
       homeassistant = {
         name = "Home";
         unit_system = "metric";
