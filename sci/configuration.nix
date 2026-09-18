@@ -282,7 +282,11 @@
     (import ../overlays/eufy-security.nix)
   ];
 
-  services.tailscale.enable = true;
+  services.tailscale = {
+    enable = true;
+    # Allow the desktop tray to switch accounts and manage the connection.
+    extraSetFlags = [ "--operator=sciyoshi" ];
+  };
 
   services.home-assistant = {
     enable = true;

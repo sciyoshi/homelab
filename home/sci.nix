@@ -13,6 +13,7 @@ in
   home.packages = [
     codexAcp
     pkgs.zed-editor
+    pkgs.wl-clipboard # Copy device addresses from the Tailscale tray.
   ];
 
   # Match the package's signal.desktop so app-menu launches use the existing
@@ -196,6 +197,8 @@ in
       mode = "center";
     };
   };
+
+  services.tailscale-systray.enable = true;
 
   programs.waybar = {
     enable = true;
