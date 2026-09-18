@@ -35,7 +35,7 @@
       stern
       tig
       uv
-      python313
+      python314
       xh
       xz
       yq-go
