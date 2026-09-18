@@ -325,6 +325,23 @@
           ];
           mode = "single";
         }
+        {
+          id = "living_room_covers_close_at_evening_golden_hour";
+          alias = "Close Living Room covers at evening golden hour";
+          triggers = [
+            {
+              trigger = "sun.golden_hour_started";
+              options.period = "evening";
+            }
+          ];
+          actions = [
+            {
+              action = "cover.close_cover";
+              target.area_id = "{{ area_id('Living Room') }}";
+            }
+          ];
+          mode = "single";
+        }
       ];
       homeassistant = {
         name = "Home";
