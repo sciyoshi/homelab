@@ -214,6 +214,53 @@ References: [Tailscale Funnel](https://tailscale.com/docs/features/tailscale-fun
 [Funnel CLI](https://tailscale.com/docs/reference/tailscale-cli/funnel), and
 [HA HTTP settings](https://www.home-assistant.io/integrations/http/).
 
+## Google Home on sci
+
+The manual Google Home integration uses project `saint-hubert-0dba4` and the
+public endpoint `https://ha-sci.platypus-locrian.ts.net`. It exposes all entities
+supported by HA's Google Assistant integration and reports their state to
+Google. Each additional HA installation should use its own project.
+
+In Google Cloud, select that same project, enable the **HomeGraph API**, and
+create a service account under **IAM & Admin → Service Accounts**. Following
+the HA setup guide, give it **Service Account Token Creator**, then create a
+JSON key under **Keys → Add key → Create new key**.
+
+Install the downloaded file **before switching this configuration**:
+
+```sh
+sudo install -d -m 0700 /persist/credentials
+sudo install -o root -g root -m 0600 "$HOME/Downloads/YOUR_DOWNLOADED_KEY.json" \
+  /persist/credentials/google-home.json
+```
+
+The HA service requires that file at startup. Systemd supplies it privately as
+`/run/credentials/home-assistant.service/google-home.json`; neither the key nor
+its contents belong in Git or a Nix expression. This uses systemd credentials,
+not SOPS or `/run/secrets`.
+
+After switching, check `journalctl -u home-assistant` for setup errors. In the
+Google Home app, use **Add → Works with Google Home**, select the integration
+listed as `[test] <integration name>`, and log in to HA. Assign the imported
+devices to the appropriate Google Home and rooms, then try “Hey Google, close
+the Living Room curtains.” On Android Gemini, enable Google Home in its
+Connected Apps settings if it is not already enabled.
+
+After changing exposure settings and switching, say “Hey Google, sync my
+devices” or run `google_assistant.request_sync` in HA's Developer Tools →
+Actions to refresh the devices available in Google Home.
+
+`overlays/home-assistant-google.nix` works around HA returning the previous
+state in a successful Google command response when `report_state` is enabled
+([upstream issue](https://github.com/home-assistant/core/issues/125793)). It
+waits for device service handlers, including lights and covers, while keeping
+background state reports enabled. This does not wait for a blind to finish
+moving; its later position updates still go through Report State. HA's existing
+two-second command deadline remains, so slow handlers can still return stale
+state. Recheck this workaround when upgrading HA.
+
+Reference: [Home Assistant's manual Google Assistant setup](https://www.home-assistant.io/integrations/google_assistant/#manual-setup-if-you-dont-have-home-assistant-cloud).
+
 ## Btrfs impermanence on sci
 
 The Btrfs migration is complete. `sci` uses the filesystem labelled `sci-btrfs`

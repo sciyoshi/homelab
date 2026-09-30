@@ -284,6 +284,7 @@
   nixpkgs.overlays = [
     (import ../overlays/chatgpt.nix)
     (import ../overlays/eufy-security.nix)
+    (import ../overlays/home-assistant-google.nix)
   ];
 
   services.tailscale = {
@@ -369,6 +370,41 @@
     customComponents = [ pkgs.home-assistant-custom-components.eufy_security ];
     config = {
       default_config = { };
+      google_assistant = {
+        project_id = "saint-hubert-0dba4";
+        service_account = "!include /run/credentials/home-assistant.service/google-home.json";
+        report_state = true;
+        # Expose every entity supported by the Google Assistant integration.
+        expose_by_default = true;
+        # HA's default domain list omits cameras, buttons, and input buttons.
+        exposed_domains = [
+          "alarm_control_panel"
+          "binary_sensor"
+          "button"
+          "camera"
+          "climate"
+          "cover"
+          "event"
+          "fan"
+          "group"
+          "humidifier"
+          "input_boolean"
+          "input_button"
+          "input_select"
+          "lawn_mower"
+          "light"
+          "lock"
+          "media_player"
+          "scene"
+          "script"
+          "select"
+          "sensor"
+          "switch"
+          "vacuum"
+          "valve"
+          "water_heater"
+        ];
+      };
       # Load automations saved by the UI from the writable state directory.
       automation = "!include automations.yaml";
       "automation managed" = [
@@ -415,6 +451,11 @@
       };
     };
   };
+
+  # Install the service-account JSON before switching; see README.md.
+  systemd.services.home-assistant.serviceConfig.LoadCredential = [
+    "google-home.json:/persist/credentials/google-home.json"
+  ];
 
   # Eufy's P2P video is fed into go2rtc by the custom integration.
   services.go2rtc = {
