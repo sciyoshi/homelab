@@ -111,6 +111,17 @@
         group = "hass";
         mode = "0700";
       }
+      # Thread network keys and Matter fabric credentials must survive rollback.
+      {
+        directory = "/var/lib/thread";
+        mode = "0700";
+      }
+      {
+        directory = "/var/lib/matter-server";
+        user = "matter-server";
+        group = "matter-server";
+        mode = "0700";
+      }
       {
         directory = "/var/lib/eufy-security";
         user = "eufy-security";
@@ -285,6 +296,7 @@
     (import ../overlays/chatgpt.nix)
     (import ../overlays/eufy-security.nix)
     (import ../overlays/home-assistant-google.nix)
+    (import ../overlays/matter-server.nix)
   ];
 
   services.tailscale = {
@@ -354,6 +366,62 @@
     };
   };
 
+  # ZG-808Z (CC2652P1): Koenkk OpenThread RCP 2025.3.1, dedicated to Thread.
+  # The ConBee II remains the ZHA radio. See README.md for firmware and pairing.
+  services.openthread-border-router = {
+    enable = true;
+    backboneInterfaces = [ "enp5s0" ];
+    radio = {
+      device = "/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0";
+      baudRate = 460800;
+      flowControl = false;
+      # Release the CH340 control lines so the RCP can leave reset/bootloader mode.
+      urlQueryString = "uart-init-deassert";
+    };
+    rest.listenAddress = "127.0.0.1";
+    rest.listenPort = 5583;
+  };
+
+  services.matter-server = {
+    enable = true;
+    extraArgs = {
+      listen-address = "127.0.0.1";
+      primary-interface = "enp5s0";
+      bluetooth-adapter = 0;
+    };
+  };
+
+  # Use a stable owner for the impermanence bind mount instead of DynamicUser's
+  # /var/lib/private state directory and transient UID.
+  users.groups.matter-server = { };
+  users.users.matter-server = {
+    isSystemUser = true;
+    group = "matter-server";
+  };
+  systemd.services.matter-server = {
+    wants = [ "bluetooth.service" ];
+    after = [ "bluetooth.service" ];
+    serviceConfig = {
+      DynamicUser = lib.mkForce false;
+      User = "matter-server";
+      Group = "matter-server";
+    };
+  };
+
+  # Discovery and Matter traffic on the LAN; DNS and Matter from the Thread mesh.
+  # OTBR enables IPv6 forwarding. Its REST API and Matter's WebSocket stay local.
+  networking.firewall.interfaces = {
+    enp5s0.allowedUDPPorts = [
+      5353
+      5540
+    ];
+    wpan0.allowedUDPPorts = [
+      53
+      5353
+      5540
+    ];
+  };
+
   services.home-assistant = {
     enable = true;
     # Add integrations configured through the UI here so Nix installs their dependencies.
@@ -363,8 +431,11 @@
       "default_config"
       "esphome"
       "ffmpeg"
+      "matter"
       "met"
+      "otbr"
       "stream"
+      "thread"
       "zha" # ConBee II; the NixOS module also grants serial-device access.
     ];
     customComponents = [ pkgs.home-assistant-custom-components.eufy_security ];
@@ -408,6 +479,41 @@
       # Load automations saved by the UI from the writable state directory.
       automation = "!include automations.yaml";
       "automation managed" = [
+        {
+          id = "desk_knob_toggle_lamps";
+          alias = "Desk Knob: toggle Floor Lamp, Asano Lamp and Glow";
+          # Remove the outlet from ZHA's Office Lights group first: direct Zigbee
+          # control would race the state snapshot used by this automation.
+          triggers =
+            map
+              (command: {
+                trigger = "event";
+                event_type = "zha_event";
+                event_data = {
+                  device_ieee = "8c:65:a3:ff:fe:ba:75:5b";
+                  endpoint_id = 1;
+                  cluster_id = 6;
+                  inherit command;
+                };
+              })
+              [
+                "toggle" # Command mode, when routed to the coordinator.
+                "remote_button_short_press" # Event mode.
+              ];
+          variables.lamps = [
+            "light.office_floor_lamp"
+            "light.kajplats_e12_cws_globe_800lm"
+            "light.jar_0_fe6e"
+          ];
+          actions = [
+            {
+              # Decide once for all three lights, including mixed on/off states.
+              action = "{{ 'light.turn_off' if expand(lamps) | selectattr('state', 'eq', 'on') | list | count > 0 else 'light.turn_on' }}";
+              target.entity_id = "{{ lamps }}";
+            }
+          ];
+          mode = "single";
+        }
         {
           id = "living_room_covers_open_after_morning_golden_hour";
           alias = "Open Living Room covers after morning golden hour";

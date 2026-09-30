@@ -75,6 +75,103 @@ Only one service can use the adapter at a time.
 
 Upstream instructions: [Zigbee Home Automation](https://www.home-assistant.io/integrations/zha/).
 
+### Desk Knob
+
+The managed automation in `sci/configuration.nix` uses a single press of Desk
+Knob (`8c:65:a3:ff:fe:ba:75:5b`) to control Floor Lamp
+(`light.office_floor_lamp`), Asano Lamp
+(`light.kajplats_e12_cws_globe_800lm`), and Casper Glow (`light.jar_0_fe6e`).
+If any reports on, it turns all three off; otherwise it turns all three on.
+Unavailable lights cannot be controlled and do not count as on.
+
+Before enabling this automation, remove Floor Lamp from the ZHA **Office
+Lights** group (group 2), and remove any direct on/off binding from Desk Knob
+to the outlet. Direct control would change the outlet before HA evaluates the
+three lights. Keep both devices paired to ZHA.
+
+In Developer tools → Events, listen for `zha_event` and press the knob once.
+The automation accepts `toggle` (command mode) or `remote_button_short_press`
+(event mode), from endpoint 1, cluster 6. HA must receive this event; group
+membership alone does not establish that. Confirm event delivery and the
+absence of direct outlet control before switching the NixOS configuration.
+Then test a press with all three off, and again with only one on. This path
+requires Home Assistant to be running. Rotation and long presses are not
+handled by this automation.
+
+## Thread and Matter on sci
+
+The ZG-808Z USB stick (CC2652P1 + CH340C) is dedicated to Thread. It was flashed
+with `CC1352P2_CC2652P_launchpad_ot_rcp_2025_3_1.hex` from
+[Koenkk's OpenThread RCP release 2025.3.1](https://github.com/Koenkk/OpenThread-TexasInstruments-firmware/releases/tag/2025.3.1).
+The write passed CRC verification. The stock dump in
+`~/zigbee-firmware-backup/zg808z-stock.bin` did **not** pass subsequent CRC
+verification; it is not a verified recovery image. Keep firmware backups out
+of this repository.
+
+NixOS runs `otbr-agent` with this radio at **460800 baud**, without hardware
+flow control, using wired LAN interface `enp5s0`. The radio URL must include
+`uart-init-deassert`; without it, this adapter fails Spinel initialization.
+With it, the radio version probe reports `OPENTHREAD/1.4.0-Koenkk-2025.3.1`.
+The serial device is:
+
+```text
+/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0
+```
+
+This CH340 adapter has no unique USB serial number. Revisit the device path if
+another identical adapter is added. Do not configure this stick in ZHA; the
+ConBee II continues to handle Zigbee.
+
+After reviewing and switching the NixOS configuration:
+
+1. Check `systemctl status otbr-agent matter-server` and
+   `journalctl -u otbr-agent -u matter-server -b`.
+2. In Home Assistant, add **OpenThread Border Router** under Settings → Devices
+   & services with URL `http://127.0.0.1:5583`. On first setup, HA creates a new
+   Thread network if no preferred dataset exists; network keys belong in service
+   state, not Nix configuration.
+3. Add **Matter**, choose an existing/custom Matter server rather than an
+   automatically installed app, and enter `ws://127.0.0.1:5580/ws`.
+4. In the Thread settings, make the new network preferred. Check that
+   `sudo ot-ctl state` reports `leader` or `router` before pairing.
+5. For pairing directly from `sci`, open `http://127.0.0.1:5580` in its browser.
+   Matter Server's dashboard has **Commission node → Commission new Thread
+   device**. Local Bluetooth commissioning is enabled on adapter `hci0`.
+6. Obtain the active Thread dataset with `sudo ot-ctl dataset active -x`.
+   Copy only the hexadecimal line into **Thread dataset**, then select **Set
+   Thread Dataset**. This value contains network keys; keep it out of the repo.
+7. Put the KAJPLATS bulb in pairing mode near the desktop, enter its printed
+   Matter setup code in **Pairing code**, and select **Commission**. After
+   commissioning, the bulb should appear in HA's Matter integration. This
+   desktop pairing path has been verified with the Asano Lamp KAJPLATS bulb.
+
+Phone pairing is also available through the Companion app. First send the
+preferred Thread network credentials to the phone: Android uses Settings →
+Companion app → Troubleshooting → Sync Thread credentials; iPhone uses the
+Thread settings → Send credentials to phone. Then use **Add Matter device**
+and scan the bulb's QR code while connected to the home LAN.
+
+The host-scoped `overlays/matter-server.nix` skips malformed PAA certificates
+during the startup download. The current DCL contains an NXP certificate that
+Cryptography rejects; without this patch the server remains running but never
+opens port 5580. IKEA's root parses successfully. The patch leaves device
+attestation enabled and does not add the rejected certificate to the trust store.
+
+OTBR and Matter Server expose their control APIs only on localhost. The wired
+LAN permits UDP 5353 (mDNS) and 5540 (Matter); `wpan0` also permits UDP 53 for
+Thread DNS. Working local IPv6 and multicast are required; an IPv6 internet
+connection is not. `sci` must remain awake for its border router to operate.
+
+`/var/lib/thread`, `/var/lib/matter-server`, and Home Assistant's configuration
+are persisted under `/persist`. These contain the Thread network and Matter
+pairing credentials; losing them may require pairing devices again. Matter
+Server uses a dedicated static service user so its state has stable ownership
+across root resets.
+
+References: [OpenThread Border Router integration](https://www.home-assistant.io/integrations/otbr/),
+[Thread setup](https://www.home-assistant.io/integrations/thread/),
+[Matter pairing](https://www.home-assistant.io/integrations/matter/).
+
 ## Eufy Security on sci
 
 Home Assistant's Eufy Security integration and the `eufy-security-ws` bridge
