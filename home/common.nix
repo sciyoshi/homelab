@@ -5,6 +5,14 @@
   specialArgs,
   ...
 }:
+let
+  flox = specialArgs.inputs.flox.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  floxPackage =
+    if pkgs.stdenv.hostPlatform.isLinux then
+      (flox.pkgsFor.extend (import ../overlays/flox-ld-floxlib.nix specialArgs.inputs.flox)).flox
+    else
+      flox;
+in
 {
   home.packages =
     with pkgs;
@@ -41,7 +49,7 @@
       yq-go
       zstd
       rustup
-      specialArgs.inputs.flox.packages.${pkgs.stdenv.hostPlatform.system}.default
+      floxPackage
       specialArgs.inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.agent-browser
       specialArgs.inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.crush
       specialArgs.inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.claude-code

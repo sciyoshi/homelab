@@ -30,7 +30,9 @@
     pkgs.nixfmt
     pkgs.nil
     pkgs.python313
-    # Colima provides the Linux VM; docker-client includes Compose and Buildx.
+    # Lima manages standalone VMs; Colima manages the container VM.
+    # docker-client includes Compose and Buildx.
+    pkgs.lima
     pkgs.colima
     pkgs.docker-client
     pkgs.docker-credential-helpers
