@@ -47,6 +47,7 @@
     pkgs.less
     pkgs.ghostty-bin
     pkgs._1password-cli
+    pkgs.gogcli
   ];
 
   fonts = {
