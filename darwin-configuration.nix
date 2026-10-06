@@ -30,6 +30,10 @@
     pkgs.nixfmt
     pkgs.nil
     pkgs.python313
+    # Colima provides the Linux VM; docker-client includes Compose and Buildx.
+    pkgs.colima
+    pkgs.docker-client
+    pkgs.docker-credential-helpers
     pkgs.podman
     pkgs.podman-compose
     specialArgs.inputs.flox.packages.${pkgs.stdenv.hostPlatform.system}.default
