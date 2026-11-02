@@ -296,6 +296,7 @@
     (import ../overlays/chatgpt.nix)
     (import ../overlays/eufy-security.nix)
     (import ../overlays/home-assistant-google.nix)
+    (import ../overlays/home-assistant-yalexs.nix)
     (import ../overlays/matter-server.nix)
   ];
 
