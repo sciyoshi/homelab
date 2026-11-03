@@ -42,7 +42,6 @@
   boot.loader.systemd-boot.configurationLimit = 3;
 
   # Impermanence behavior and recovery notes are in README.md.
-  boot.initrd.systemd.enable = true;
   boot.initrd.systemd.services.rollback = {
     description = "Restore the empty Btrfs root";
     unitConfig = {
