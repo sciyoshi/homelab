@@ -151,7 +151,6 @@
     "google-chrome"
     "spotify"
     "rectangle"
-    "alacritty"
     "kitty"
     "figma"
     "discord"
