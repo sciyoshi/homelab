@@ -1,4 +1,10 @@
-{ pkgs, specialArgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  specialArgs,
+  ...
+}:
 {
   determinateNix.enable = true;
 
@@ -104,6 +110,25 @@
     ];
   };
   programs.zsh.enable = true;
+
+  # GUI apps do not source Home Manager's shell session variables.
+  launchd.user.envVariables = {
+    inherit (config.home-manager.users.sciyoshi.home.sessionVariables) CLAUDE_CONFIG_DIR;
+    XDG_CONFIG_HOME = "/Users/sciyoshi/.config";
+    XDG_DATA_HOME = "/Users/sciyoshi/.local/share";
+    XDG_CACHE_HOME = "/Users/sciyoshi/.cache";
+    XDG_STATE_HOME = "/Users/sciyoshi/.local/state";
+  };
+
+  # envVariables is applied during activation; restore it at each GUI login too.
+  launchd.user.agents.session-environment = {
+    script = lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (
+        name: value: "/bin/launchctl setenv ${lib.escapeShellArg name} ${lib.escapeShellArg value}"
+      ) config.launchd.user.envVariables
+    );
+    serviceConfig.RunAtLoad = true;
+  };
 
   system.defaults = {
     dock = {
