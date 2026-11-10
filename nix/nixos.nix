@@ -11,6 +11,7 @@ let
     hostModules:
     nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
+      specialArgs = { inherit inputs; };
       modules = [
         home-manager.nixosModules.home-manager
         sops-nix.nixosModules.sops
@@ -21,7 +22,8 @@ let
           home-manager.extraSpecialArgs = { inherit inputs; };
           home-manager.users.sciyoshi = import ../home;
         }
-      ] ++ hostModules;
+      ]
+      ++ hostModules;
     };
 in
 {

@@ -18,6 +18,7 @@
   # ];
 
   nixpkgs.overlays = [
+    (import ./overlays/herdr-app.nix specialArgs.inputs.nix-ai-tools)
     (_: prev: {
       direnv = prev.direnv.overrideAttrs (_: {
         doCheck = false;
@@ -96,7 +97,12 @@
     inherit (specialArgs) inputs;
   };
 
-  home-manager.users.sciyoshi = import ./home;
+  home-manager.users.sciyoshi = {
+    imports = [ ./home ];
+    home.packages = [
+      pkgs.herdr-app
+    ];
+  };
   programs.zsh.enable = true;
 
   system.defaults = {

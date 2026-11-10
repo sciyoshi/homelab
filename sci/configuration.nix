@@ -4,6 +4,7 @@
 
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
@@ -292,6 +293,7 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   nixpkgs.overlays = [
+    (import ../overlays/herdr-app.nix inputs.nix-ai-tools)
     (import ../overlays/chatgpt.nix)
     (import ../overlays/eufy-security.nix)
     (import ../overlays/home-assistant-google.nix)

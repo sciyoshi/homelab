@@ -12,6 +12,7 @@ in
 {
   home.packages = [
     codexAcp
+    pkgs.herdr-app
     pkgs.zed-editor
     pkgs.wl-clipboard # Copy device addresses from the Tailscale tray.
   ];

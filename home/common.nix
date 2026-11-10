@@ -54,6 +54,8 @@ in
       specialArgs.inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.crush
       specialArgs.inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
       specialArgs.inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.codex
+      specialArgs.inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.herdr
+      specialArgs.inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.herdr-core
     ]
     ++ (
       if !pkgs.stdenv.hostPlatform.isAarch64 || pkgs.stdenv.hostPlatform.isDarwin then
