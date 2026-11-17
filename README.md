@@ -756,16 +756,17 @@ sudo launchctl kickstart -k system/com.github.nlewo.comin
 If the daemon was suspended before the restart, run `comin suspend` followed by
 `comin resume` to clear the persisted deployer suspension. Check `comin status`
 and `readlink /run/current-system` to confirm the intended configuration is active.
-Initial manual switch verified on 2026-11-17: the daemon runs, the admin-group
-control socket works, both remotes fetch, and local `main` commit `cc98e2f`
-evaluates and builds successfully. Automatic activation failed at nix-darwin's
-App Management permission check for `/Applications/Nix Apps`; a system daemon
-does not inherit the terminal's macOS privacy permissions. macOS's TCC log
-attributes the denial to Comin's executable and records a
-`kTCCServiceSystemPolicyAllFiles` (Full Disk Access) denial in its background
-session. Comin is suspended until this permission is granted and automatic
-activation is retried. The PATH fix above also needs a manual switch to update
-the daemon environment.
+Automatic deployment verified on 2026-11-17: both remotes fetch, the admin-group
+control socket works, and Comin fetched, evaluated, built, and switched local
+`main` commit `3c83de4`. Homebrew and Home Manager activation completed, the active
+system path matches the built output, and Comin restarted itself and resumed
+polling. The existing GUI login agent still sets the same session variables.
+
+The initial automatic activation failed at nix-darwin's App Management check for
+`/Applications/Nix Apps`: a system daemon does not inherit the terminal's macOS
+privacy permissions. macOS's TCC log recorded a
+`kTCCServiceSystemPolicyAllFiles` (Full Disk Access) denial for Comin's executable.
+Granting access to that executable resolved the denial.
 
 To grant the daemon permission, open System Settings > Privacy & Security >
 Full Disk Access, click `+`, and use Command-Shift-G to select the executable
@@ -778,6 +779,16 @@ readlink /run/current-system/sw/bin/comin
 Enable access for that executable. This grants Comin access to protected files;
 granting access to the terminal alone does not cover this system daemon. A Comin
 package update can change its store path, so recheck this permission afterward.
-Then switch Darwin manually to install the PATH fix and run `comin suspend`
-followed by `comin resume` to clear the suspension across the daemon restart.
-Use `comin deployment submit-latest` to retry and check the status and log.
+Restart Comin after granting permission. Apply daemon configuration changes with
+a manual Darwin switch. Clear any old suspension as described above, then check
+`comin status` and the log to verify activation.
+
+GUI environment variables are set only by the existing `session-environment`
+login agent. Using `launchd.user.envVariables` also runs `launchctl setenv`
+during system activation; from Comin's background session that targets the system
+launchd domain, which System Integrity Protection blocks. Keeping these settings
+in the GUI login agent preserves the values and lets background activation finish.
+
+The unpatched package still prints the `activate-user` deprecation warning and
+logs a missing `/run/booted-system` on Darwin. Neither message prevented the
+verified automatic switch. Comin is running and deployments are resumed.

@@ -15,7 +15,7 @@ centralized automation and daily deployment.
 ## Current Operating Model
 
 - Most editing and automation happens from `fellow-sci` or `sci`.
-- `fellow-sci` is the Mac laptop. Comin is configured for Darwin deployment;
+- `fellow-sci` is the Mac laptop. Comin deploys Darwin locally;
   the previous Claude automation has been removed. Flake updates remain separate.
 - `sci` is the home Linux desktop and has the better GPU for ML workloads.
 - `scilo` is the home Linux server, usually accessed over SSH for persistent
@@ -217,7 +217,7 @@ wants to eyeball diffs first.
   The initrd restores `root` from read-only `blank`; service state must be in
   `environment.persistence`. The `no-rollback` specialisation is for recovery.
   Its first boot requires the SSH host keys staged under `/persist/etc/ssh`.
-- Comin is configured on koi and fellow-sci, using default `main` and
+- Comin runs on koi and fellow-sci, using default `main` and
   `testing-<hostname>` branches on GitHub (300s) and the host's `~/.setup` (5s).
   Eligible local testing commits take precedence over GitHub testing commits and
   must descend from the latest `main` commit. NixOS tests leave the boot default
@@ -230,13 +230,17 @@ wants to eyeball diffs first.
   system path. Reset the testing ref to upstream, restart Comin, and verify
   activation; see README. This issue remains unpatched.
   fellow-sci uses the upstream Darwin module, an admin-group control socket, and
-  `/var/log/comin.log`. Its initial manual switch, fetching, and build are
-  verified; automatic activation's App Management check is blocked by a macOS
-  Full Disk Access denial for Comin's executable. Comin is suspended pending
-  a permission grant and retry; see README.
+  `/var/log/comin.log`. Automatic switching and Comin's self-restart were verified
+  on 2026-11-17. Comin is resumed. Its executable has macOS Full Disk Access;
+  recheck that permission after a Comin package update changes its store path.
   Its daemon PATH overrides upstream's disabled `nix.package` reference to use
   Determinate's `/nix/var/nix/profiles/default/bin` plus macOS utility directories.
+  GUI session variables are set only by the existing login agent:
+  `launchd.user.envVariables` attempts `launchctl setenv` in the system session
+  during background activation, which SIP blocks.
   Comin's deprecated `activate-user` call is intentionally unpatched for now.
+  It also logs missing `/run/booted-system` on Darwin; automatic switching works
+  despite that message.
 - Retired OVH configs use tmpfs root plus `/persist`.
 - `k3s/traefik-config.yaml` is a Kubernetes-side artifact outside the Nix module
   graph.
