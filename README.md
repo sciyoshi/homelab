@@ -635,13 +635,19 @@ git switch testing-koi
 git rebase origin/feat/koi-comin
 # Edit hosts/koi.nix, format, and validate before committing.
 nixfmt hosts/koi.nix
-nix flake check --no-build
+sudo systemd-run --scope -p MemoryMax=2G -p MemorySwapMax=256M \
+  nix eval --raw .#nixosConfigurations.koi.config.system.build.toplevel.drvPath
 git add hosts/koi.nix
 git commit -m 'feat(koi): describe the local change'
 # Comin picks up the commit automatically; no push needed.
 comin status
 journalctl -u comin -f
 ```
+
+Run the full `nix flake check --no-build` on the editing workstation, not this
+4 GiB VPS: evaluating every host can exhaust its memory. Comin's service has a
+2 GiB memory limit and 256 MiB swap limit to bound its own evaluations. These
+limits do not cover builds performed separately by `nix-daemon`.
 
 Upstream advancement can supersede a local testing branch; rebase the local
 branch to test it again. Keep the local `feat/koi-comin` branch as a clean

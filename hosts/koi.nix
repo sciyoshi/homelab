@@ -247,6 +247,12 @@ in
     serviceConfig = {
       StateDirectory = "comin";
       StateDirectoryMode = "0700";
+      # Leave room for SSH and other services on this 4 GiB VPS.
+      # These limits cover Comin and its evaluator, not nix-daemon builders.
+      MemoryMax = "2G";
+      MemorySwapMax = "256M";
+      OOMPolicy = "kill";
+      RestartSec = "30s";
     };
   };
 
