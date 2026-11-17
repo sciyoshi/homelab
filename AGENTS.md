@@ -224,6 +224,9 @@ wants to eyeball diffs first.
   Suspend Comin before manual deployments; see README for the local workflow.
   Run full-repository checks on the workstation: koi has only 4 GiB RAM.
   Bound on-host evaluations with a systemd memory limit, as shown in README.
+  Pinned Comin can skip returning from a local test to an already-deployed
+  system path. Reset the testing ref to upstream, restart Comin, and verify
+  activation; see README. Resolve this before extending Comin to other hosts.
 - Retired OVH configs use tmpfs root plus `/persist`.
 - `k3s/traefik-config.yaml` is a Kubernetes-side artifact outside the Nix module
   graph.
