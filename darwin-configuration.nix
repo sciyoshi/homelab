@@ -147,21 +147,19 @@
   };
   programs.zsh.enable = true;
 
-  # GUI apps do not source Home Manager's shell session variables.
-  launchd.user.envVariables = {
-    inherit (config.home-manager.users.sciyoshi.home.sessionVariables) CLAUDE_CONFIG_DIR;
-    XDG_CONFIG_HOME = "/Users/sciyoshi/.config";
-    XDG_DATA_HOME = "/Users/sciyoshi/.local/share";
-    XDG_CACHE_HOME = "/Users/sciyoshi/.cache";
-    XDG_STATE_HOME = "/Users/sciyoshi/.local/state";
-  };
-
-  # envVariables is applied during activation; restore it at each GUI login too.
+  # GUI apps do not source Home Manager's shell session variables. Set them in
+  # the GUI login agent: launchd.user.envVariables fails from a system daemon.
   launchd.user.agents.session-environment = {
     script = lib.concatStringsSep "\n" (
-      lib.mapAttrsToList (
-        name: value: "/bin/launchctl setenv ${lib.escapeShellArg name} ${lib.escapeShellArg value}"
-      ) config.launchd.user.envVariables
+      lib.mapAttrsToList
+        (name: value: "/bin/launchctl setenv ${lib.escapeShellArg name} ${lib.escapeShellArg value}")
+        {
+          inherit (config.home-manager.users.sciyoshi.home.sessionVariables) CLAUDE_CONFIG_DIR;
+          XDG_CONFIG_HOME = "/Users/sciyoshi/.config";
+          XDG_DATA_HOME = "/Users/sciyoshi/.local/share";
+          XDG_CACHE_HOME = "/Users/sciyoshi/.cache";
+          XDG_STATE_HOME = "/Users/sciyoshi/.local/state";
+        }
     );
     serviceConfig.RunAtLoad = true;
   };
