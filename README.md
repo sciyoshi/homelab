@@ -685,6 +685,10 @@ suspend Comin so the two deployers do not race. The local checkout is trusted
 configuration that Comin activates as root; sciyoshi already has passwordless
 sudo on this machine.
 
+If Comin is restarted while suspended, its deployer can remain paused even
+though the manager reports it is not suspended. Run `comin suspend` followed by
+`comin resume` after the restart to clear both states, then `comin fetch`.
+
 Push regular deployment changes to `main`. To test from another machine, push
 commits based on the latest `main` to GitHub's `testing-koi`; an eligible local
 testing branch still takes precedence. Other hosts retain their existing
