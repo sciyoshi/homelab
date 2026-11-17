@@ -661,10 +661,17 @@ git branch saved-koi-experiment testing-koi
 git switch feat/koi-comin
 git merge --ff-only origin/feat/koi-comin
 git branch -f testing-koi origin/feat/koi-comin
+sudo systemctl restart comin
 ```
 
 Use a fresh backup branch name each time. Reset the testing ref to the baseline
 rather than deleting it: Comin's fetched refs can outlive deleted remote branches.
+The restart works around a behavior observed with the pinned Comin 0.14.0:
+after a local test, selecting an upstream commit that produces an earlier
+system store path can be skipped as "already deployed", leaving the test
+configuration active. Restarting Comin makes it compare against the active
+deployment and reapply upstream. Check `comin status` and `/run/current-system`
+after returning from a test. Resolve this behavior before expanding the rollout.
 `comin fetch` requests an immediate fetch; `comin suspend` / `comin resume` pause
 and resume builds and deployments. Before manual rebuilds or deploy-rs updates,
 suspend Comin so the two deployers do not race. The local checkout is trusted
@@ -675,3 +682,9 @@ To promote this experiment later, change both `branches.main.name` values in
 `hosts/koi.nix` to `main` as part of merging the Comin configuration to `main`.
 Until then, push koi deployment changes to `feat/koi-comin`. Other hosts retain
 their existing deployment workflows.
+
+Trial validation on 2026-11-17: local `testing-koi` commits were fetched and
+activated with `test`, with the GRUB configuration unchanged. The five-minute
+GitHub poll fetched and evaluated a newer upstream commit; this exposed the
+already-deployed-path behavior above. The local smoke-test commit is saved on
+`comin-smoke-test-2026-11-17` in koi's checkout.
