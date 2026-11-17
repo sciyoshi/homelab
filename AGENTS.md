@@ -222,6 +222,8 @@ wants to eyeball diffs first.
   activation and must descend from the latest deployment-branch commit.
   `/var/lib/comin` is persisted. Comin never updates the editable working tree.
   Suspend Comin before manual deployments; see README for the local workflow.
+  Run full-repository checks on the workstation: koi has only 4 GiB RAM.
+  Bound on-host evaluations with a systemd memory limit, as shown in README.
 - Retired OVH configs use tmpfs root plus `/persist`.
 - `k3s/traefik-config.yaml` is a Kubernetes-side artifact outside the Nix module
   graph.
