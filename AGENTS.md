@@ -217,9 +217,10 @@ wants to eyeball diffs first.
   The initrd restores `root` from read-only `blank`; service state must be in
   `environment.persistence`. The `no-rollback` specialisation is for recovery.
   Its first boot requires the SSH host keys staged under `/persist/etc/ssh`.
-- Comin is being trialled only on koi, tracking `feat/koi-comin` on GitHub
-  (300s) and `/home/sciyoshi/.setup` (5s). Local `testing-koi` commits use test
-  activation and must descend from the latest deployment-branch commit.
+- Comin runs only on koi, using default `main` and `testing-koi` branches on
+  GitHub (300s) and `/home/sciyoshi/.setup` (5s). Eligible local testing commits
+  take precedence over GitHub testing commits; both use test activation and
+  must descend from the latest `main` commit.
   `/var/lib/comin` is persisted. Comin never updates the editable working tree.
   Suspend Comin before manual deployments; see README for the local workflow.
   Run full-repository checks on the workstation: koi has only 4 GiB RAM.

@@ -214,8 +214,8 @@ in
   };
   services.tailscale.enable = true;
 
-  # Trial only: follow this branch until Comin is promoted to main.
-  # Local testing-koi commits override it while based on its latest commit.
+  # Use Comin's default main and testing-<hostname> branches on both remotes.
+  # Eligible local testing commits take precedence over GitHub testing commits.
   services.comin = {
     enable = true;
     machineId = "899a8a78015347778dea717fad5ad49f";
@@ -225,15 +225,11 @@ in
         name = "local";
         url = "/home/sciyoshi/.setup";
         poller.period = 5;
-        branches.main.name = "feat/koi-comin";
-        branches.testing.name = "testing-koi";
       }
       {
         name = "origin";
         url = "https://github.com/sciyoshi/homelab.git";
         poller.period = 300;
-        branches.main.name = "feat/koi-comin";
-        branches.testing.name = "";
       }
     ];
   };

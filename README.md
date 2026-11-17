@@ -607,24 +607,28 @@ Installed and reboot-tested on 2026-11-17: the root marker disappeared while
 markers in `/persist`, `/home`, `/nix`, and `/root` survived; machine ID and SSH
 host identity were unchanged. IPv4/IPv6 Internet connectivity and passwordless
 sudo were verified, with no failed services. The original installation checkout
-is retained at `/home/sciyoshi/.homelab`; use `~/.setup` for the Comin trial below.
+is retained at `/home/sciyoshi/.homelab`; use `~/.setup` for the Comin workflow below.
 
-### Comin trial on koi
+### Comin on koi
 
-Only koi runs [Comin](https://github.com/nlewo/comin). During the trial its
-deployment branch is `feat/koi-comin`, not `main`. Comin fetches that branch from
-GitHub every 300 seconds and switches successful builds automatically, including
+Only koi runs [Comin](https://github.com/nlewo/comin). Both remotes use Comin's
+default branches: `main` and `testing-koi`. Comin fetches GitHub every 300 seconds
+and switches successful builds from `main` automatically, including
 the next boot's configuration. No GitHub credentials are needed for this public
 repository. Its repository, deployment history, and state live in
 `/var/lib/comin`, persisted under `/persist`.
 
 `/home/sciyoshi/.setup` is a separate editable checkout, owned by sciyoshi and
 already persistent under `/home`. Comin polls it every 5 seconds. Commits on its
-`testing-koi` branch take precedence while based on the latest deployment-branch
-commit. They activate with `test`, leaving the boot default unchanged. Unsaved
+`testing-koi` branch take precedence while based on the latest `main` commit.
+If there is no eligible local test, Comin checks GitHub's `testing-koi` branch,
+then falls back to `main`. Testing branches activate with `test`, leaving the
+boot default unchanged. Unsaved
 or uncommitted edits do not deploy; switching the checkout's current branch does
 not disable an existing `testing-koi` override. Comin fetches into its own
 repository and never pulls, rebases, or overwrites this working tree.
+If `~/.setup` is absent, Comin logs local fetch failures and uses the GitHub
+remote; it does not create the checkout.
 
 To edit on koi:
 
@@ -632,7 +636,7 @@ To edit on koi:
 cd ~/.setup
 git fetch origin
 git switch testing-koi
-git rebase origin/feat/koi-comin
+git rebase origin/main
 # Edit hosts/koi.nix, format, and validate before committing.
 nixfmt hosts/koi.nix
 sudo systemd-run --scope -p MemoryMax=2G -p MemorySwapMax=256M \
@@ -650,7 +654,7 @@ Run the full `nix flake check --no-build` on the editing workstation, not this
 limits do not cover builds performed separately by `nix-daemon`.
 
 Upstream advancement can supersede a local testing branch; rebase the local
-branch to test it again. Keep the local `feat/koi-comin` branch as a clean
+branch to test it again. Keep the local `main` branch as a clean
 upstream baseline and make local changes on `testing-koi`. To return to upstream
 while preserving the local experiment (start with a clean working tree):
 
@@ -658,14 +662,17 @@ while preserving the local experiment (start with a clean working tree):
 cd ~/.setup
 git fetch origin
 git branch saved-koi-experiment testing-koi
-git switch feat/koi-comin
-git merge --ff-only origin/feat/koi-comin
-git branch -f testing-koi origin/feat/koi-comin
+git switch main
+git merge --ff-only origin/main
+git branch -f testing-koi origin/main
 sudo systemctl restart comin
 ```
 
 Use a fresh backup branch name each time. Reset the testing ref to the baseline
 rather than deleting it: Comin's fetched refs can outlive deleted remote branches.
+If GitHub's `testing-koi` has additional eligible commits, it will take over
+instead; returning to `main` requires resetting that remote testing branch to
+`main` too, after preserving any wanted work.
 The restart works around a behavior observed with the pinned Comin 0.14.0:
 after a local test, selecting an upstream commit that produces an earlier
 system store path can be skipped as "already deployed", leaving the test
@@ -678,10 +685,10 @@ suspend Comin so the two deployers do not race. The local checkout is trusted
 configuration that Comin activates as root; sciyoshi already has passwordless
 sudo on this machine.
 
-To promote this experiment later, change both `branches.main.name` values in
-`hosts/koi.nix` to `main` as part of merging the Comin configuration to `main`.
-Until then, push koi deployment changes to `feat/koi-comin`. Other hosts retain
-their existing deployment workflows.
+Push regular deployment changes to `main`. To test from another machine, push
+commits based on the latest `main` to GitHub's `testing-koi`; an eligible local
+testing branch still takes precedence. Other hosts retain their existing
+deployment workflows.
 
 Trial validation on 2026-11-17: local `testing-koi` commits were fetched and
 activated with `test`, with the GRUB configuration unchanged. The five-minute
