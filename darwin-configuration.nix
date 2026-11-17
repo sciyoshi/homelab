@@ -218,5 +218,11 @@
     port=53
     address=/sci.fellow.dev/127.0.0.1
     address=/sci.fellow.dev/::1
+    # Colima openshell's shared VM address; HTTPS is served by Traefik.
+    local=/sci-agents.fellow.dev/
+    address=/sci-agents.fellow.dev/192.168.64.3
+  '';
+  environment.etc."resolver/sci-agents.fellow.dev".text = ''
+    nameserver 127.0.0.1
   '';
 }
