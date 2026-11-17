@@ -13,7 +13,10 @@ in
   home.packages = [
     codexAcp
     pkgs.herdr-app
-    pkgs.zed-editor
+    (pkgs.zed-editor.overrideAttrs (_: {
+      # Test compilation ignores the core limit and can exhaust this host's RAM.
+      doCheck = false;
+    }))
     pkgs.wl-clipboard # Copy device addresses from the Tailscale tray.
   ];
 
