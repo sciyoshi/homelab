@@ -230,9 +230,12 @@ wants to eyeball diffs first.
   system path. Reset the testing ref to upstream, restart Comin, and verify
   activation; see README. This issue remains unpatched.
   fellow-sci uses the upstream Darwin module, an admin-group control socket, and
-  `/var/log/comin.log`; its initial activation and smoke test are still pending.
+  `/var/log/comin.log`. Its initial manual switch, fetching, and build are
+  verified; automatic activation's App Management check is blocked by a macOS
+  Full Disk Access denial for Comin's executable. Comin is suspended pending
+  a permission grant and retry; see README.
   Its daemon PATH overrides upstream's disabled `nix.package` reference to use
-  Determinate's `/nix/var/nix/profiles/default/bin`.
+  Determinate's `/nix/var/nix/profiles/default/bin` plus macOS utility directories.
   Comin's deprecated `activate-user` call is intentionally unpatched for now.
 - Retired OVH configs use tmpfs root plus `/persist`.
 - `k3s/traefik-config.yaml` is a Kubernetes-side artifact outside the Nix module

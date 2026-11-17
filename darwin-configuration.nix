@@ -116,12 +116,18 @@
     ];
   };
   # Comin's upstream module reads nix.package, which Determinate disables.
-  # Use the Nix installation maintained by Determinate instead.
+  # Keep macOS tools available for activation, including the legacy user script.
   launchd.daemons.comin.serviceConfig.EnvironmentVariables = lib.mkForce {
-    PATH = lib.makeBinPath [
-      "/nix/var/nix/profiles/default"
-      pkgs.git
-      pkgs.openssh
+    PATH = lib.concatStringsSep ":" [
+      (lib.makeBinPath [
+        "/nix/var/nix/profiles/default"
+        pkgs.git
+        pkgs.openssh
+      ])
+      "/usr/bin"
+      "/bin"
+      "/usr/sbin"
+      "/sbin"
     ];
   };
 

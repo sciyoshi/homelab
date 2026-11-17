@@ -717,6 +717,8 @@ group, so administrators can use `comin status`, `comin suspend`, and
 continues to manage the Nix installation. The daemon's PATH uses
 `/nix/var/nix/profiles/default/bin` because Comin's upstream module references
 `nix.package`, which is unavailable with Determinate's `nix.enable = false`.
+Standard macOS utility directories are included too: the legacy `activate-user`
+script needs `grep` before the main activation script sets up its own PATH.
 
 For the first activation, commit this setup to `main` or an eligible
 `testing-fellow-sci` branch before starting the daemon, so the revision it fetches
@@ -754,4 +756,28 @@ sudo launchctl kickstart -k system/com.github.nlewo.comin
 If the daemon was suspended before the restart, run `comin suspend` followed by
 `comin resume` to clear the persisted deployer suspension. Check `comin status`
 and `readlink /run/current-system` to confirm the intended configuration is active.
-The Darwin rollout is configured but has not yet been activated or smoke-tested.
+Initial manual switch verified on 2026-11-17: the daemon runs, the admin-group
+control socket works, both remotes fetch, and local `main` commit `cc98e2f`
+evaluates and builds successfully. Automatic activation failed at nix-darwin's
+App Management permission check for `/Applications/Nix Apps`; a system daemon
+does not inherit the terminal's macOS privacy permissions. macOS's TCC log
+attributes the denial to Comin's executable and records a
+`kTCCServiceSystemPolicyAllFiles` (Full Disk Access) denial in its background
+session. Comin is suspended until this permission is granted and automatic
+activation is retried. The PATH fix above also needs a manual switch to update
+the daemon environment.
+
+To grant the daemon permission, open System Settings > Privacy & Security >
+Full Disk Access, click `+`, and use Command-Shift-G to select the executable
+printed by:
+
+```sh
+readlink /run/current-system/sw/bin/comin
+```
+
+Enable access for that executable. This grants Comin access to protected files;
+granting access to the terminal alone does not cover this system daemon. A Comin
+package update can change its store path, so recheck this permission afterward.
+Then switch Darwin manually to install the PATH fix and run `comin suspend`
+followed by `comin resume` to clear the suspension across the daemon restart.
+Use `comin deployment submit-latest` to retry and check the status and log.
