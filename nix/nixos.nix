@@ -3,6 +3,7 @@
   home-manager,
   sops-nix,
   impermanence,
+  disko,
   nixos-hardware,
   ...
 }@inputs:
@@ -27,6 +28,10 @@ let
     };
 in
 {
+  "koi" = makeSystem [
+    disko.nixosModules.disko
+    ../hosts/koi.nix
+  ];
   "alpha" = makeSystem [ ../hosts/alpha.nix ];
   "beta" = makeSystem [ ../hosts/beta.nix ];
   "gamma" = makeSystem [ ../hosts/gamma.nix ];

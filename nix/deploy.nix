@@ -9,28 +9,12 @@
   magicRollback = true;
   user = "root";
   nodes = {
-    alpha = {
-      hostname = "alpha.sciyoshi.com";
+    koi = {
+      hostname = "149.56.135.22";
       sshUser = "root";
       profiles.system = {
         user = "root";
-        path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.alpha;
-      };
-    };
-    beta = {
-      hostname = "beta.sciyoshi.com";
-      sshUser = "root";
-      profiles.system = {
-        user = "root";
-        path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.beta;
-      };
-    };
-    gamma = {
-      hostname = "gamma.sciyoshi.com";
-      sshUser = "root";
-      profiles.system = {
-        user = "root";
-        path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.gamma;
+        path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.koi;
       };
     };
     scilo = {

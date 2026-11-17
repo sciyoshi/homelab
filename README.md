@@ -18,10 +18,11 @@ The goal is centralized editing and automation with local escape hatches:
 | `sci` | `x86_64-linux` | Home Linux desktop, niri/hyprland, Nvidia GPU, local ML workloads |
 | `scilo` | `x86_64-linux` | Home Linux server, persistent services, backups, home automation, media |
 | `misaki` | `aarch64-linux` | Raspberry Pi in Montreal, borg backup target |
-| `alpha` | `x86_64-linux` | OVH VPS, k3s agent, impermanent tmpfs root |
-| `beta` | `x86_64-linux` | OVH VPS, k3s agent, impermanent tmpfs root |
-| `gamma` | `x86_64-linux` | OVH VPS, k3s agent, impermanent tmpfs root |
+| `koi` | `x86_64-linux` | OVH VPS replacing alpha, Btrfs root rollback, Tailscale |
 | `scipi4` | `aarch64-linux` | Old Raspberry Pi config; likely unused/dead after Home Assistant moved off it |
+
+`alpha`, `beta`, and `gamma` no longer exist. Their NixOS configurations remain
+as historical references, but they are not deploy-rs targets.
 
 There is also a standalone Home Manager output:
 
@@ -544,20 +545,67 @@ echo "run	private/var/run" | sudo tee -a /etc/synthetic.conf
 /System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -t
 ```
 
-## OVH Bootstrap
+## koi: OVH VPS
 
-The OVH hosts use tmpfs root with persistent state in `/persist`. The old manual
-bootstrap flow is:
+`koi` replaces alpha at `149.56.135.22` (IPv6 `2607:5300:205:200::b755`).
+`hosts/koi.nix` defines its hardware, provider network, disko layout, and base
+services. IPv4 uses DHCP on `ens3`; IPv6 has a static address and an on-link
+gateway. The VPS boots with BIOS GRUB; an ESP also supports removable UEFI boot.
 
-1. Reboot the VPS into Rescue Mode and SSH into the node.
-2. Format the target OS partition as btrfs.
-3. Create `nix` and `persist` subvolumes.
-4. Mount tmpfs as `/mnt`, then mount `/mnt/nix`, `/mnt/persist`, and `/mnt/boot`.
-5. Install NixOS with enough SSH/user config to get back in.
-6. Switch to this flake's host config.
+The 40 GiB `/dev/sda` contains a BIOS boot partition, a 1 GiB ESP, and Btrfs
+labelled `koi-btrfs`. The Btrfs subvolumes are `root`, `home`, `nix`, and
+`persist`. Disko creates a read-only `blank` snapshot before installing NixOS.
+The initrd restores `root` from `blank` on each boot, following the same pattern
+as `sci`. `/home`, `/nix`, and `/persist` survive. Root's home, SSH host keys,
+machine ID, NixOS/systemd state, Tailscale identity, and logs are persisted.
 
-Anything that must survive reboot on `alpha`, `beta`, or `gamma` needs to be
-listed in `environment.persistence`.
+Rollback refuses to delete root if the blank snapshot is invalid or the
+persistent ED25519 host key is missing. Choose GRUB's `no-rollback`
+specialisation (or append `impermanence.disable=1` to the kernel command line)
+for recovery. New service state must be added to `environment.persistence`.
 
-These notes should eventually be replaced with a cleaner `nixos-anywhere` or
-documented install runbook.
+SSH accepts the existing homelab key for `root` and `sciyoshi`; password login
+is disabled. `sciyoshi` has passwordless sudo. Tailscale is enabled with manual
+enrollment; run `sudo tailscale up` once and follow its login URL. Its identity
+survives reboots. The base installation does not enable k3s or require SOPS
+secrets. Before adding encrypted secrets, add koi's host-derived age recipient
+to `.sops.yaml` and run `sops updatekeys secrets.yaml` locally.
+
+For a fresh installation, first inspect the target disk and network, authorize
+the homelab SSH key, and complete any provider-mandated password change. Keep
+the temporary password outside Git (`passwd` is ignored). Stage the SSH host
+keys and machine ID in a private directory with this layout:
+
+```text
+<extra-files>/persist/etc/ssh/ssh_host_ed25519_key{,.pub}
+<extra-files>/persist/etc/ssh/ssh_host_rsa_key{,.pub}
+<extra-files>/persist/etc/machine-id
+```
+
+Validate and build, then install with
+[nixos-anywhere](https://github.com/nix-community/nixos-anywhere/blob/main/docs/quickstart.md):
+
+```sh
+nix flake check --no-build
+nix build .#nixosConfigurations.koi.config.system.build.toplevel
+# Destructive: repartitions /dev/sda on the target VPS.
+nix run github:nix-community/nixos-anywhere -- \
+  --flake .#koi --target-host debian@149.56.135.22 \
+  --extra-files <extra-files>
+```
+
+Keep the homelab key available through `ssh-agent`. Nixos-anywhere generates
+its own temporary installation key; passing an encrypted private key with
+`-i` instead requires its passphrase separately.
+
+After installation, verify SSH access, `systemctl --failed`, and mounts for
+`/`, `/home`, `/nix`, and `/persist`. Reboot with disposable marker files in
+root and persistent storage to check that root resets and persistent state
+survives. Future updates use `deploy .#koi`, after reviewing the configuration.
+
+Installed and reboot-tested on 2026-11-17: the root marker disappeared while
+markers in `/persist`, `/home`, `/nix`, and `/root` survived; machine ID and SSH
+host identity were unchanged. IPv4/IPv6 Internet connectivity and passwordless
+sudo were verified, with no failed services. A local checkout of the installed
+configuration lives at `/home/sciyoshi/.homelab` on branch `main`; installation
+changes are uncommitted there, matching the source checkout.

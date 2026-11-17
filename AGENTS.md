@@ -20,7 +20,9 @@ centralized automation and daily deployment.
 - `sci` is the home Linux desktop and has the better GPU for ML workloads.
 - `scilo` is the home Linux server, usually accessed over SSH for persistent
   services or server-side work.
-- `alpha`, `beta`, and `gamma` are OVH NixOS hosts.
+- `koi` is the OVH VPS replacing alpha, with Btrfs root rollback and Tailscale.
+- `alpha`, `beta`, and `gamma` no longer exist; their configs are historical
+  references and are excluded from deploy-rs.
 - `misaki` is a Raspberry Pi in Montreal used as a borg backup target.
 - `scipi4` likely died and is probably unused now; Home Assistant moved off it.
 - `homeConfigurations.sciyoshi` is intentional: it is the standalone Home
@@ -42,7 +44,7 @@ nix/
   deploy.nix               # deploy-rs nodes, hostnames + ssh users
   shell.nix                # devShell
   sd-utils/                # custom sd-image module for misaki
-hosts/                     # per-NixOS-host entrypoints for alpha/beta/gamma/misaki/scipi4/scilo
+hosts/                     # NixOS host entrypoints, including koi and retired OVH configs
 nixos/                     # shared NixOS modules and service configs
 sci/                       # home Linux desktop config + hardware
 scilo/                     # home Linux server config + hardware
@@ -61,9 +63,8 @@ Hosts and outputs:
 | `fellow-sci` | `aarch64-darwin` | Work laptop, nix-darwin + Home Manager + Homebrew |
 | `sci` | `x86_64-linux` | Home desktop, niri/hyprland, Nvidia GPU, ML workloads |
 | `scilo` | `x86_64-linux` | Home server, persistent services, backups, home automation, media |
-| `alpha` | `x86_64-linux` | OVH VPS, k3s agent, impermanent tmpfs root |
-| `beta` | `x86_64-linux` | OVH VPS, k3s agent, impermanent tmpfs root |
-| `gamma` | `x86_64-linux` | OVH VPS, k3s agent, impermanent tmpfs root |
+| `koi` | `x86_64-linux` | OVH VPS, Btrfs blank-root restore, Tailscale |
+| `alpha`, `beta`, `gamma` | `x86_64-linux` | Retired OVH configs; no live hosts or deploy targets |
 | `misaki` | `aarch64-linux` | Montreal Raspberry Pi, borg backup target |
 | `scipi4` | `aarch64-linux` | Old/dead Raspberry Pi config; likely unused |
 | `sciyoshi` | `x86_64-linux` | Standalone Home Manager output for Ubuntu/WSL2 VMs |
@@ -212,8 +213,11 @@ wants to eyeball diffs first.
   cross-build for Raspberry Pi hosts.
 - `scipi4` is likely stale/dead. Do not spend time preserving it unless the user
   asks or the change explicitly concerns retired host cleanup.
-- OVH hosts use tmpfs root plus `/persist`; anything that must survive reboot
-  needs to be in `environment.persistence`.
+- `koi` uses disko-managed Btrfs `root`, `home`, `nix`, and `persist` subvolumes.
+  The initrd restores `root` from read-only `blank`; service state must be in
+  `environment.persistence`. The `no-rollback` specialisation is for recovery.
+  Its first boot requires the SSH host keys staged under `/persist/etc/ssh`.
+- Retired OVH configs use tmpfs root plus `/persist`.
 - `k3s/traefik-config.yaml` is a Kubernetes-side artifact outside the Nix module
   graph.
 - This repo has local uncommitted work sometimes. Never revert user changes you
