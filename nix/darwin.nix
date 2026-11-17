@@ -4,6 +4,7 @@ inputs@{ darwin, home-manager, ... }:
     system = "aarch64-darwin";
     modules = [
       inputs.determinate.darwinModules.default
+      inputs.comin.darwinModules.comin
       ../darwin-configuration.nix
       home-manager.darwinModules.home-manager
     ];

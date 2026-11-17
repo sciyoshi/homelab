@@ -15,8 +15,8 @@ centralized automation and daily deployment.
 ## Current Operating Model
 
 - Most editing and automation happens from `fellow-sci` or `sci`.
-- `fellow-sci` is the Mac laptop and currently runs Claude automation that keeps
-  flakes up to date and switches Darwin locally.
+- `fellow-sci` is the Mac laptop. Comin is configured for Darwin deployment;
+  the previous Claude automation has been removed. Flake updates remain separate.
 - `sci` is the home Linux desktop and has the better GPU for ML workloads.
 - `scilo` is the home Linux server, usually accessed over SSH for persistent
   services or server-side work.
@@ -217,17 +217,23 @@ wants to eyeball diffs first.
   The initrd restores `root` from read-only `blank`; service state must be in
   `environment.persistence`. The `no-rollback` specialisation is for recovery.
   Its first boot requires the SSH host keys staged under `/persist/etc/ssh`.
-- Comin runs only on koi, using default `main` and `testing-koi` branches on
-  GitHub (300s) and `/home/sciyoshi/.setup` (5s). Eligible local testing commits
-  take precedence over GitHub testing commits; both use test activation and
-  must descend from the latest `main` commit.
-  `/var/lib/comin` is persisted. Comin never updates the editable working tree.
+- Comin is configured on koi and fellow-sci, using default `main` and
+  `testing-<hostname>` branches on GitHub (300s) and the host's `~/.setup` (5s).
+  Eligible local testing commits take precedence over GitHub testing commits and
+  must descend from the latest `main` commit. NixOS tests leave the boot default
+  unchanged; Darwin tests run full activation. `/var/lib/comin` is persisted on
+  koi. Comin never updates the editable working tree or flake inputs.
   Suspend Comin before manual deployments; see README for the local workflow.
   Run full-repository checks on the workstation: koi has only 4 GiB RAM.
   Bound on-host evaluations with a systemd memory limit, as shown in README.
   Pinned Comin can skip returning from a local test to an already-deployed
   system path. Reset the testing ref to upstream, restart Comin, and verify
-  activation; see README. Resolve this before extending Comin to other hosts.
+  activation; see README. This issue remains unpatched.
+  fellow-sci uses the upstream Darwin module, an admin-group control socket, and
+  `/var/log/comin.log`; its initial activation and smoke test are still pending.
+  Its daemon PATH overrides upstream's disabled `nix.package` reference to use
+  Determinate's `/nix/var/nix/profiles/default/bin`.
+  Comin's deprecated `activate-user` call is intentionally unpatched for now.
 - Retired OVH configs use tmpfs root plus `/persist`.
 - `k3s/traefik-config.yaml` is a Kubernetes-side artifact outside the Nix module
   graph.

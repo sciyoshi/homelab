@@ -95,6 +95,36 @@
   # nix.linux-builder.enable = true;
   # nix.linux-builder.systems = [ "aarch64-linux" ];
 
+  # Eligible local testing-fellow-sci commits take precedence over GitHub.
+  services.comin = {
+    enable = true;
+    hostname = "fellow-sci";
+    exporter.listen_address = "127.0.0.1";
+    # macOS has no Linux-style users group; allow this Mac's administrators.
+    grpc.unix_socket_group = "admin";
+    remotes = [
+      {
+        name = "local";
+        url = "/Users/sciyoshi/.setup";
+        poller.period = 5;
+      }
+      {
+        name = "origin";
+        url = "https://github.com/sciyoshi/homelab.git";
+        poller.period = 300;
+      }
+    ];
+  };
+  # Comin's upstream module reads nix.package, which Determinate disables.
+  # Use the Nix installation maintained by Determinate instead.
+  launchd.daemons.comin.serviceConfig.EnvironmentVariables = lib.mkForce {
+    PATH = lib.makeBinPath [
+      "/nix/var/nix/profiles/default"
+      pkgs.git
+      pkgs.openssh
+    ];
+  };
+
   # Debug output for specialArgs
   # _debug = builtins.trace "specialArgs: ${builtins.toJSON specialArgs}" null;
   home-manager.useGlobalPkgs = true;

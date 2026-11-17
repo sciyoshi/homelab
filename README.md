@@ -466,8 +466,9 @@ host inventory that can generate deploy-rs or Colmena config.
 
 Current/desired operating model:
 
-- `fellow-sci` runs Claude automation that keeps flakes up to date and switches
-  Darwin locally
+- Comin is configured on `koi` and `fellow-sci` to deploy committed changes;
+  the previous Claude automation on `fellow-sci` has been removed
+- flake input updates are separate from Comin deployment
 - most edits happen on `fellow-sci` or `sci`
 - `scilo` is mostly accessed over SSH for persistent services or one-off server
   work
@@ -611,7 +612,7 @@ is retained at `/home/sciyoshi/.homelab`; use `~/.setup` for the Comin workflow 
 
 ### Comin on koi
 
-Only koi runs [Comin](https://github.com/nlewo/comin). Both remotes use Comin's
+Koi runs [Comin](https://github.com/nlewo/comin). Both remotes use Comin's
 default branches: `main` and `testing-koi`. Comin fetches GitHub every 300 seconds
 and switches successful builds from `main` automatically, including
 the next boot's configuration. No GitHub credentials are needed for this public
@@ -678,7 +679,7 @@ after a local test, selecting an upstream commit that produces an earlier
 system store path can be skipped as "already deployed", leaving the test
 configuration active. Restarting Comin makes it compare against the active
 deployment and reapply upstream. Check `comin status` and `/run/current-system`
-after returning from a test. Resolve this behavior before expanding the rollout.
+after returning from a test. This behavior has not been patched locally.
 `comin fetch` requests an immediate fetch; `comin suspend` / `comin resume` pause
 and resume builds and deployments. Before manual rebuilds or deploy-rs updates,
 suspend Comin so the two deployers do not race. The local checkout is trusted
@@ -691,7 +692,7 @@ though the manager reports it is not suspended. Run `comin suspend` followed by
 
 Push regular deployment changes to `main`. To test from another machine, push
 commits based on the latest `main` to GitHub's `testing-koi`; an eligible local
-testing branch still takes precedence. Other hosts retain their existing
+testing branch still takes precedence. Other NixOS hosts retain their existing
 deployment workflows.
 
 Trial validation on 2026-11-17: local `testing-koi` commits were fetched and
@@ -699,3 +700,58 @@ activated with `test`, with the GRUB configuration unchanged. The five-minute
 GitHub poll fetched and evaluated a newer upstream commit; this exposed the
 already-deployed-path behavior above. The local smoke-test commit is saved on
 `comin-smoke-test-2026-11-17` in koi's checkout.
+
+### Comin on fellow-sci
+
+`fellow-sci` imports Comin's nix-darwin module and targets
+`darwinConfigurations.fellow-sci`. Its remotes follow the same pattern as koi:
+`/Users/sciyoshi/.setup` every 5 seconds, then the public GitHub repository every
+300 seconds, using `main` and `testing-fellow-sci`. Only committed changes deploy;
+Comin keeps its own repository and leaves the editable checkout alone. It does
+not update flake inputs.
+
+The root launchd daemon is `com.github.nlewo.comin`. State is in `/var/lib/comin`
+and logs are in `/var/log/comin.log`. Its control socket uses the macOS `admin`
+group, so administrators can use `comin status`, `comin suspend`, and
+`comin resume`. The metrics exporter listens only on `127.0.0.1`. Determinate Nix
+continues to manage the Nix installation. The daemon's PATH uses
+`/nix/var/nix/profiles/default/bin` because Comin's upstream module references
+`nix.package`, which is unavailable with Determinate's `nix.enable = false`.
+
+For the first activation, commit this setup to `main` or an eligible
+`testing-fellow-sci` branch before starting the daemon, so the revision it fetches
+contains its own configuration. Validate and review the diff first:
+
+```sh
+cd ~/.setup
+nix flake check --no-build
+nix build .#darwinConfigurations.fellow-sci.system
+# Run only after approving the activation:
+sudo darwin-rebuild switch --flake .#fellow-sci
+comin status
+tail -f /var/log/comin.log
+```
+
+Suspend Comin before manual Darwin switches and resume it afterward. The removed
+Claude automation should stay disabled to avoid concurrent activations.
+
+Darwin testing branches still run full activation, including Home Manager,
+Homebrew, and macOS settings; they do not provide NixOS's boot-menu fallback.
+The existing Comin package is unpatched: it still calls nix-darwin's deprecated
+`activate-user` compatibility stub before `activate`. The current stub only
+prints a warning. Recheck compatibility when updating nix-darwin if that stub
+is removed.
+
+The already-deployed-path issue described above also needs checking when returning
+from a local test. Preserve the experiment and reset the testing ref to `main`
+using the same branch procedure, substituting `fellow-sci` for `koi`. For a daemon
+restart on macOS, use:
+
+```sh
+sudo launchctl kickstart -k system/com.github.nlewo.comin
+```
+
+If the daemon was suspended before the restart, run `comin suspend` followed by
+`comin resume` to clear the persisted deployer suspension. Check `comin status`
+and `readlink /run/current-system` to confirm the intended configuration is active.
+The Darwin rollout is configured but has not yet been activated or smoke-tested.
